@@ -8,16 +8,14 @@ namespace Komodo.IMPRESS
 {
     public class TriggerCreatePrimitive : MonoBehaviour
     {
-        // Start is called before the first frame update
         public void OnEnable()
         {
             //only create when our cursor is Off
-            if (UIManager.IsAlive)
-                if (UIManager.Instance.GetCursorActiveState())
-                    return;
+            if (UIManager.IsAlive && UIManager.Instance.GetCursorActiveState()) {
+                return;
+            }
 
             CreatePrimitiveManager.Instance.CreatePrimitive();
         }
-       
     }
 }

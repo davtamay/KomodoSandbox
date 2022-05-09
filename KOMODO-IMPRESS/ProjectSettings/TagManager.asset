@@ -3,7 +3,24 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Interactable
+  - EventSystemDesktop
+  - MenuUI
+  - VRUIText
+  - UIInteractable
+  - VRUIIcon
+  - Hand
+  - Hands
+  - XRCamera
+  - Tool
+  - LeftEye
+  - RightEye
+  - CameraSet
+  - DesktopCamera
+  - Drawing
+  - PlayerSpawnCenter
+  - group
   layers:
   - Default
   - TransparentFX
@@ -13,15 +30,15 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - PostProcessing
+  - Walkable
+  - Interaction
+  - Hand
+  - UI_Selector
+  - Physics Object
+  - Teleportation_Selector
+  - DESKTOP_UI_IGNORE
+  - Enclosure
   - 
   - 
   - 

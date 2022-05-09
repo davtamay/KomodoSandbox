@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Komodo.IMPRESS
@@ -13,270 +14,554 @@ namespace Komodo.IMPRESS
     {
         public static CreatePrimitiveManager Instance
         {
-            get { return ((CreatePrimitiveManager)_Instance); }
+            get { return (CreatePrimitiveManager)_Instance; }
             set { _Instance = value; }
         }
 
+        public Transform ghostPrimitivesParent;
 
-        public Transform primitivesToDisplayParent;
+        public GameObject ghostSphere;
 
-        public Toggle[] toggleButtons;
+        public GameObject ghostCapsule;
+
+        public GameObject ghostCylinder;
+
+        public GameObject ghostPlane;
+
+        public GameObject ghostCube;
+
+       // public Toggle[] toggleButtons;
+
         public ToggleGroup toggleGroup;
+
         public Toggle currentToggle;
+
+        public ImpressPlayer player;
+
+        public ToolPlacement toolPlacement;
+
+        private bool _isRightHanded;
 
         EntityManager entityManager;
 
         Transform primitiveCreationParent;
 
-        private int primitiveID = 0;
-        private int strokeIndex = 0;
+        private TriggerCreatePrimitive _primitiveTrigger;
+
+        private int _primitiveID = 0;
+
+        private int _strokeIndex = 0;
+
+        private bool _isEnabled;
+
+        private UnityAction _enable;
+
+        private UnityAction _disable;
+
+        private UnityAction _setLeftHanded;
+
+        private UnityAction _setRightHanded;
+
+        private UnityAction _selectSphere;
+
+        private UnityAction _selectCylinder;
+
+        private UnityAction _selectCube;
+
+        private UnityAction _selectPlane;
+
+        private UnityAction _selectCapsule;
+
+        private UnityAction _deselectSphere;
+
+        private UnityAction _deselectCylinder;
+
+        private UnityAction _deselectCube;
+
+        private UnityAction _deselectPlane;
+
+        private UnityAction _deselectCapsule;
+
+        private PrimitiveType _currentType;
+
+        // DELAYED FEATURE
+        // public void OnValidate ()
+        // {
+        //     if (ghostCapsule == null)
+        //     {
+        //         throw new MissingReferenceException("ghostCapsule");
+        //     }
+
+        //     if (ghostCube == null)
+        //     {
+        //         throw new MissingReferenceException("ghostCube");
+        //     }
+
+        //     if (ghostCylinder == null)
+        //     {
+        //         throw new MissingReferenceException("ghostCylinder");
+        //     }
+
+        //     if (ghostPlane == null)
+        //     {
+        //         throw new MissingReferenceException("ghostPlane");
+        //     }
+
+        //     if (ghostSphere == null)
+        //     {
+        //         throw new MissingReferenceException("ghostSphere");
+        //     }
+
+        //     if (toolPlacement == null)
+        //     {
+        //         throw new MissingReferenceException("toolPlacement");
+        //     }
+        // }
 
         public void Awake()
         {
-            //used to set our managers alive state to true to detect if it exist within scene
+            _isEnabled = false;
+
+            _isRightHanded = false;
+
+            // force-create an instance
             var initManager = Instance;
 
             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
-            primitiveCreationParent = new GameObject("Users Primitives").transform;
+            primitiveCreationParent = new GameObject("CreatedPrimitives").transform;
 
-            TryGetSetPlayerRefences();
+            InitializeTriggerAndGhost();
 
+            InitializeListeners();
 
-            //register our funcion to call through the network
-            GlobalMessageManager.Instance.Subscribe("primitive", (str) => PrimitiveRefresh(str));
-
+            GlobalMessageManager.Instance.Subscribe("primitive", (str) => ReceivePrimitiveUpdate(str));
         }
 
-        public void TryGetSetPlayerRefences()
+        public void InitializeTriggerAndGhost ()
         {
-            TriggerCreatePrimitive primitiveHandTrigger = default;
+            ToolAnchor anchor = toolPlacement.GetCurrentToolAnchor();
 
-            if (GameObject.FindGameObjectWithTag("Player").TryGetComponent(out PlayerReferences pR))
+            if (!anchor || !anchor.transform)
             {
-                //set our displays parent to our hand
-                primitivesToDisplayParent.SetParent(pR.handL.transform, true);
+                Debug.LogWarning("Could not find a proper tool parent, so setting it to the screen by default.");
 
-                //primitiveHandTrigger = pIM
+                toolPlacement.SetCurrentToolAnchor(ToolAnchor.Kind.SCREEN);
 
+                anchor = toolPlacement.GetCurrentToolAnchor();
             }
 
-            if (GameObject.FindGameObjectWithTag("Player").TryGetComponent(out PlayerIMPRESSReferences pIM))
+            ghostPrimitivesParent.SetParent(anchor.transform, false);
+
+            ghostPrimitivesParent.transform.localPosition = new Vector3(0, 0, 0);
+
+            if (anchor.kind == ToolAnchor.Kind.RIGHT_HANDED)
             {
-                //set our displays parent to our hand
-                //  primitivesToDisplayParent.SetParent(pIM.handL.transform, true);
+                _primitiveTrigger = player.triggerCreatePrimitiveRight;
 
-                primitiveHandTrigger = pIM.leftShapeTrigger;
-
+                return;
             }
 
-
-            if (GameObject.FindGameObjectWithTag("MenuUI").TryGetComponent(out MainUIIMPRESSReferences mUIRef))
+            if (anchor.kind == ToolAnchor.Kind.LEFT_HANDED)
             {
-                toggleButtons =  mUIRef.primitiveToggleListParent.GetComponentsInChildren<Toggle>(true);
+                _primitiveTrigger = player.triggerCreatePrimitiveLeft;
 
-                toggleGroup = mUIRef.primitiveToggleListParent.GetComponentInChildren<ToggleGroup>(true);
-
-
-            
-                //sphere
-                toggleButtons[0].onValueChanged.AddListener((bool state) => { UpdateCurrentToggleOn(state); DeactivateAllChildren(); primitivesToDisplayParent.GetChild(0).gameObject.SetActive(true); });
-                toggleButtons[1].onValueChanged.AddListener((bool state) => { UpdateCurrentToggleOn(state); DeactivateAllChildren(); primitivesToDisplayParent.GetChild(1).gameObject.SetActive(true); });
-                toggleButtons[2].onValueChanged.AddListener((bool state) => { UpdateCurrentToggleOn(state); DeactivateAllChildren(); primitivesToDisplayParent.GetChild(2).gameObject.SetActive(true); });
-                toggleButtons[3].onValueChanged.AddListener((bool state) => { UpdateCurrentToggleOn(state); DeactivateAllChildren(); primitivesToDisplayParent.GetChild(3).gameObject.SetActive(true); });
-                toggleButtons[4].onValueChanged.AddListener((bool state) => { UpdateCurrentToggleOn(state); DeactivateAllChildren(); primitivesToDisplayParent.GetChild(4).gameObject.SetActive(true); });
-
-
-
-                mUIRef.primitiveButton.onFirstClick.AddListener(() => { primitivesToDisplayParent.gameObject.SetActive(true); primitiveHandTrigger.gameObject.SetActive(true); });
-                mUIRef.primitiveButton.onSecondClick.AddListener(() => { primitivesToDisplayParent.gameObject.SetActive(false); primitiveHandTrigger.gameObject.SetActive(false); });
-
-
-
+                return;
             }
 
+            // TODO - use a screen-based tool trigger here, instead of this left-handed trigger.
 
-
+            _primitiveTrigger = player.triggerCreatePrimitiveLeft;
         }
 
-        public void UpdateCurrentToggleOn(bool state)
+        private void _Enable ()
+        {
+            _isEnabled = true;
+
+            InitializeTriggerAndGhost();
+
+            _ToggleGhostPrimitive(true);
+
+            _primitiveTrigger.gameObject.SetActive(true);
+        }
+
+        private void _Disable ()
+        {
+            _isEnabled = false;
+
+            _currentType = default;
+
+            InitializeTriggerAndGhost();
+
+            _ToggleGhostPrimitive(false);
+
+            _primitiveTrigger.gameObject.SetActive(false);
+        }
+
+        private void _DeselectSphere ()
+        {
+            ghostSphere.SetActive(false);
+        }
+
+        private void _DeselectCapsule ()
+        {
+            ghostCapsule.SetActive(false);
+        }
+
+        private void _DeselectCube ()
+        {
+            ghostCube.SetActive(false);
+        }
+
+        private void _DeselectPlane ()
+        {
+            ghostPlane.SetActive(false);
+        }
+
+        private void _DeselectCylinder ()
+        {
+            ghostCylinder.SetActive(false);
+        }
+
+        private void _SelectSphere ()
+        {
+            DeactivateAllChildren();
+
+            _currentType = PrimitiveType.Sphere;
+
+            ghostSphere.SetActive(true);
+        }
+
+        private void _SelectCapsule ()
+        {
+            DeactivateAllChildren();
+
+            _currentType = PrimitiveType.Capsule;
+
+            ghostCapsule.SetActive(true);
+        }
+
+        private void _SelectCube ()
+        {
+            DeactivateAllChildren();
+
+            _currentType = PrimitiveType.Cube;
+
+            ghostCube.SetActive(true);
+        }
+
+        private void _SelectPlane ()
+        {
+            DeactivateAllChildren();
+
+            _currentType = PrimitiveType.Plane;
+
+            ghostPlane.SetActive(true);
+        }
+
+        private void _SelectCylinder ()
+        {
+            DeactivateAllChildren();
+
+            _currentType = PrimitiveType.Cylinder;
+
+            ghostCylinder.SetActive(true);
+        }
+
+
+        public void SelectSphere()
+        {
+            ImpressEventManager.TriggerEvent("primitiveTool.selectSphere");
+            //_currentType = PrimitiveType.Sphere;
+
+            //ghostSphere.SetActive(true);
+        }
+
+        public void SelectCapsule()
+        {
+            ImpressEventManager.TriggerEvent("primitiveTool.selectCapsule");
+            //_currentType = PrimitiveType.Capsule;
+
+            //ghostCapsule.SetActive(true);
+        }
+
+        public void SelectCube()
+        {
+            ImpressEventManager.TriggerEvent("primitiveTool.selectCube");
+            //_currentType = PrimitiveType.Cube;
+
+            //ghostCube.SetActive(true);
+        }
+
+        public void SelectPlane()
+        {
+            ImpressEventManager.TriggerEvent("primitiveTool.selectPlane");
+            //_currentType = PrimitiveType.Plane;
+
+            //ghostPlane.SetActive(true);
+        }
+
+        public void SelectCylinder()
+        {
+            ImpressEventManager.TriggerEvent("primitiveTool.selectCylinder");
+           
+        }
+
+        public void InitializeListeners ()
+        {
+            _enable += _Enable;
+
+            ImpressEventManager.StartListening("primitiveTool.enable", _enable);
+
+            _disable += _Disable;
+
+            ImpressEventManager.StartListening("primitiveTool.disable", _disable);
+
+            _selectSphere += _SelectSphere;
+
+            ImpressEventManager.StartListening("primitiveTool.selectSphere", _selectSphere);
+
+            _selectCapsule += _SelectCapsule;
+
+            ImpressEventManager.StartListening("primitiveTool.selectCapsule", _selectCapsule);
+
+            _selectCube += _SelectCube;
+
+            ImpressEventManager.StartListening("primitiveTool.selectCube", _selectCube);
+
+            _selectPlane += _SelectPlane;
+
+            ImpressEventManager.StartListening("primitiveTool.selectPlane", _selectPlane);
+
+            _selectCylinder += _SelectCylinder;
+
+            ImpressEventManager.StartListening("primitiveTool.selectCylinder", _selectCylinder);
+
+            _deselectSphere += _DeselectSphere;
+
+            ImpressEventManager.StartListening("primitiveTool.deselectSphere", _deselectSphere);
+
+            _deselectCapsule += _DeselectCapsule;
+
+            ImpressEventManager.StartListening("primitiveTool.deselectCapsule", _deselectCapsule);
+
+            _deselectCube += _DeselectCube;
+
+            ImpressEventManager.StartListening("primitiveTool.deselectCube", _deselectCube);
+
+            _deselectPlane += _DeselectPlane;
+
+            ImpressEventManager.StartListening("primitiveTool.deselectPlane", _deselectPlane);
+
+            _deselectCylinder += _DeselectCylinder;
+
+            ImpressEventManager.StartListening("primitiveTool.deselectCylinder", _deselectCylinder);
+        }
+
+        private void TogglePrimitive (bool state, int index)
+        {
+            GetCurrentToggle(state);
+
+            DeactivateAllChildren();
+
+            ghostPrimitivesParent.GetChild(index).gameObject.SetActive(true);
+
+            _primitiveTrigger.gameObject.SetActive(state);
+        }
+
+        private void _ToggleGhostPrimitive (bool state)
+        {
+            ghostPrimitivesParent.gameObject.SetActive(state);
+        }
+
+        public void GetCurrentToggle (bool state)
         {
             currentToggle = toggleGroup.GetFirstActiveToggle();
         }
 
-        public void DeactivateAllChildren()
+        public void DeactivateAllChildren ()
         {
-            foreach (Transform item in primitivesToDisplayParent)
+            foreach (Transform item in ghostPrimitivesParent)
+            {
                 item.gameObject.SetActive(false);
+            }
         }
 
-        private PrimitiveType currentPrimitiveType;
-
-        public GameObject CreatePrimitive()
+        public GameObject GetGhostPrimitive (PrimitiveType type)
         {
-            GameObject primitive = default;
-            var rot = Quaternion.identity;
-            var scale = Vector3.one * 0.2f;
-
-            for (int i = 0; i < toggleButtons.Length; i++)
+            if (type == PrimitiveType.Sphere)
             {
 
-                if (currentToggle.GetInstanceID() == toggleButtons[i].GetInstanceID())
-                {
-                    //var vals = Enum.GetValues(typeof(PrimitiveType));
-                    if(0 == i)
-                    currentPrimitiveType = PrimitiveType.Sphere;
-                    else if(1 == i)
-                    currentPrimitiveType = PrimitiveType.Capsule;
-                        else if (2 == i)
-                            currentPrimitiveType = PrimitiveType.Cylinder;
-                        else if (3 == i)
-                            currentPrimitiveType = PrimitiveType.Cube;
-                        else if (4 == i)
-                            currentPrimitiveType = PrimitiveType.Plane;
-
-
-                        rot = primitivesToDisplayParent.GetChild(i).rotation;
-                    scale = primitivesToDisplayParent.GetChild(i).lossyScale;
-
-                    
-                    break;
-                }
+                return ghostSphere;
             }
 
+            if (type == PrimitiveType.Cube)
+            {
+                return ghostCube;
+            }
 
-          
-            primitive = GameObject.CreatePrimitive(currentPrimitiveType);
-            
+            if (type == PrimitiveType.Capsule)
+            {
+                return ghostCapsule;
+            }
+
+            if (type == PrimitiveType.Cylinder)
+            {
+                return ghostCylinder;
+            }
+
+            if (type == PrimitiveType.Plane)
+            {
+                return ghostPlane;
+            }
+
+            return null;
+        }
+
+        public GameObject CreatePrimitive ()
+        {
+            GameObject primitive = GetGhostPrimitive(_currentType);
+
+            var rot = primitive.transform.rotation;
+
+            var scale = primitive.transform.lossyScale;
+
+            primitive = GameObject.CreatePrimitive(_currentType);
+
             //add a box collider instead, cant grab objects with different colliders in WebGL build for some reason
             primitive.TryGetComponent<Collider>(out Collider col);
+
             Destroy(col);
+
             primitive.AddComponent<BoxCollider>();
 
-
-            NetworkedGameObject nAGO = ClientSpawnManager.Instance.CreateNetworkedGameObject(primitive);
+            var netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive);
 
             //tag it to be used with ECS system
-            entityManager.AddComponentData(nAGO.Entity, new PrimitiveTag { });
+            entityManager.AddComponentData(netObject.Entity, new PrimitiveTag());
+
             primitive.tag = "Interactable";
-            //   entityManager.AddComponentData(nAGO.Entity, new NetworkEntityIdentificationComponentData { clientID = NetworkUpdateHandler.Instance.client_id, entityID = 0, sessionID = NetworkUpdateHandler.Instance.session_id, current_Entity_Type = Entity_Type.none });
 
-
-            primitive.transform.position = primitivesToDisplayParent.position;
+            primitive.transform.position = ghostPrimitivesParent.position;
 
             primitive.transform.SetGlobalScale(scale);
 
             primitive.transform.rotation = rot;
+
             primitive.transform.SetParent(primitiveCreationParent.transform, true);
 
+            _primitiveID = 100000000 + 10000000 + (NetworkUpdateHandler.Instance.client_id * 10000) + _strokeIndex;
 
-
-
-            //network call
-            primitiveID = 100000000 + 10000000 + NetworkUpdateHandler.Instance.client_id * 10000 + strokeIndex;
-
-            strokeIndex++;
+            _strokeIndex++;
 
             var rot2 = primitive.transform.rotation;
 
-            SendPrimitiveNetworkUpdate(primitiveID, (int) currentPrimitiveType, primitive.transform.lossyScale.x, primitive.transform.position,
-            new Vector4(rot2.x, rot2.y, rot2.z, rot2.w)
-                );
-
-
+            SendPrimitiveUpdate(
+                _primitiveID,
+                (int) _currentType,
+                primitive.transform.lossyScale.x,
+                primitive.transform.position,
+                new Vector4(rot2.x, rot2.y, rot2.z, rot2.w)
+            );
 
             if (UndoRedoManager.IsAlive)
+            {
                 //save undoing process for ourselves and others
                 UndoRedoManager.Instance.savedStrokeActions.Push(() =>
                 {
                     primitive.SetActive(false);
 
                     //send network update call for everyone else
-                    SendPrimitiveNetworkUpdate(primitiveID, -9);
+                    SendPrimitiveUpdate(_primitiveID, -9);
                 });
+            }
 
             return primitive;
         }
 
-        public void SendPrimitiveNetworkUpdate(int sID, int primitiveType, float scale = 1, Vector3 primitivePos = default, Vector4 primitiveRot = default)
+        public void SendPrimitiveUpdate(int sID, int primitiveType, float scale = 1, Vector3 primitivePos = default, Vector4 primitiveRot = default)
         {
-            var drawUpdate = new Primitive((int)NetworkUpdateHandler.Instance.client_id, sID
-               , (int)primitiveType, scale, primitivePos,
-               primitiveRot);
+            var drawUpdate = new Primitive(
+                (int) NetworkUpdateHandler.Instance.client_id,
+                sID,
+                (int) primitiveType,
+                scale,
+                primitivePos,
+                primitiveRot
+            );
 
             var primSer = JsonUtility.ToJson(drawUpdate);
 
             KomodoMessage komodoMessage = new KomodoMessage("primitive", primSer);
+
             komodoMessage.Send();
         }
 
-        public void PrimitiveRefresh(string stringData)
+        public void ReceivePrimitiveUpdate(string stringData)
         {
             Primitive newData = JsonUtility.FromJson<Primitive>(stringData);
 
             //detect if we should render or notrender it
             if (newData.primitiveType == 9)
             {
-
-                if (ClientSpawnManager.Instance.networkedObjectFromEntityId.ContainsKey(newData.primitiveId))
-                    ClientSpawnManager.Instance.networkedObjectFromEntityId[newData.primitiveId].gameObject.SetActive(true);
-
+                if (NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(newData.primitiveId))
+                {
+                    NetworkedObjectsManager.Instance.networkedObjectFromEntityId[newData.primitiveId].gameObject.SetActive(true);
+                }
 
                 return;
             }
             else if (newData.primitiveType == -9)
             {
-
-                if (ClientSpawnManager.Instance.networkedObjectFromEntityId.ContainsKey(newData.primitiveId))
-                    ClientSpawnManager.Instance.networkedObjectFromEntityId[newData.primitiveId].gameObject.SetActive(false);
+                if (NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(newData.primitiveId))
+                {
+                    NetworkedObjectsManager.Instance.networkedObjectFromEntityId[newData.primitiveId].gameObject.SetActive(false);
+                }
 
                 return;
             }
 
-
-
-
             PrimitiveType primitiveToInstantiate = PrimitiveType.Sphere;
 
-      
-
-        
                 switch (newData.primitiveType)
                 {
                     case 0:
                         primitiveToInstantiate = PrimitiveType.Sphere;
                         break;
+
                     case 1:
                         primitiveToInstantiate = PrimitiveType.Capsule;
                         break;
+
                     case 2:
                         primitiveToInstantiate = PrimitiveType.Cylinder;
                         break;
+
                     case 3:
                         primitiveToInstantiate = PrimitiveType.Cube;
                         break;
+
                     case 4:
                         primitiveToInstantiate = PrimitiveType.Plane;
                         break;
+
                     case 5:
                         primitiveToInstantiate = PrimitiveType.Quad;
                         break;
-
-                   
                 }
 
-         //   }
-
-
             var primitive = GameObject.CreatePrimitive(primitiveToInstantiate);
-            NetworkedGameObject nAGO = ClientSpawnManager.Instance.CreateNetworkedGameObject(primitive);
 
-            //tag it to be used with ECS system
+            NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive);
+
             entityManager.AddComponentData(nAGO.Entity, new PrimitiveTag { });
+
             primitive.tag = "Interactable";
 
             var pos = newData.primitivePos;
+
             var rot = newData.primitiveRot;
+
             var scale = newData.scale;
 
             primitive.transform.position = pos;
@@ -284,11 +569,9 @@ namespace Komodo.IMPRESS
             primitive.transform.SetGlobalScale(Vector3.one * scale);
 
             primitive.transform.rotation = new Quaternion(rot.x, rot.y, rot.z, rot.w);
+
             primitive.transform.SetParent(primitiveCreationParent.transform, true);
-
-
         }
-
     }
 
     public struct Primitive
@@ -303,10 +586,15 @@ namespace Komodo.IMPRESS
         public Primitive(int clientId, int primitiveId, int primitiveType, float scale, Vector3 primitivePos, Vector4 primitiveRot)
         {
             this.clientId = clientId;
+
             this.primitiveId = primitiveId;
+
             this.primitiveType = primitiveType;
+
             this.scale = scale;
+
             this.primitivePos = primitivePos;
+
             this.primitiveRot = primitiveRot;
         }
     }
