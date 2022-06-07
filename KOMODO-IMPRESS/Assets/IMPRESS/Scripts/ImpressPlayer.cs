@@ -1,3 +1,4 @@
+using Komodo.Runtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,7 +20,14 @@ namespace Komodo.IMPRESS
 
         public TriggerUngroup triggerUngroupLeft;
 
-        public GameObject cursorGraphic; 
+        public GameObject cursorGraphic;
+
+
+        [Header("EventSystem References")]
+        public TriggerEventInputSource triggerEventInputSourceL;
+        public TriggerEventInputSource triggerEventInputSourceR;
+
+
         public void Start()
         {
             cursorGraphic.SetActive(false);
@@ -30,20 +38,76 @@ namespace Komodo.IMPRESS
             WebXRManagerEditorSimulator.OnXRChange += onXRChange;
 #endif
         }
-
+        public WebXRState currentState;
         private void onXRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
         {
+            currentState = state;
 
             if (state == WebXRState.VR)
             {
+              //  UIManager.Instance.ToggleMenuVisibility(false);
                 cursorGraphic.SetActive(true);
             }
             else if (state == WebXRState.NORMAL)
             {
+                //UIManager.Instance.SEt
+               UIManager.Instance.ToggleMenuVisibility(true);
                 cursorGraphic.SetActive(false);
             }
 
         }
+
+        public void LeftUIMenuOn()
+        {
+            UIManager.Instance.SetRightHandedMenu();
+            UIManager.Instance.ToggleMenuVisibility(true);
+
+            //switch event inputs if switching hands so the cursor can reapear with the alternate hand
+            if (EventSystemManager.IsAlive)
+            {
+                EventSystemManager.Instance.xrStandaloneInput.RegisterInputSource(triggerEventInputSourceR, true);
+                EventSystemManager.Instance.RemoveInputSourceWithoutClick(triggerEventInputSourceL);
+            }
+
+        }
+
+        public void LeftUIMenuOff()
+        {
+            if (currentState != WebXRState.NORMAL)
+            {
+                UIManager.Instance.SetRightHandedMenu();
+                UIManager.Instance.ToggleMenuVisibility(false);
+
+            }
+        }
+
+        public void RightUIMenuOn()
+        {
+            UIManager.Instance.SetLeftHandedMenu();
+            UIManager.Instance.ToggleMenuVisibility(true);
+
+            //switch event inputs if switching hands so the cursor can reapear with the alternate hand
+            if (EventSystemManager.IsAlive)
+            {
+                EventSystemManager.Instance.xrStandaloneInput.RegisterInputSource(triggerEventInputSourceL, true);
+                EventSystemManager.Instance.RemoveInputSourceWithoutClick(triggerEventInputSourceR);
+            }
+
+
+        }
+
+        public void RightUIMenuOff()
+        {
+            if (currentState != WebXRState.NORMAL)
+            {
+                UIManager.Instance.SetLeftHandedMenu();
+                UIManager.Instance.ToggleMenuVisibility(false);
+            }
+        }
+
+
+
+
 
         //public void Start ()
         //{

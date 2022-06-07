@@ -414,7 +414,7 @@ namespace Komodo.IMPRESS
 
             float max = ComputeRulerValue(scaleMax);
 
-            animalRulerMesh.material.SetTextureOffset("_MainTex", new Vector2(Mathf.Clamp(rulerValue, min, max), 0));
+            animalRulerMesh.material.SetTextureOffset("_MainTex", new Vector2(Mathf.Clamp(rulerValue - 0.2f, min - 0.05f, max), 0));
         }
 
         // TODO: Makes the current line renderer scale change proportionally with the playspace scale

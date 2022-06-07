@@ -158,25 +158,25 @@ namespace Komodo.IMPRESS
         /// </summary>
         public void ShowGroups()
         {
-            foreach (var item in groups.Values)
-            {
-                item.GetComponent<MeshRenderer>().enabled = true;
-            }
+            //foreach (var item in groups.Values)
+            //{
+            //    item.GetComponent<MeshRenderer>().enabled = true;
+            //}
         }
 
         public void HideGroups()
         {
-            foreach (var item in groups.Values)
-            {
-                item.transform.GetComponent<BoxCollider>().enabled = true;
+            //foreach (var item in groups.Values)
+            //{
+            //    item.transform.GetComponent<BoxCollider>().enabled = true;
 
-                foreach (Transform colItems in item.transform.GetChild(0))
-                {
-                    colItems.GetComponent<BoxCollider>().enabled = false;
-                }
+            //    foreach (Transform colItems in item.transform.GetChild(0))
+            //    {
+            //        colItems.GetComponent<BoxCollider>().enabled = false;
+            //    }
 
-                item.GetComponent<MeshRenderer>().enabled = false;
-            }
+            //    item.GetComponent<MeshRenderer>().enabled = false;
+            //}
         }
 
         private void _SelectRed ()
@@ -233,10 +233,23 @@ namespace Komodo.IMPRESS
             currentGroup.groups = new List<Collider>();
         }
 
+
         private void _UpdateGroupBounds ()
         {
-            //remove our children before we create a new bounding box for our parent containing the group
-            currentGroup.transform.DetachChildren();
+            //eliminate all objects that are not visible (erase/undo sideeffect)
+            for (int i = 0; i < currentGroup.groups.Count; i += 1)
+            {
+                var _collider = currentGroup.groups[i];
+
+                if (!_collider.gameObject.activeInHierarchy)
+                {
+                    currentGroup.groups.Remove(_collider);
+                }
+            }
+
+
+                //remove our children before we create a new bounding box for our parent containing the group
+                currentGroup.transform.DetachChildren();
 
             currentGroup.groupsParent.transform.DetachChildren();
 
@@ -284,17 +297,7 @@ namespace Komodo.IMPRESS
             currentGroup.groupsParent.SetParent(currentGroup.transform, true);
         }
 
-        //public int GroupIDFromClientIDOrGroupType (int otherClientID)
-        //{
-        //    if (otherClientID == -1)
-        //    {
-        //        return _currentGroupType;
-        //    }
-        //    else
-        //    {
-        //        return otherClientID;
-        //    }
-        //}
+       
 
         /// <summary>
         /// Add an object to a specific group
@@ -308,8 +311,6 @@ namespace Komodo.IMPRESS
                 return;
             }
 
-
-
             foreach (KeyValuePair<int, Group> candidateGroup in groups)
             {
                 //we do not want to add the constructing boxes to itself
@@ -319,11 +320,8 @@ namespace Komodo.IMPRESS
                 }
             }
 
-            int groupID;
-
-         //   if (otherClientID == -1)
-                // check if this is a call from the user or an external client
-                groupID = NetworkUpdateHandler.Instance.client_id;//GroupIDFromClientIDOrGroupType(otherClientID);
+            // check if this is a call from the user or an external client
+            int groupID = NetworkUpdateHandler.Instance.client_id;//GroupIDFromClientIDOrGroupType(otherClientID);
             
 
 
@@ -334,10 +332,15 @@ namespace Komodo.IMPRESS
 
             currentGroup = groups[groupID];
 
+            Debug.Log("UNDERGROUP : " + currentGroup.groups.Count);
+
             if (currentGroup.groups.Contains(collider))
             {
                 return; // if the group already has this collider, stop.
             }
+
+            leftControllerInteraction.EndGrab();
+            rightControllerInteraction.EndGrab();
 
             currentGroup.groups.Add(collider);
 
@@ -345,12 +348,6 @@ namespace Komodo.IMPRESS
 
             _DropGroupedObject(collider);
 
-            // send call if it was a client call
-            //if (!collider.TryGetComponent<Group>(out Group group)
-            //    && otherClientID == -1)
-            //{
-            //    SendGroupUpdate(collider.GetComponent<NetworkedGameObject>().thisEntityID, groupID, true);
-            //}
 
 
             //new
@@ -359,8 +356,6 @@ namespace Komodo.IMPRESS
             else
                 clientIDToGroup[groupID].netObjectList.Add(collider.GetComponent<NetworkedGameObject>());
 
-
-          Debug.Log(  clientIDToGroup[groupID].netObjectList.Count);
         }
 
         // Tells the controller to stop holding the object represented by collider.
@@ -385,26 +380,29 @@ namespace Komodo.IMPRESS
                 rightControllerInteraction.Drop();
             }
             */
+
         }
 
-        public void SendGroupUpdate(int _entityID, int _groupID, bool isAdding)
-        {
-            KomodoMessage km = new KomodoMessage("group", JsonUtility.ToJson(
-                new GroupProperties
-                {
-                    entityID = _entityID,
-                    groupID = _groupID,
-                    isAdding = isAdding
-                })
-            );
+        //public void SendGroupUpdate(int _entityID, int _groupID, bool isAdding)
+        //{
+        //    KomodoMessage km = new KomodoMessage("group", JsonUtility.ToJson(
+        //        new GroupProperties
+        //        {
+        //            entityID = _entityID,
+        //            groupID = _groupID,
+        //            isAdding = isAdding
+        //        })
+        //    );
 
-            km.Send();
-        }
+        //    km.Send();
+        //}
 
         public void RemoveFromGroup(Collider collider)
         {
             if (!collider.CompareTag("Interactable"))
                 return;
+
+           
 
             //to check if this is a call from the client or external clients
             int groupID = NetworkUpdateHandler.Instance.client_id;//_currentGroupType;
@@ -412,6 +410,7 @@ namespace Komodo.IMPRESS
             //disable main collider of the linkedgroup to access its child group item colliders
             if (collider.TryGetComponent(out Group lg))
             {
+
                 currentGroup = lg;
 
                 //disable main collider and enable the child elements to remove from main
@@ -423,11 +422,22 @@ namespace Komodo.IMPRESS
 
                 foreach (Transform colItems in lg.transform.GetChild(0))
                 {
-                    colItems.GetComponent<Collider>().enabled = true;
+                    colItems.GetComponent<BoxCollider>().enabled = true;
                 }
 
                 return;
             }
+
+            //if (currentGroup && currentGroup.groupsParent)
+            //    if (!collider.transform.IsChildOf(currentGroup.groupsParent))
+            //    {
+            //        return;
+            //    }
+
+
+            //if we dont drop our grouped object from our hand when we remove a collider we get issues with collider loosing its children while still visible
+            leftControllerInteraction.EndGrab();
+            rightControllerInteraction.EndGrab();
 
             collider.enabled = true;
 
@@ -439,22 +449,23 @@ namespace Komodo.IMPRESS
             currentGroup = groups[groupID];
 
 
-
-           
-
-
             //handle the items that we touch
             if (collider.transform.IsChildOf(currentGroup.groupsParent))
             {
                 collider.transform.parent = null;
-
                 
             }
 
-            if (currentGroup.groups.Count > 1) 
+            Debug.Log("UNDERGROUP : " + currentGroup.groups.Count);
+
+            if (currentGroup.groups.Count > 2) 
             {
-                UpdateGroup(currentGroup);
+                //  UpdateGroup(currentGroup);
+
+              
                 currentGroup.groups.Remove(collider);
+                UpdateGroup(currentGroup);
+
             }
             else 
             {
@@ -479,8 +490,8 @@ namespace Komodo.IMPRESS
                 }
                 //
 
-                leftControllerInteraction.EndGrab();
-                rightControllerInteraction.EndGrab();
+                //leftControllerInteraction.EndGrab();
+                //rightControllerInteraction.EndGrab();
 
 
                 UpdateGroup(currentGroup);
@@ -493,13 +504,21 @@ namespace Komodo.IMPRESS
                 groups.Remove(groupID);
 
 
+                foreach (var item in currentGroup.groups)
+                {
+                    item.enabled = true;
+                }
+
+
+
+
                 Destroy(currentGroup.groupsParent.gameObject);
                 Destroy(currentGroup.gameObject);
             }
 
             
-            // if(groups).
-            //  UpdateGroup(currentGroup);
+            Debug.Log("GROUP LENGTH COUNT : " + currentGroup.groups.Count);
+            
 
             if (clientIDToGroup.ContainsKey(groupID))
             {
@@ -507,83 +526,12 @@ namespace Komodo.IMPRESS
                 if (clientIDToGroup[groupID].netObjectList.Contains(collider.GetComponent<NetworkedGameObject>()))
                     clientIDToGroup[groupID].netObjectList.Remove(collider.GetComponent<NetworkedGameObject>());
             }
+
+
+         //   _UpdateGroupBounds();
         }
 
-        public void RemoveFromGroup_EXTERNAL(Collider collider, int otherClientID = -1)
-        {
-            if (!collider.CompareTag("Interactable"))
-                return;
-
-            //disable main collider of the linkedgroup to access its child group item colliders
-            if (collider.TryGetComponent(out Group lg))
-            {
-                currentGroup = lg;
-
-                //disable main collider and enable the child elements to remove from main
-                lg.transform.GetComponent<BoxCollider>().enabled = false;
-
-                lg.meshRenderer = lg.GetComponent<MeshRenderer>();
-
-                StartCoroutine(ReenableParentColliderOutsideRenderBounds(lg.meshRenderer));
-
-                foreach (Transform colItems in lg.transform.GetChild(0))
-                {
-                    colItems.GetComponent<Collider>().enabled = true;
-                }
-
-                return;
-            }
-
-            if (!groups.ContainsKey(otherClientID))
-            {
-                return;
-            }
-
-            currentGroup = groups[otherClientID];
-
-            //handle the items that we touch
-            if (collider.transform.IsChildOf(currentGroup.groupsParent))
-            {
-                collider.transform.parent = null;
-            }
-
-            if (currentGroup.groups.Count == 1)
-            {
-                currentGroup.groups.Remove(collider);
-
-                leftControllerInteraction.transform.SetParent(currentGroup.groupsParent, true);
-                currentGroup.groupsParent.parent = null;
-                //rightControllerInteraction.EndGrab();
-                ////StretchManager.Instance.onStretchEnd.Invoke();
-
-                //ImpressStretchManager.Instance.firstObjectGrabbed = null;
-                //ImpressStretchManager.Instance.secondObjectGrabbed = null;
-
-                currentGroup.groupsParent.DetachChildren();
-                groups.Remove(otherClientID);
-
-                UpdateGroup(currentGroup);
-
-                Destroy(currentGroup.gameObject);
-            }
-            else
-            {
-                foreach (Transform item in currentGroup.groupsParent)
-                {
-                    Debug.Log($"EXTERNAL -> BEFORE UPDATE GROUP: Name {item.gameObject.name} ---- localscale {item.localScale} --- global scale {item.lossyScale}  ");
-                }
-
-                 UpdateGroup(currentGroup);
-             //   UpdateGroupExternal(currentGroup);
-
-                foreach (Transform item in currentGroup.groupsParent)
-                {
-                    Debug.Log($"EXTERNAL -> AFTER UPDATE GROUP: Name {item.gameObject.name} ---- localscale {item.localScale} --- global scale {item.lossyScale}  ");
-                }
-            }
-
-        }
-
+        
 
         public void ExitGroup(Group lg)
         {
@@ -664,6 +612,19 @@ namespace Komodo.IMPRESS
 
         public void UpdateGroup(Group linkParent)
         {
+
+            //eliminate all objects that are not visible (erase/undo sideeffect)
+            for (int i = 0; i < currentGroup.groups.Count; i += 1)
+            {
+                var _collider = currentGroup.groups[i];
+
+                if (!_collider.gameObject.activeInHierarchy)
+                {
+                    currentGroup.groups.Remove(_collider);
+                }
+            }
+
+
             List<Transform> childList = new List<Transform>();
 
             var rootParent = linkParent.transform;

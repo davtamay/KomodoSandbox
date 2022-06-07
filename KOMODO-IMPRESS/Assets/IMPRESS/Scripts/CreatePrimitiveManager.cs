@@ -138,6 +138,13 @@ namespace Komodo.IMPRESS
             GlobalMessageManager.Instance.Subscribe("primitive", (str) => ReceivePrimitiveUpdate(str));
         }
 
+        bool canSetPrimitives = true;
+
+        public bool GetPrimitiveUpdateStatus() => canSetPrimitives;
+        public void Set_Primitive_UPDATE(bool active)
+        {
+            canSetPrimitives = active;
+        }
         public void InitializeTriggerAndGhost ()
         {
             ToolAnchor anchor = toolPlacement.GetCurrentToolAnchor();

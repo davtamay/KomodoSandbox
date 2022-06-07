@@ -8,6 +8,7 @@ namespace Komodo.IMPRESS
     public class Group : MonoBehaviour
     {
         public List<Collider> groups;
+       // public List<Transform> parentsForColliders;
 
         public Transform groupsParent;
 
