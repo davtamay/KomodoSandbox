@@ -5,11 +5,18 @@ using Komodo.Runtime;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using System;
+using Komodo.Utilities;
 
 namespace Komodo.IMPRESS
 {
-    public class WorldPulling : MonoBehaviour, IUpdatable
+    public class WorldPulling : SingletonComponent<WorldPulling>, IUpdatable
     {
+        public static WorldPulling Instance
+        {
+            get { return (WorldPulling)_Instance; }
+
+            set { _Instance = value; }
+        }
         // A convenient way to declare a variable that has an initial value and current value.
         // To use this, do 
         //
@@ -102,8 +109,12 @@ namespace Komodo.IMPRESS
 
         private GameObject currentPlayspaceAxes;
 
+        public Action<float> onChangeScale;
+
         public void Awake()
         {
+          //  var initManager = Instance;
+
             initialPivotPointInPlayspace = new GameObject("InitialPivotPoint").transform;
 
             initialPivotPointInPlayspace.parent = playspace;
@@ -118,10 +129,10 @@ namespace Komodo.IMPRESS
             }
 
             initialPlayspace = new GameObject();
-        }
+        //}
 
-        public void Start()
-        {
+        //public void Start()
+        //{
             if (playspace == null)
             {
                 playspace = GameObject.FindGameObjectWithTag("XRCamera").transform;
@@ -174,11 +185,22 @@ namespace Komodo.IMPRESS
                 throw new UnassignedReferenceException("animalRuler");
             }
 
+            //new
+            CustomScalling(5);
+
+           // onChangeScale.Invoke(5);
+
+
+
             animalRuler.gameObject.SetActive(false);
 
             onDoubleTriggerPress += StartWorldPulling;
 
             onDoubleTriggerRelease += StopWorldPulling;
+
+
+          
+
         }
 
         // It will feel like the player is pulling the world, but really they are pushing themselves
@@ -251,20 +273,21 @@ namespace Komodo.IMPRESS
             UpdateDebugAxes();
         }
 
-        // This function is used externally by the GameStateManager.
-        // Compares the current transforms of the hands to the initial transforms, then calls various functions
-        // to make the world pulling experience happen.
-        public void OnUpdate (float unusedFloat)
+        float clampedNewScale;
+        public float GetClampedCurrentScale() => clampedNewScale;
+
+        //set custom scaling
+        public void CustomScalling(float unclampedScaleRatio)
         {
-            UpdateLocalPivotPoint(currentPivotPointInPlayspace, hands[0].transform.position, hands[1].transform.position);
+            //UpdateLocalPivotPoint(currentPivotPointInPlayspace, hands[0].transform.position, hands[1].transform.position);
 
-            // Compute Scale
+            //// Compute Scale
 
-            handDistanceInPlayspace.Current = Vector3.Distance(hands[0].transform.position, hands[1].transform.position) / playspace.localScale.x;
+            //handDistanceInPlayspace.Current = Vector3.Distance(hands[0].transform.position, hands[1].transform.position) / playspace.localScale.x;
 
-            float unclampedScaleRatio = 1.0f / (handDistanceInPlayspace.Current / handDistanceInPlayspace.Initial);
+            //float unclampedScaleRatio = 1.0f / (handDistanceInPlayspace.Current / handDistanceInPlayspace.Initial);
 
-            float clampedNewScale = Mathf.Clamp(unclampedScaleRatio * initialPlayspace.transform.localScale.x, scaleMin, scaleMax);
+            clampedNewScale = Mathf.Clamp(unclampedScaleRatio * initialPlayspace.transform.localScale.x, scaleMin, scaleMax);
 
             if (clampedNewScale > -0.001f && clampedNewScale < 0.001f)
             {
@@ -294,6 +317,55 @@ namespace Komodo.IMPRESS
             UpdateRulerPose(hands[0].transform.position, hands[1].transform.position, clampedNewScale);
 
             UpdateHandToHandLineEndpoints(hands[0].transform.position, hands[1].transform.position);
+        }
+
+        // This function is used externally by the GameStateManager.
+        // Compares the current transforms of the hands to the initial transforms, then calls various functions
+        // to make the world pulling experience happen.
+        public void OnUpdate (float unusedFloat)
+        {
+            UpdateLocalPivotPoint(currentPivotPointInPlayspace, hands[0].transform.position, hands[1].transform.position);
+
+            // Compute Scale
+
+            handDistanceInPlayspace.Current = Vector3.Distance(hands[0].transform.position, hands[1].transform.position) / playspace.localScale.x;
+
+            float unclampedScaleRatio = 1.0f / (handDistanceInPlayspace.Current / handDistanceInPlayspace.Initial);
+
+            clampedNewScale = Mathf.Clamp(unclampedScaleRatio * initialPlayspace.transform.localScale.x, scaleMin, scaleMax);
+
+            if (clampedNewScale > -0.001f && clampedNewScale < 0.001f)
+            {
+                clampedNewScale = 0.0f;
+            }
+
+            float clampedScaleRatio = clampedNewScale / initialPlayspace.transform.localScale.x;
+
+            // Compute Rotation
+
+            float rotateAmount = ComputeDiffRotationY(initialPivotPointInPlayspace.rotation, currentPivotPointInPlayspace.rotation);
+
+            UpdateDebugAxes();
+
+            // Apply Scale and Rotation and Translation
+
+            RotateAndScalePlayspaceAroundPointThenTranslate(rotateAmount, clampedScaleRatio, clampedNewScale);
+
+            UpdateLineRenderersScale(clampedNewScale);
+
+            SendAvatarScaleUpdate(clampedNewScale);
+
+            // Ruler
+
+            UpdateRulerValue(clampedNewScale);
+
+            UpdateRulerPose(hands[0].transform.position, hands[1].transform.position, clampedNewScale);
+
+            UpdateHandToHandLineEndpoints(hands[0].transform.position, hands[1].transform.position);
+
+
+
+            onChangeScale.Invoke(clampedNewScale);
         }
 
         // Applies translation, rotation, and scale to the actual playspace.
