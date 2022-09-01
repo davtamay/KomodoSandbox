@@ -335,7 +335,7 @@ namespace Komodo.IMPRESS
                 DisplayColor(selectedColorDisplay, selectedColor);
 
                 SetLineRenderersColor(lineRenderers, selectedColor);
-                Debug.Log(selectedColor);
+               // Debug.Log(selectedColor);
             }
         }
 

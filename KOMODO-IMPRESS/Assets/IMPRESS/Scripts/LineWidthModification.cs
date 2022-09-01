@@ -55,7 +55,7 @@ public class LineWidthModification : MonoBehaviour
 
     public void ChangeLineWidth(float change)
     {
-        var c = Mathf.Clamp(LDraw.widthMultiplier + change, 0.01f, 5f);
+        var c = Mathf.Clamp(LDraw.widthMultiplier + change, 0.01f, 20f);
 
         LDraw.widthMultiplier = c;
         RDraw.widthMultiplier = c;

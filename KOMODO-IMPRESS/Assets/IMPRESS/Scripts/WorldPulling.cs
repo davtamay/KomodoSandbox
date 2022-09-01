@@ -42,6 +42,38 @@ namespace Komodo.IMPRESS
             public T Current { get; set; }
         }
 
+       [ShowOnly] public bool worldPullingActivatedLeft;
+        [ShowOnly] public bool worldPullingActivatedRight;
+
+        public UnityEvent onBothHandsReleased;
+
+
+        public void SetWorldPullingLeft(bool isActivated)
+        {
+            worldPullingActivatedLeft = isActivated;
+
+            if (worldPullingActivatedLeft == false && worldPullingActivatedRight == false)
+                onBothHandsReleased.Invoke();
+
+        }
+        public void SetWorldPullingRight(bool isActivated)
+        {
+            worldPullingActivatedRight = isActivated;
+
+            if (worldPullingActivatedLeft == false && worldPullingActivatedRight == false)
+                onBothHandsReleased.Invoke();
+        }
+        public bool GetWorldPullingLeft()
+        {
+            return worldPullingActivatedLeft;
+        }
+        public bool SetWorldPullingRight()
+        {
+            return worldPullingActivatedRight;
+        }
+
+
+
         // Assign a Komodo Player or Impress Player object so we can access its hands
         public Transform player;
 
