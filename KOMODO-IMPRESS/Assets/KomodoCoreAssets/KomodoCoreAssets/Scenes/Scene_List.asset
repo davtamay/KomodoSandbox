@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: Scene_List
   m_EditorClassIdentifier: 
   scenes:
+  - {fileID: 102900000, guid: d28f43d8cd84e41458b0819c642f91db, type: 3}
   - {fileID: 102900000, guid: 744ae30ef72e3034e8e024654ab7e964, type: 3}
   references:
-  - name: OutsideTheMilkyWay
+  - name: Outdoors
     sceneIndex: 0
+  - name: OutsideTheMilkyWay
+    sceneIndex: 1

@@ -47,7 +47,7 @@ public class LineWidthModification : MonoBehaviour
             LDraw.widthMultiplier = adjustedScale;
             RDraw.widthMultiplier = adjustedScale;
 
-            Debug.Log("CUSTOM SCALLING LINE " + newScale);
+          //  Debug.Log("CUSTOM SCALLING LINE " + newScale);
             displayLineWidth.text = adjustedScale.ToString("0.00");
 
         };

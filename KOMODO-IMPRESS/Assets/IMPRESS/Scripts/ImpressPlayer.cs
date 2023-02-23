@@ -28,7 +28,7 @@ namespace Komodo.IMPRESS
         public TriggerEventInputSource triggerEventInputSourceR;
 
 
-        public IEnumerator Start()
+        public void Start()
         {
             cursorGraphic.SetActive(false);
 
@@ -37,8 +37,8 @@ namespace Komodo.IMPRESS
 #else
             WebXRManagerEditorSimulator.OnXRChange += onXRChange;
 
-            yield return new WaitForEndOfFrame();
-            EventSystemManager.Instance.SetToDesktop();
+            // yield return new WaitForEndOfFrame();
+            // EventSystemManager.Instance.SetToDesktop();
 #endif
         }
         public WebXRState currentState;
