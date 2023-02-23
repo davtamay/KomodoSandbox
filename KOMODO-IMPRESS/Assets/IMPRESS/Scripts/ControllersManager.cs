@@ -52,7 +52,7 @@ namespace Komodo.IMPRESS
         private static void FindSelectors ()
         {
             HandSelector[] selectors = Object.FindObjectsOfType(typeof(HandSelector)) as HandSelector[];
-
+           
             if (selectors.Length == 0)
             {
                 Debug.LogWarning("Found 0 selectors. Expected 2. Not initializing any.");
@@ -104,6 +104,9 @@ namespace Komodo.IMPRESS
             selectorLeft = selectors[0];
 
             selectorRight = selectors[1];
+
+             Debug.Log("selectorLeft", selectorLeft.gameObject);
+             Debug.Log("selectorRight", selectorRight.gameObject);
         }
 
         public static void StartLeftSelect ()
@@ -113,6 +116,7 @@ namespace Komodo.IMPRESS
 
         public static void EndLeftSelect ()
         {
+            
             selectorLeft.gameObject.SetActive(false);
         }
 

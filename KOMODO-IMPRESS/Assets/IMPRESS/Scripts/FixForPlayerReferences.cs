@@ -5,7 +5,7 @@ namespace Komodo.IMPRESS
 {
     public class FixForPlayerReferences : MonoBehaviour
     {
-        public void Start ()
+        public void Awake ()
         {
             ControllersManager.Initialize();
         }

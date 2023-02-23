@@ -1,0 +1,28 @@
+- capture button not working --> "Instructor Menu" 
+- line rendering a sphere. blending stuff better
+--- pointer to follow hand 
+
+
+- capture "instructor Menu"
+----menu is persistent based on being hold.
+
+--line color rendering (materials) -- spacially informative
+--- line flickering
+-- move to rescalling -- when one 
+-- line smooth
+
+- undo does not work completely.... 
+
+-- indicator not following user lookat
+
+-- world scalling not working afer playing with it for a bit.-->  calibrate the scalling
+
+
+
+----------------
+
+- World pull scale is constraint --> Make it more wider.
+- use toon brush (tiltbrush) -> line quee
+- primitives half the size and non awkward position
+
+
