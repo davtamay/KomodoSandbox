@@ -272,12 +272,13 @@ namespace Komodo.Runtime
 
         public void UpdatePlayerYPosition (float teleportY) 
         {
-            if (justBumped) 
-            {
-                justBumped = false;
+            Debug.Log(teleportY);
+            // if (justBumped) 
+            // {
+            //     justBumped = false;
 
-                return;
-            }
+            //     return;
+            // }
 
             Vector3 finalPlayspacePosition = playspace.position;
 

@@ -444,8 +444,8 @@ namespace Komodo.IMPRESS
 
             var netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive);
 
-            //tag it to be used with ECS system
-            entityManager.AddComponentData(netObject.Entity, new PrimitiveTag());
+            // //tag it to be used with ECS system
+            // entityManager.AddComponentData(netObject.Entity, new PrimitiveTag());
 
             primitive.tag = "Interactable";
 
@@ -463,13 +463,13 @@ namespace Komodo.IMPRESS
 
             var rot2 = primitive.transform.rotation;
 
-            SendPrimitiveUpdate(
-                _primitiveID,
-                (int) _currentType,
-                primitive.transform.lossyScale.x,
-                primitive.transform.position,
-                new Vector4(rot2.x, rot2.y, rot2.z, rot2.w)
-            );
+            // SendPrimitiveUpdate(
+            //     _primitiveID,
+            //     (int) _currentType,
+            //     primitive.transform.lossyScale.x,
+            //     primitive.transform.position,
+            //     new Vector4(rot2.x, rot2.y, rot2.z, rot2.w)
+            // );
 
             if (UndoRedoManager.IsAlive)
             {

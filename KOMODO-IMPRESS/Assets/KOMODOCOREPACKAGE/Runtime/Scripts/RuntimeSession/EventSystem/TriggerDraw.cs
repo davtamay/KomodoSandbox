@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using Unity.Entities;
-
+/* using Unity.Entities;
+ */
 namespace Komodo.Runtime
 {
 
@@ -29,7 +29,7 @@ namespace Komodo.Runtime
         //to disable drawing during color picker selection through unity events;
         [HideInInspector] public bool isSelectingColorPicker;
 
-        private EntityManager entityManager;
+       // private EntityManager entityManager;
 
         //to disable drawing during erasing funcionality
         private bool isEraserOn = false;
@@ -41,7 +41,7 @@ namespace Komodo.Runtime
 
         public virtual void Start()
         {
-            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+          //  entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
             lineRenderer = GetComponent<LineRenderer>();
 

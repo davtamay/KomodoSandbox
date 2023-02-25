@@ -143,8 +143,10 @@ namespace Komodo.IMPRESS
 
         public Action<float> onChangeScale;
 
+        public TeleportPlayer teleportPlayer;
         public void Awake()
         {
+            teleportPlayer = player.GetComponent<TeleportPlayer>();
           //  var initManager = Instance;
 
             initialPivotPointInPlayspace = new GameObject("InitialPivotPoint").transform;
@@ -274,7 +276,9 @@ namespace Komodo.IMPRESS
                 GameStateManager.Instance.DeRegisterUpdatableObject(this);
             }
 
-            Debug.Log("stopped world pulling"); //TODO Remove
+           // Debug.Log("stopped world pulling"); //TODO Remove
+
+            // teleportPlayer.SetManualYOffset(currentPivotPointInPlayspace.position.y);
         }
 
         // Stores transforms of gameObjects and variables used to compute scale, rotation, and translation
@@ -433,8 +437,11 @@ namespace Komodo.IMPRESS
 
             // Translate
             Vector3 deltaPosition = Vector3.zero - (currentPivotPointInPlayspace.position - initialPivotPointInPlayspace.position);
+            
+            Vector3 newPos = scaledAroundPosition + deltaPosition;
+            playspace.position = new Vector3(newPos.x,  playspace.position.y, newPos.z);
 
-            playspace.position = scaledAroundPosition + deltaPosition;
+  //teleportPlayer.SetManualYOffset(playspace.position.y);
 
             // Restore initialPlayspace from stored values
             initialPlayspace.transform.position = actualInitialPlayspacePosition;

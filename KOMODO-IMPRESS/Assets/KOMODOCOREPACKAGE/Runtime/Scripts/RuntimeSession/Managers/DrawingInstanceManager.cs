@@ -66,7 +66,7 @@ namespace Komodo.Runtime
             // Make own client's draw strokes grabbable
             pivot.tag = TagList.interactable;
 
-            entityManager.AddComponentData(nAGO.Entity, new DrawingTag { });
+            // entityManager.AddComponentData(nAGO.Entity, new DrawingTag { });
 
             var bColl = pivot.GetComponent<BoxCollider>();
 

@@ -582,7 +582,7 @@ using Komodo.IMPRESS;
 
             //if (currentGrabbedNetObject)
             //{
-                SendInteractionStartGrab();
+             //   SendInteractionStartGrab();
       //      }
 
             InitializePhysicsParameters();
@@ -748,11 +748,11 @@ using Komodo.IMPRESS;
                     return;
                 }
 
-                var netIDComp = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity);
+               // var netIDComp = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity);
 
-                SendInteractionEndGrab(netIDComp);
+              //  SendInteractionEndGrab(netIDComp);
 
-                SendPhysicsEndGrab(netIDComp);
+               // SendPhysicsEndGrab(netIDComp);
             }
 
             ResetStretchParameters();
@@ -967,16 +967,16 @@ using Komodo.IMPRESS;
         {
             if (nearestTransform.TryGetComponent(out NetworkedGameObject netObj))
             {
-                if (entityManager.HasComponent<TransformLockTag>(netObj.Entity))
-                {
-                    // TODO(Brandon) -- instead of returning null here, keep searching for the next rigid body. Otherwise, we trap smaller, unlocked objects inside larger, locked objects.
+                // if (entityManager.HasComponent<TransformLockTag>(netObj.Entity))
+                // {
+                //     // TODO(Brandon) -- instead of returning null here, keep searching for the next rigid body. Otherwise, we trap smaller, unlocked objects inside larger, locked objects.
 
-                    return null;
-                }
+                //     return null;
+                // }
 
                 currentGrabbedNetObject = netObj;
 
-                InitializeNetworkedPhysicsObjectIfNeeded();
+              //  InitializeNetworkedPhysicsObjectIfNeeded();
             }
 
 
