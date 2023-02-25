@@ -74,44 +74,44 @@ namespace Komodo.Runtime
         /// <param name="uniqueEntityID">if we give this paramater, we set it as the entity ID instead of giving it a default id</param>
         public void Instantiate(int importIndex = -1, int uniqueEntityID = -1)
         {
-            //get our entitymanager to get access to the entity world
-            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            // get our entitymanager to get access to the entity world
+            // entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
             //set custom id if we are not given a specified id when instantiating this network associated object
             int EntityID = (uniqueEntityID == -1) ? NetworkedObjectsManager.Instance.GenerateUniqueEntityID() : uniqueEntityID;
 
             //create our entity reference
-            if (Entity == Entity.Null)
-            {
-                Entity = entityManager.CreateEntity();
-            }
+            // if (Entity == Entity.Null)
+            // {
+            //     Entity = entityManager.CreateEntity();
+            // }
 
-            thisEntityID = EntityID;
+            // thisEntityID = EntityID;
 
 #if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
 //do nothing
 #else
-            entityManager.SetName(Entity, gameObject.name);
+            //entityManager.SetName(Entity, gameObject.name);
 #endif
 
             buttonIndex = importIndex;
 
             //set the data that our entity will be storing
-            if (buttonIndex != -1)
-            {
-                entityManager.AddSharedComponentData(Entity, new ButtonIDSharedComponentData { buttonID = buttonIndex });
-            }
+            // if (buttonIndex != -1)
+            // {
+            //     entityManager.AddSharedComponentManaged(Entity, new ButtonIDSharedComponentData { buttonID = buttonIndex });
+            // }
 
-            entityManager.AddComponentData(Entity, new NetworkEntityIdentificationComponentData
-            {
-                entityID = EntityID,
+            // entityManager.AddComponentData(Entity, new NetworkEntityIdentificationComponentData
+            // {
+            //     entityID = EntityID,
 
-                clientID = NetworkUpdateHandler.Instance.client_id,
+            //     clientID = NetworkUpdateHandler.Instance.client_id,
 
-                sessionID = NetworkUpdateHandler.Instance.session_id,
+            //     sessionID = NetworkUpdateHandler.Instance.session_id,
 
-                current_Entity_Type = !usePhysics ? Entity_Type.objects : Entity_Type.physicsObject,
-            });
+            //     current_Entity_Type = !usePhysics ? Entity_Type.objects : Entity_Type.physicsObject,
+            // });
 
             NetworkedObjectsManager.Instance.Register(EntityID, this);
 

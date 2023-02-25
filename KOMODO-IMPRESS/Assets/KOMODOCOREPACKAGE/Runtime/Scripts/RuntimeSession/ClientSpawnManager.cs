@@ -44,6 +44,8 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using Unity.Transforms;
 using Komodo.Utilities;
+
+using Unity.Collections;
 //using Komodo.AssetImport;
 
 namespace Komodo.Runtime
@@ -127,7 +129,7 @@ namespace Komodo.Runtime
         }
 
         #region Initiation process --> ClientAvatars --> URL Downloads --> UI Setup --> SyncState
-        public IEnumerator Start()
+        public void Start()
         {
 #if TESTING_BEFORE_BUILDING
             Debug.LogWarning("Directive TESTING_BEFORE_BUILDING was enabled. Please disable it before production.");
@@ -148,16 +150,16 @@ namespace Komodo.Runtime
             }
 
             //wait until our avatars are setup in the scene
-            yield return StartCoroutine(InstantiateReservedClients());
+          //  yield return StartCoroutine(InstantiateReservedClients());
 
             GameStateManager.Instance.isAvatarLoadingFinished = true;
 
-            AddOwnClient();
+         //   AddOwnClient();
 
-            if (UIManager.IsAlive)
-            {
-                yield return new WaitUntil(() => UIManager.Instance.IsReady()); //TODO(Brandon): prevent a failed menu from stopping the whole client
-            }
+            // if (UIManager.IsAlive)
+            // {
+            //     yield return new WaitUntil(() => UIManager.Instance.IsReady()); //TODO(Brandon): prevent a failed menu from stopping the whole client
+            // }
 
             //yield return new WaitUntil(() => SessionStateManager.Instance.IsReady()); TODO(Brandon): fully remove this line if it's working
 
@@ -172,7 +174,7 @@ namespace Komodo.Runtime
 
             //SessionStateManager.Instance.ApplyCatchup(); TODO(Brandon) -- evaluate if we need to create an empty state object.
 
-            SocketIOAdapter.Instance.OpenConnectionAndJoin();
+  //          SocketIOAdapter.Instance.OpenConnectionAndJoin();
 
             //WebGLMemoryStats.LogMoreStats("ClientSpawnManager Start AFTER");
         }
@@ -278,7 +280,7 @@ namespace Komodo.Runtime
 
             var temp = avatarEntityGroupFromClientId[clientID].transform;
 
-            var ROT = entityManager.GetComponentData<Rotation>(avatarEntityGroupFromClientId[clientID].rootEntity).Value.value;//.entity_data.rot;
+            var ROT = entityManager.GetComponentData<LocalTransform>(avatarEntityGroupFromClientId[clientID].rootEntity).Rotation.value;//.entity_data.rot;
 
             //To prevent offset issues when working with editor
 #if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
@@ -503,7 +505,7 @@ namespace Komodo.Runtime
 
                     var temp = avatarEntityGroupFromClientId[clientID].transform;
 
-                    var ROT = entityManager.GetComponentData<Rotation>(avatarEntityGroupFromClientId[clientID].rootEntity).Value.value;//.entity_data.rot;
+                    var ROT = entityManager.GetComponentData<LocalTransform>(avatarEntityGroupFromClientId[clientID].rootEntity).Rotation.value;//.entity_data.rot;
 
 
                     // TODO -- investigate whether this area is a cause of the 
@@ -927,7 +929,7 @@ namespace Komodo.Runtime
 
             GameObject avatar = default;
 
-            EntityCommandBuffer ecb = entityManager.World.GetOrCreateSystem<EntityCommandBufferSystem>().CreateCommandBuffer();
+            EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);//entityManager.World.GetOrCreateSystem<EntityCommandBufferSystem>().CreateCommandBuffer();
 
             //Create all players with simple GameObject Representation
             for (int i = 0; i < clientReserveCount; i++)
@@ -975,7 +977,7 @@ namespace Komodo.Runtime
 #if (UNITY_WEBGL && !UNITY_EDITOR) || TESTING_BEFORE_BUILDING
 //do nothing
 #else
-            entityManager.SetName(otherClientAvatars.rootEntity, $"Client {i + 1}");
+            //entityManager.SetName(otherClientAvatars.rootEntity, $"Client {i + 1}");
 #endif
             var buff = entityManager.AddBuffer<LinkedEntityGroup>(otherClientAvatars.rootEntity);
             ecb.AppendToBuffer<LinkedEntityGroup>(otherClientAvatars.rootEntity, otherClientAvatars.rootEntity);
@@ -999,7 +1001,7 @@ namespace Komodo.Runtime
 
             Quaternion newRot = Quaternion.LookRotation(centerAvatarSpawnLocation - TransformRelative, Vector3.up);
 
-            entityManager.AddComponentData(otherClientAvatars.rootEntity, new Rotation { Value = new float4(newRot.x, newRot.y, newRot.z, newRot.w) });
+            entityManager.AddComponentData(otherClientAvatars.rootEntity, new LocalTransform { Rotation = new float4(newRot.x, newRot.y, newRot.z, newRot.w) });
 
             otherClientAvatars.transform.parent.localRotation = new Quaternion(newRot.x, newRot.y, newRot.z, newRot.w);
 

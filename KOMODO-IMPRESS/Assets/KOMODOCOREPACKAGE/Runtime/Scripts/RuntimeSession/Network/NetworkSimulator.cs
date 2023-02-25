@@ -74,11 +74,11 @@ namespace Komodo.Runtime
         private void SendSyncPoseMessage(Position pos) 
         {
             float[] arr_pos = NetworkUpdateHandler.Instance.SerializeCoordsStruct(pos);
-#if UNITY_WEBGL && !UNITY_EDITOR
-    //do nothing, so the compiler doesn't complain
-#else
-            SocketIOEditorSimulator.Instance.RelayPositionUpdate(arr_pos);
-#endif
+// #if UNITY_WEBGL && !UNITY_EDITOR
+//     //do nothing, so the compiler doesn't complain
+// #else
+//             SocketIOEditorSimulator.Instance.RelayPositionUpdate(arr_pos);
+// #endif
 
         }
         

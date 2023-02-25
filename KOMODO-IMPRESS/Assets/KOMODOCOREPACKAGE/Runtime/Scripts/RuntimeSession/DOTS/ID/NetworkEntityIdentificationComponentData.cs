@@ -2,7 +2,6 @@ using Unity.Entities;
 
 namespace Komodo.Runtime
 {
-    [GenerateAuthoringComponent]
     public struct NetworkEntityIdentificationComponentData : IComponentData
     {
         public int clientID;

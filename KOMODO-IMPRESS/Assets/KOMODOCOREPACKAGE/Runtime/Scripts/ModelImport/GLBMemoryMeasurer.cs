@@ -178,7 +178,7 @@ namespace Komodo.AssetImport
             }
             //WebGLMemoryStats.LogMoreStats("GLBMemoryMeasurer.EstimateSize Meshes AFTER");
 
-            Debug.Log($"Estimated size (meshes): {WebGLMemoryStats.ToRoundedMB(totalSize, 2)} MB.                  ({totalVertices} vertices, {totalTriangles} triangles)");
+           // Debug.Log($"Estimated size (meshes): {WebGLMemoryStats.ToRoundedMB(totalSize, 2)} MB.                  ({totalVertices} vertices, {totalTriangles} triangles)");
 
             for (int i = 0; i < _textures.Count; i += 1)
             {
@@ -190,7 +190,7 @@ namespace Komodo.AssetImport
 
                 totalSize += size;
 
-                Debug.Log($"Estimated texture #{i} size: {WebGLMemoryStats.ToRoundedMB(size, 2)} MB.                  {_textures[i].width}x{_textures[i].height} / {_textures[i].bitDepth}-bit depth / {_textures[i].samples} samples / mipmap = {_textures[i].isMipMapOn}.");
+           //     Debug.Log($"Estimated texture #{i} size: {WebGLMemoryStats.ToRoundedMB(size, 2)} MB.                  {_textures[i].width}x{_textures[i].height} / {_textures[i].bitDepth}-bit depth / {_textures[i].samples} samples / mipmap = {_textures[i].isMipMapOn}.");
             }
 
             //Debug.Log($"Estimated size (total): {WebGLMemoryStats.ToRoundedMB(totalSize, 2)} MB.");

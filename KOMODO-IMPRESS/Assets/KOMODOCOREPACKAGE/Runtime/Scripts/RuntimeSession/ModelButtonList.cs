@@ -49,7 +49,7 @@ namespace Komodo.Runtime
 
         public override IEnumerator Start()
         {
-            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            //entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
             //check if we should set up models
             if (!ModelImportInitializer.IsAlive)
@@ -72,6 +72,7 @@ namespace Komodo.Runtime
 
         protected override void InitializeButtons()
         {
+            Debug.Log("initializing buttons");
             if (!transformToPlaceButtonUnder)
             {
                 transformToPlaceButtonUnder = transform;
@@ -87,8 +88,10 @@ namespace Komodo.Runtime
                 throw new System.Exception("expected modelData to have models, but it was null");
             }
 
+  
             for (int i = 0; i < modelData.models.Count; i++)
             {
+                
                 if (UIManager.IsAlive)
                 {
                     GameObject item = Instantiate(buttonTemplate, transformToPlaceButtonUnder);
@@ -96,7 +99,7 @@ namespace Komodo.Runtime
                     if (item.TryGetComponent(out ModelItem modelItem))
                     {
                         string name = modelData.models[i].name;
-
+                        Debug.Log("initializing buttons :" + modelItem);
                         if (name == null)
                         {
                             Debug.LogError($"modelData.models[{i}].name was null. Proceeding anyways.");

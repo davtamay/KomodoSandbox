@@ -91,8 +91,8 @@ namespace Komodo.AssetImport
 
                 while (!fileDownloader.isDone)
                 {
-                    string stats = WebGLMemoryStats.GetMoreStats("Downloading");
-                    progressDisplay.text = $"Downloading {modelData.name}: {fileDownloader.downloadProgress.ToString("P")}\n{stats}";
+                    // string stats = WebGLMemoryStats.GetMoreStats("Downloading");
+                    // progressDisplay.text = $"Downloading {modelData.name}: {fileDownloader.downloadProgress.ToString("P")}\n{stats}";
 
                     yield return null;
                 }
@@ -129,43 +129,46 @@ namespace Komodo.AssetImport
         public IEnumerator TryLoadLocalFile (string localPathAndFileName, string name, ulong downloadedSize, Text progressDisplay, System.Action<GameObject> callback) {
             progressDisplay.text = $"{name}: Measuring file size";
 
-            WebGLMemoryStats.LogMoreStats($"--- TryLoadLocalFile {name} ---");
+            // WebGLMemoryStats.LogMoreStats($"--- TryLoadLocalFile {name} ---");
 
-            bool canAnalyze = WebGLMemoryStats.HasEnoughMemoryToLoadBytes((long) downloadedSize);
+            // bool canAnalyze = WebGLMemoryStats.HasEnoughMemoryToLoadBytes((long) downloadedSize);
 
-            Debug.Log($"File size: {WebGLMemoryStats.ToRoundedMB(downloadedSize, 2)}MB.");
+            // Debug.Log($"File size: {WebGLMemoryStats.ToRoundedMB(downloadedSize, 2)}MB.");
 
-            if (!canAnalyze) {
-                Debug.Log($"{name} too large to analyze. Loading error model instead.");
-                callback(CreateFailureObject("Model too large to analyze."));
-                yield break;
-            }
+            // if (!canAnalyze) {
+            //     Debug.Log($"{name} too large to analyze. Loading error model instead.");
+            //     callback(CreateFailureObject("Model too large to analyze."));
+            //     yield break;
+            // }
             
             progressDisplay.text = $"{name}: Estimating memory requirements";
 
-            GLBMemoryMeasurer.SetModel(localPathAndFileName);
+            // GLBMemoryMeasurer.SetModel(localPathAndFileName);
 
-            uint memorySize = GLBMemoryMeasurer.EstimateSize();
+            // uint memorySize = GLBMemoryMeasurer.EstimateSize();
 
-            Debug.Log($"Est. memory size: {WebGLMemoryStats.ToRoundedMB(memorySize, 2)}MB.");
+          //  Debug.Log($"Est. memory size: {WebGLMemoryStats.ToRoundedMB(memorySize, 2)}MB.");
 
-            bool canInstantiate = WebGLMemoryStats.HasEnoughMemoryToLoadBytes((long) memorySize);
+            // bool canInstantiate = WebGLMemoryStats.HasEnoughMemoryToLoadBytes((long) memorySize);
 
-            if (!canInstantiate)
-            {
-                //TODO(Brandon):
-                // delete local file? to free it from memory? or let OS GC do that?
-                // download placeholder / error file then call callback on it
-                // OR call callback with a placeholder error file
-                // create a button that lets you TRY to reload it?
-                Debug.Log($"{name} too large to instantiate. Loading error model instead.");
-                callback(CreateFailureObject("Model too large to instantiate."));
-                yield break;
-            }
+            // if (!canInstantiate)
+            // {
+            //     //TODO(Brandon):
+            //     // delete local file? to free it from memory? or let OS GC do that?
+            //     // download placeholder / error file then call callback on it
+            //     // OR call callback with a placeholder error file
+            //     // create a button that lets you TRY to reload it?
+            //     Debug.Log($"{name} too large to instantiate. Loading error model instead.");
+            //     callback(CreateFailureObject("Model too large to instantiate."));
+            //     yield break;
+            // }
+        
 
             progressDisplay.text = $"{name}: Instantiating";
             
-            LoadLocalFile(localPathAndFileName, callback);
+           LoadLocalFile(localPathAndFileName, callback);
+
+            yield return null;
         }
 
         /**

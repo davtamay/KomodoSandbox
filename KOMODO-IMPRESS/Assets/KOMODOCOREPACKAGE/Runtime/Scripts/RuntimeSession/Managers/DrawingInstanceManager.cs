@@ -101,16 +101,16 @@ namespace Komodo.Runtime
 
             lineRendCopy.transform.SetParent(pivot.transform, true);
 
-            if (doSendNetworkUpdate)
-            {
-                SendDrawUpdate(
-                    strokeID,
-                    Entity_Type.LineEnd,
-                    copiedLR.widthMultiplier,
-                    lineRenderer.GetPosition(lineRenderer.positionCount - 1),
-                    new Vector4(lineRenderer.startColor.r, lineRenderer.startColor.g, lineRenderer.startColor.b,  lineRenderer.startColor.a)
-                );
-            }
+            // if (doSendNetworkUpdate)
+            // {
+            //     SendDrawUpdate(
+            //         strokeID,
+            //         Entity_Type.LineEnd,
+            //         copiedLR.widthMultiplier,
+            //         lineRenderer.GetPosition(lineRenderer.positionCount - 1),
+            //         new Vector4(lineRenderer.startColor.r, lineRenderer.startColor.g, lineRenderer.startColor.b,  lineRenderer.startColor.a)
+            //     );
+            // }
 
             pivot.transform.SetParent(userStrokeParent, true);
 
@@ -121,7 +121,7 @@ namespace Komodo.Runtime
                 {
                     pivot.SetActive(false);
 
-                    SendDrawUpdate(strokeID, Entity_Type.LineNotRender);
+                //    SendDrawUpdate(strokeID, Entity_Type.LineNotRender);
                 });
             }
         }

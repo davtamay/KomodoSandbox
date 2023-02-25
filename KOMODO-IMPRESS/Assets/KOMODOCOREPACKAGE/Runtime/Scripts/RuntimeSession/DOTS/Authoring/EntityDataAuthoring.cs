@@ -8,51 +8,51 @@ namespace Komodo.Runtime
 {
     public class EntityDataAuthoring : MonoBehaviour//, IConvertGameObjectToEntity
     {
-        [Header("Identification")]
-        public bool hasOurPlayerData;
+//         [Header("Identification")]
+//         public bool hasOurPlayerData;
 
-        public Entity_Type current_Entity_Type;
+//         public Entity_Type current_Entity_Type;
 
-        public bool hasDisplayState;
+//         public bool hasDisplayState;
 
-        [Header("Constraints")]
-        public bool hasTransformLockState;
+//         [Header("Constraints")]
+//         public bool hasTransformLockState;
 
-        [Header("Trasformations")]
-        public bool hasPosition;
-        public bool hasRotation;
+//         [Header("Trasformations")]
+//         public bool hasPosition;
+//         public bool hasRotation;
 
-        public void Awake()
-        {
-            var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+//         public void Awake()
+//         {
+//             var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
-            Entity EntityForThisGO = entityManager.CreateEntity();
+//             Entity EntityForThisGO = entityManager.CreateEntity();
 
-#if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
-//do nothing
-#else
-            entityManager.SetName(EntityForThisGO, gameObject + "--Data");
-#endif
+// #if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
+// //do nothing
+// #else
+//          //   entityManager.SetName(EntityForThisGO, gameObject + "--Data");
+// #endif
 
-            if (hasOurPlayerData) entityManager.AddComponentData(EntityForThisGO, new OurPlayerTag());
+//             if (hasOurPlayerData) entityManager.AddComponentData(EntityForThisGO, new OurPlayerTag());
 
-            entityManager.AddComponentData(EntityForThisGO, new NetworkEntityIdentificationComponentData()
-            {
-                current_Entity_Type = this.current_Entity_Type,
-                entityID = (int)this.current_Entity_Type,
+//             entityManager.AddComponentData(EntityForThisGO, new NetworkEntityIdentificationComponentData()
+//             {
+//                 current_Entity_Type = this.current_Entity_Type,
+//                 entityID = (int)this.current_Entity_Type,
 
-            });
+//             });
 
-            if (hasDisplayState) entityManager.AddComponentData(EntityForThisGO, new DesktopStateTag());
+//             if (hasDisplayState) entityManager.AddComponentData(EntityForThisGO, new DesktopStateTag());
 
-            if (hasTransformLockState) entityManager.AddComponentData(EntityForThisGO, new TransformLockTag());
+//             if (hasTransformLockState) entityManager.AddComponentData(EntityForThisGO, new TransformLockTag());
 
-            if (hasPosition) entityManager.AddComponentData(EntityForThisGO, new Translation());
+//             if (hasPosition) entityManager.AddComponentData(EntityForThisGO, new LocalTransform());
 
-            if (hasRotation) entityManager.AddComponentData(EntityForThisGO, new Rotation());
+//            // if (hasRotation) entityManager.AddComponentData(EntityForThisGO, new Rotation());
 
-            Destroy(this);
-        }
+//             Destroy(this);
+//         }
 
 
 

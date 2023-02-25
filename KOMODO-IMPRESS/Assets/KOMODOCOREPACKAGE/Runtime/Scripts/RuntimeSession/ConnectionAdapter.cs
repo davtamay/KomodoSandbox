@@ -32,15 +32,15 @@ namespace Komodo.Runtime
 
             NetworkUpdateHandler netHandler = NetworkUpdateHandler.Instance;
 
-            KomodoEventManager.StartListening("connection.leaveAndRejoin", () =>
-            {
-                SocketIOAdapter.Instance.LeaveAndRejoin();
-            });
+            // KomodoEventManager.StartListening("connection.leaveAndRejoin", () =>
+            // {
+            //     SocketIOAdapter.Instance.LeaveAndRejoin();
+            // });
 
-            KomodoEventManager.StartListening("connection.closeConnectionAndRejoin", () =>
-            {
-                SocketIOAdapter.Instance.CloseConnectionAndRejoin();
-            });
+            // KomodoEventManager.StartListening("connection.closeConnectionAndRejoin", () =>
+            // {
+            //     SocketIOAdapter.Instance.CloseConnectionAndRejoin();
+            // });
         }
 
         public void DisplayError (string error)

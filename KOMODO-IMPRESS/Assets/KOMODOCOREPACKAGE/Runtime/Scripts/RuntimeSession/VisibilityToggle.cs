@@ -25,7 +25,7 @@ namespace Komodo.Runtime
             {
                 UIManager.Instance.ToggleModelVisibility(this.index, doShow);
 
-                UIManager.Instance.SendVisibilityUpdate(this.index, doShow);
+               // UIManager.Instance.SendVisibilityUpdate(this.index, doShow);
             }
 
             SelectOrDeselect(doShow);

@@ -109,7 +109,7 @@ namespace Komodo.Runtime
 
             //WebGLMemoryStats.LogMoreStats("ModelImportInitializer.Start Setup AFTER");
 
-            WebGLMemoryStats.ChooseMemoryLimitForDevice(doForceMobileMemoryLimit);
+            //WebGLMemoryStats.ChooseMemoryLimitForDevice(doForceMobileMemoryLimit);
 
             localFiles = new List<ModelFile>();
 

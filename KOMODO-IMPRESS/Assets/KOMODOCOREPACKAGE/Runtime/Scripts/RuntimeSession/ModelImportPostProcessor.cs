@@ -37,6 +37,7 @@ using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
 using Komodo.AssetImport;
+using Unity.Collections;
 
 namespace Komodo.Runtime
 {
@@ -134,42 +135,42 @@ namespace Komodo.Runtime
 
         public static void ConvertObjectsToEntities(NetworkedGameObject netObject, Transform newParent, int menuButtonIndex)
         {
-            EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            // EntityManager entityManager =  World.DefaultGameObjectInjectionWorld.EntityManager;
 
-            EntityCommandBuffer ecbs = entityManager.World.GetOrCreateSystem<EntityCommandBufferSystem>().CreateCommandBuffer();
+            // EntityCommandBuffer ecbs = new EntityCommandBuffer(Allocator.TempJob); /*  entityManager.World.GetOrCreateSystem<EntityCommandBufferSystem>().CreateCommandBuffer(); */
 
-            using (BlobAssetStore blobAssetStore = new BlobAssetStore())
-            {
+            // using (BlobAssetStore blobAssetStore = new BlobAssetStore())
+            // {
 
-                var entity = Entity.Null;
+                // var entity = Entity.Null;
 
-                if (netObject && netObject.Entity != Entity.Null)
-                {
-                    entity = netObject.Entity;
-                }
-                else
-                {
-                    entity = entityManager.CreateEntity();
-                }
+                // if (netObject && netObject.Entity != Entity.Null)
+                // {
+                //     entity = netObject.Entity;
+                // }
+                // else
+                // {
+                //     entity = entityManager.CreateEntity();
+                // }
 
 #if ECS
-            entityManager.SetName(entity, newParent.gameObject.name);
+          //  entityManager.SetName(entity, newParent.gameObject.name);
 #endif
+              //   NetworkedObjectsManager.Instance.CreateNetworkedGameObject.Add(entity);
+             //   NetworkedObjectsManager.Instance.topLevelEntityList.Add(entity);
 
-                NetworkedObjectsManager.Instance.topLevelEntityList.Add(entity);
+                // var buff = ecbs.AddBuffer<LinkedEntityGroup>(entity);
 
-                var buff = ecbs.AddBuffer<LinkedEntityGroup>(entity);
-
-                SetEntityReferences(entityManager, newParent.transform, buff, menuButtonIndex, entity, true);
+                // SetEntityReferences(entityManager, newParent.transform, buff, menuButtonIndex, entity, true);
 
                 //to be in par with gameobject representation current state 
-                entityManager.SetEnabled(entity, false);
+             //   entityManager.SetEnabled(entity, false);
 
                 //play back our structural changes after adding them to our command buffer
-                ecbs.ShouldPlayback = false;
+                // ecbs.ShouldPlayback = false;
 
-                ecbs.Playback(entityManager);
-            }
+                // ecbs.Playback(entityManager);
+          //  }
         }
 
         public static void SetUpColliders(GameObject loadedObject, Bounds bounds, Transform newParent, ModelDataTemplate.ModelImportData modelData, ModelImportSettings setupFlags, int menuButtonIndex)
@@ -268,7 +269,7 @@ namespace Komodo.Runtime
 
         static void SetEntityReferences(EntityManager entityManager, Transform transform, DynamicBuffer<LinkedEntityGroup> linkedEntityGroupList, int buttonIndex, Entity parentEntity, bool isFirstInstance)
         {
-            EntityCommandBuffer ecbs = entityManager.World.GetOrCreateSystem<EntityCommandBufferSystem>().CreateCommandBuffer();
+            EntityCommandBuffer ecbs = new EntityCommandBuffer(Allocator.TempJob);//entityManager.World.GetOrCreateSystem<EntityCommandBufferSystem>().CreateCommandBuffer();
 
             var netREg = transform.GetComponent<NetworkedGameObject>();
 

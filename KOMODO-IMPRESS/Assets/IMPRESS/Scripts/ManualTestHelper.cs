@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
+//using UnityEngine.InputSystem;
 using Komodo.Runtime;
 using Komodo.Utilities;
 
 public class ManualTestHelper : MonoBehaviour
 {
-    private Keyboard keyboard;
+   // private Keyboard keyboard;
 
     [ContextMenu("EventSystemManager: Set to Desktop")]
     public void EventSystemManagerSetToDesktop ()
@@ -53,37 +53,37 @@ public class ManualTestHelper : MonoBehaviour
         UIManager.Instance.ToggleRightHandedMenu();
     }
 
-    public void Awake ()
-    {
-        keyboard = Keyboard.current;
-    }
+    // public void Awake ()
+    // {
+    //     keyboard = Keyboard.current;
+    // }
 
     [Header("Press T and Y for Left/Right Triggers")]
     public bool hint;
 
-    public void Update ()
-    {
-        if (keyboard != null)
-        {
-            if (keyboard.tKey.wasPressedThisFrame)
-            {
-                KomodoEventManager.TriggerEvent("controllers.left.triggerDown");
-            }
+    // public void Update ()
+    // {
+    //     if (keyboard != null)
+    //     {
+    //         if (keyboard.tKey.wasPressedThisFrame)
+    //         {
+    //             KomodoEventManager.TriggerEvent("controllers.left.triggerDown");
+    //         }
 
-            if (keyboard.tKey.wasReleasedThisFrame)
-            {
-                KomodoEventManager.TriggerEvent("controllers.left.triggerUp");
-            }
+    //         if (keyboard.tKey.wasReleasedThisFrame)
+    //         {
+    //             KomodoEventManager.TriggerEvent("controllers.left.triggerUp");
+    //         }
 
-            if (keyboard.yKey.wasPressedThisFrame)
-            {
-                KomodoEventManager.TriggerEvent("controllers.right.triggerDown");
-            }
+    //         if (keyboard.yKey.wasPressedThisFrame)
+    //         {
+    //             KomodoEventManager.TriggerEvent("controllers.right.triggerDown");
+    //         }
 
-            if (keyboard.yKey.wasReleasedThisFrame)
-            {
-                KomodoEventManager.TriggerEvent("controllers.right.triggerUp");
-            }
-        }
-    }
+    //         if (keyboard.yKey.wasReleasedThisFrame)
+    //         {
+    //             KomodoEventManager.TriggerEvent("controllers.right.triggerUp");
+    //         }
+    //     }
+    // }
 }

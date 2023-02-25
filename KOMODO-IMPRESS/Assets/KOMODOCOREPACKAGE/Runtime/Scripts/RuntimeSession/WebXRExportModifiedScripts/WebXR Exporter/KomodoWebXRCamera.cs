@@ -35,7 +35,7 @@ namespace Komodo.Runtime
             WebXRManagerEditorSimulator.OnXRChange += onVRChange;
 #endif
 
-            WebXRManager.OnHeadsetUpdate += onHeadsetUpdate;
+            WebXRManager.OnHeadsetUpdate += OnHeadsetUpdate;
 
             cameraMain.transform.localPosition = new Vector3(0, 0, 0);
         }
@@ -48,7 +48,7 @@ namespace Komodo.Runtime
         public void OnDestroy()
         {
             WebXRManager.OnXRChange -= onVRChange;
-            WebXRManager.OnHeadsetUpdate -= onHeadsetUpdate;
+            WebXRManager.OnHeadsetUpdate -= OnHeadsetUpdate;
         }
 
         public Camera GetCamera(CameraID cameraID)
@@ -121,35 +121,61 @@ namespace Komodo.Runtime
                 cameraARR.enabled = false;
             }
         }
+private void OnHeadsetUpdate(
+        Matrix4x4 leftProjectionMatrix,
+        Matrix4x4 rightProjectionMatrix,
+        Quaternion leftRotation,
+        Quaternion rightRotation,
+        Vector3 leftPosition,
+        Vector3 rightPosition)
+    {
+      if (xrState == WebXRState.VR)
+      {
+        cameraL.transform.localPosition = leftPosition;
+        cameraL.transform.localRotation = leftRotation;
+        cameraL.projectionMatrix = leftProjectionMatrix;
+        cameraR.transform.localPosition = rightPosition;
+        cameraR.transform.localRotation = rightRotation;
+        cameraR.projectionMatrix = rightProjectionMatrix;
+      }
+      else if (xrState == WebXRState.AR)
+      {
+        cameraARL.transform.localPosition = leftPosition;
+        cameraARL.transform.localRotation = leftRotation;
+        cameraARL.projectionMatrix = leftProjectionMatrix;
+        cameraARR.transform.localPosition = rightPosition;
+        cameraARR.transform.localRotation = rightRotation;
+        cameraARR.projectionMatrix = rightProjectionMatrix;
+      }
+    }
+        // private void onHeadsetUpdate(
+        //     Matrix4x4 leftProjectionMatrix,
+        //     Matrix4x4 rightProjectionMatrix,
+        //     Matrix4x4 leftViewMatrix,
+        //     Matrix4x4 rightViewMatrix,
+        //     Matrix4x4 sitStandMatrix)
+        // {
+        //     if (xrState == WebXRState.VR)
+        //     {
+        //         WebXRMatrixUtil.SetTransformFromViewMatrix(cameraL.transform, leftViewMatrix * sitStandMatrix.inverse);
 
-        private void onHeadsetUpdate(
-            Matrix4x4 leftProjectionMatrix,
-            Matrix4x4 rightProjectionMatrix,
-            Matrix4x4 leftViewMatrix,
-            Matrix4x4 rightViewMatrix,
-            Matrix4x4 sitStandMatrix)
-        {
-            if (xrState == WebXRState.VR)
-            {
-                WebXRMatrixUtil.SetTransformFromViewMatrix(cameraL.transform, leftViewMatrix * sitStandMatrix.inverse);
+        //         cameraL.projectionMatrix = leftProjectionMatrix;
 
-                cameraL.projectionMatrix = leftProjectionMatrix;
+        //         WebXRMatrixUtil.SetTransformFromViewMatrix(cameraR.transform, rightViewMatrix * sitStandMatrix.inverse);
 
-                WebXRMatrixUtil.SetTransformFromViewMatrix(cameraR.transform, rightViewMatrix * sitStandMatrix.inverse);
+        //         cameraR.projectionMatrix = rightProjectionMatrix;
 
-                cameraR.projectionMatrix = rightProjectionMatrix;
+        //     }
+        //     else if (xrState == WebXRState.AR)
+        //     {
+        //         WebXRMatrixUtil.SetTransformFromViewMatrix(cameraARL.transform, leftViewMatrix * sitStandMatrix.inverse);
 
-            }
-            else if (xrState == WebXRState.AR)
-            {
-                WebXRMatrixUtil.SetTransformFromViewMatrix(cameraARL.transform, leftViewMatrix * sitStandMatrix.inverse);
+        //         cameraARL.projectionMatrix = leftProjectionMatrix;
 
-                cameraARL.projectionMatrix = leftProjectionMatrix;
+        //         WebXRMatrixUtil.SetTransformFromViewMatrix(cameraARR.transform, rightViewMatrix * sitStandMatrix.inverse);
 
-                WebXRMatrixUtil.SetTransformFromViewMatrix(cameraARR.transform, rightViewMatrix * sitStandMatrix.inverse);
-
-                cameraARR.projectionMatrix = rightProjectionMatrix;
-            }
-        }
+        //         cameraARR.projectionMatrix = rightProjectionMatrix;
+        //     }
+        // }
     }
 }

@@ -4,14 +4,15 @@ using System.Collections;
 using UnityEngine;
 using TiltBrushToolkit;
 using GLTFast;
+using System.Threading.Tasks;
 
 namespace Komodo.AssetImport
 {
     public class TiltBrushAndGLTFastLoader : ModelDownloaderAndLoader
     {
 
-        private GLTFast.GLTFast gltf;
-        public override void LoadLocalFile(string localFilename, System.Action<GameObject> callback)
+      //  private GLTFast.GLTFast gltf;
+        public async override void LoadLocalFile(string localFilename, System.Action<GameObject> callback)
         {
 
             if (isTiltBrushFile(localFilename))
@@ -38,7 +39,11 @@ namespace Komodo.AssetImport
 
                 KomodoGLTFAsset loader = result.AddComponent<KomodoGLTFAsset>();
 
-                loader.Load(localFilename, callback);
+               await loader.Load(localFilename);
+
+                callback(loader.gameObject);
+
+            //    callback();
             }
         }
 

@@ -125,8 +125,6 @@ namespace Komodo.Runtime
             // instantiates this singleton in case it doesn't exist yet.
             var uiManager = Instance;
 
-            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-
             clientManager = ClientSpawnManager.Instance;
 
             if (menuPrefab == null)
@@ -324,14 +322,14 @@ namespace Komodo.Runtime
             }
 
             //TODO(Brandon): what is this code for?
-            try
-            {
-                Entity currentEntity = NetworkedObjectsManager.Instance.GetEntity(index);
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"Tried to get entity with index {index}. Error: {e.Message}");
-            }
+            // try
+            // {
+            //     Entity currentEntity = NetworkedObjectsManager.Instance.GetEntity(index);
+            // }
+            // catch (Exception e)
+            // {
+            //     Debug.LogWarning($"Tried to get entity with index {index}. Error: {e.Message}");
+            // }
         }
 
         /* TODO: implement these two functions. Right now they don't work because ProcessNetworkToggleVisibility expects an entityID, not an index.
@@ -364,7 +362,7 @@ namespace Komodo.Runtime
                 return;
             }
 
-            var index = entityManager.GetSharedComponentData<ButtonIDSharedComponentData>(netObject.Entity).buttonID;
+            var index = entityManager.GetSharedComponentManaged<ButtonIDSharedComponentData>(netObject.Entity).buttonID;
 
             GameObject currentObj = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index).gameObject;
 

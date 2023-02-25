@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Entities;
+// using Unity.Entities;
 using Komodo.Utilities;
 
 namespace Komodo.Runtime
@@ -15,14 +15,14 @@ namespace Komodo.Runtime
             set { _Instance = value; }
         }
 
-        private EntityManager entityManager;
+//        private EntityManager entityManager;
 
         public Dictionary<int, NetworkedGameObject> networkedObjectFromEntityId = new Dictionary<int, NetworkedGameObject>();
 
         //list of decomposed for entire set locking
         public Dictionary<int, List<NetworkedGameObject>> networkedSubObjectListFromIndex = new Dictionary<int, List<NetworkedGameObject>>();
 
-        public List<Entity> topLevelEntityList = new List<Entity>();
+        //public List<Entity> topLevelEntityList = new List<Entity>();
 
         //this is used to keep tabs on a unique identifier for our decomposed objeccts that are instantiated
         private static int uniqueDefaultID;
@@ -31,7 +31,7 @@ namespace Komodo.Runtime
         {
             var forceAlive = Instance;
 
-            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+           // entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         }
 
         public void Register (int entityID, NetworkedGameObject netObject)
@@ -39,18 +39,19 @@ namespace Komodo.Runtime
             networkedObjectFromEntityId.Add(entityID, netObject);
         }
 
-        public Entity GetEntity(int index)
-        {
-            if (index < 0 || index >= topLevelEntityList.Count)
-            {
-                throw new System.Exception("Entity index is out-of-bounds for the client's entity list.");
-            }
+        // public Entity GetEntity(int index)
+        // {
+        //     if (index < 0 || index >= topLevelEntityList.Count)
+        //     {
+        //         throw new System.Exception("Entity index is out-of-bounds for the client's entity list.");
+        //     }
 
-            return topLevelEntityList[index];
-        }
+        //     return topLevelEntityList[index];
+        // }
 
         public NetworkedGameObject GetNetworkedGameObject(int buttonId)
-        {
+        { 
+            //return null;
             if (buttonId < 0 || buttonId >= ModelImportInitializer.Instance.networkedGameObjects.Count)
             {
                 throw new System.Exception("Index is out-of-bounds for the client's networked game objects list.");
@@ -61,14 +62,14 @@ namespace Komodo.Runtime
 
         public List<NetworkedGameObject> GetNetworkedSubObjectList(int index)
         {
-            List<NetworkedGameObject> result;
+             List<NetworkedGameObject> result = new List<NetworkedGameObject>();
 
-            bool success = networkedSubObjectListFromIndex.TryGetValue(index, out result);
+            // bool success = networkedSubObjectListFromIndex.TryGetValue(index, out result);
 
-            if (!success)
-            {
-                throw new System.Exception($"Value was not found in client's networked game objects dictionary for key {index}.");
-            }
+            // if (!success)
+            // {
+            //     throw new System.Exception($"Value was not found in client's networked game objects dictionary for key {index}.");
+            // }
 
             return result;
         }
@@ -217,20 +218,20 @@ namespace Komodo.Runtime
         // TODO -- add error checking.
         public void ApplyGrabStartInteraction (Interaction interactionData)
         {
-            entityManager.AddComponentData(Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].Entity, new TransformLockTag());
+          //  entityManager.AddComponentData(Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].Entity, new TransformLockTag());
         }
 
         // TODO -- add error checking.
         public void ApplyGrabEndInteraction (Interaction interactionData)
         {
-            if (!entityManager.HasComponent<TransformLockTag>(Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].Entity))
-            {
-                Debug.LogWarning("Client Entity does not exist for Drop interaction--- EntityID" + interactionData.targetEntity_id);
+            // if (!entityManager.HasComponent<TransformLockTag>(Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].Entity))
+            // {
+            //     Debug.LogWarning("Client Entity does not exist for Drop interaction--- EntityID" + interactionData.targetEntity_id);
 
-                return;
-            }
+            //     return;
+            // }
 
-            entityManager.RemoveComponent<TransformLockTag>(Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].Entity);
+            // entityManager.RemoveComponent<TransformLockTag>(Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].Entity);
         }
 
         public void ApplyLockInteraction (Interaction interactionData)
@@ -244,14 +245,14 @@ namespace Komodo.Runtime
 
             var targetEntity = Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].Entity;
 
-            if (!entityManager.HasComponent<ButtonIDSharedComponentData>(targetEntity))
-            {
-                Debug.LogError($"ApplyLockInteraction: couldn't find button ID component for entity with targetEntityID {interactionData.targetEntity_id}");
+            // if (!entityManager.HasComponent<ButtonIDSharedComponentData>(targetEntity))
+            // {
+            //     Debug.LogError($"ApplyLockInteraction: couldn't find button ID component for entity with targetEntityID {interactionData.targetEntity_id}");
 
-                return;
-            }
+            //     return;
+            // }
 
-            var buttonIndex = entityManager.GetSharedComponentData<ButtonIDSharedComponentData>(targetEntity).buttonID;
+            // var buttonIndex = entityManager.GetSharedComponentManaged<ButtonIDSharedComponentData>(targetEntity).buttonID;
 
             //disable button interaction for others
             if (!UIManager.IsAlive)
@@ -261,7 +262,7 @@ namespace Komodo.Runtime
                 return;
             }
 
-            UIManager.Instance.ProcessNetworkToggleLock(buttonIndex, true);
+            //UIManager.Instance.ProcessNetworkToggleLock(buttonIndex, true);
         }
 
         public void ApplyUnlockInteraction (Interaction interactionData)
@@ -275,14 +276,14 @@ namespace Komodo.Runtime
 
             var targetEntity = Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].Entity;
 
-            if (!entityManager.HasComponent<ButtonIDSharedComponentData>(targetEntity))
-            {
-                Debug.LogError($"ApplyLockInteraction: couldn't find button ID component for entity with targetEntityID {interactionData.targetEntity_id}");
+            // if (!entityManager.HasComponent<ButtonIDSharedComponentData>(targetEntity))
+            // {
+            //     Debug.LogError($"ApplyLockInteraction: couldn't find button ID component for entity with targetEntityID {interactionData.targetEntity_id}");
 
-                return;
-            }
+            //     return;
+            // }
 
-            var buttonIndex = entityManager.GetSharedComponentData<ButtonIDSharedComponentData>(targetEntity).buttonID;
+           // var buttonIndex = entityManager.GetSharedComponentManaged<ButtonIDSharedComponentData>(targetEntity).buttonID;
 
             //disable button interaction for others
             if (!UIManager.IsAlive)
@@ -292,7 +293,7 @@ namespace Komodo.Runtime
                 return;
             }
 
-            UIManager.Instance.ProcessNetworkToggleLock(buttonIndex, false);
+         //   UIManager.Instance.ProcessNetworkToggleLock(buttonIndex, false);
         }
 
         /// <summary>
@@ -364,17 +365,17 @@ namespace Komodo.Runtime
 
         public void LinkNetObjectToButton(int entityID, NetworkedGameObject netObject)
         {
-            if (entityManager.HasComponent<ButtonIDSharedComponentData>(netObject.Entity))
-            {
-                var buttonID = entityManager.GetSharedComponentData<ButtonIDSharedComponentData>(netObject.Entity).buttonID;
+            // if (entityManager.HasComponent<ButtonIDSharedComponentData>(netObject.Entity))
+            // {
+            //     var buttonID = entityManager.GetSharedComponentManaged<ButtonIDSharedComponentData>(netObject.Entity).buttonID;
 
-                if (buttonID < 0 || buttonID >= ModelImportInitializer.Instance.networkedGameObjects.Count)
-                {
-                    throw new System.Exception("Button ID value is out-of-bounds for networked objects list.");
-                }
+            //     if (buttonID < 0 || buttonID >= ModelImportInitializer.Instance.networkedGameObjects.Count)
+            //     {
+            //         throw new System.Exception("Button ID value is out-of-bounds for networked objects list.");
+            //     }
 
-                ModelImportInitializer.Instance.networkedGameObjects[buttonID] = netObject;
-            }
+                ModelImportInitializer.Instance.networkedGameObjects[netObject.buttonIndex] = netObject;
+         //   }
         }
 
         // Returns true for success and false for failure

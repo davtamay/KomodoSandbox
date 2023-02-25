@@ -63,11 +63,11 @@ namespace Komodo.Runtime
                     yield return new WaitUntil(() => isAssetImportFinished);
                 }
 
-                UIManager.Instance.initialLoadingCanvasProgressText.text = "Setting Up Menu";
-                yield return new WaitUntil(() =>  
-                {   
-                    return UIManager.Instance.IsReady();
-                });
+                // UIManager.Instance.initialLoadingCanvasProgressText.text = "Setting Up Menu";
+                // yield return new WaitUntil(() =>  
+                // {   
+                //     return UIManager.Instance.IsReady();
+                // });
 
                 UIManager.Instance.initialLoadingCanvas.gameObject.SetActive(false);
 

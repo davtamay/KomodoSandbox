@@ -46,7 +46,7 @@ namespace Komodo.Runtime
 
         public void Initialize (int index)
         {
-            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+           // entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
             toggle = GetComponent<Toggle>();
 
@@ -72,26 +72,26 @@ namespace Komodo.Runtime
 
         public void SendNetworkUpdate (bool doLock)
         {
-            int lockState = 0;
+            // int lockState = 0;
 
-            //SETUP and send network lockstate
-            if (doLock)
-            {
-                lockState = (int)INTERACTIONS.LOCK;
-            }
-            else
-            {
-                lockState = (int)INTERACTIONS.UNLOCK;
-            }
+            // //SETUP and send network lockstate
+            // if (doLock)
+            // {
+            //     lockState = (int)INTERACTIONS.LOCK;
+            // }
+            // else
+            // {
+            //     lockState = (int)INTERACTIONS.UNLOCK;
+            // }
 
-            int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(NetworkedObjectsManager.Instance.GetNetworkedSubObjectList(this.index)[0].Entity).entityID;
+            // int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(NetworkedObjectsManager.Instance.GetNetworkedSubObjectList(this.index)[0].Entity).entityID;
 
-            NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
-            {
-                sourceEntity_id = NetworkUpdateHandler.Instance.client_id,
-                targetEntity_id = entityID,
-                interactionType = lockState,
-            });
+            // NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
+            // {
+            //     sourceEntity_id = NetworkUpdateHandler.Instance.client_id,
+            //     targetEntity_id = entityID,
+            //     interactionType = lockState,
+            // });
         }
 
         public void UpdateComponentData (bool doLock)
