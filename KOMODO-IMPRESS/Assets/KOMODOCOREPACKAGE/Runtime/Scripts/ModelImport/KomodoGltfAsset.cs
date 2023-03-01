@@ -34,11 +34,20 @@ namespace GLTFast
         private Loading.IDownloadProvider downloadProvider;
 
             GltfImport GLTFastInstance;
+
+             /// <summary>
+        /// Latest scene's instance.
+        /// </summary>
+        public GameObjectSceneInstance SceneInstance { get; protected set; }
+
+// [SerializeField]
+//         InstantiationSettings instantiationSettings;
          //private GLTFastInstance gLTFastInstance;
 
-        protected override IInstantiator GetDefaultInstantiator(ICodeLogger logger) {
-    return  new GameObjectInstantiator(Importer, transform, logger);//, instantiationSettings);
-}
+      protected override IInstantiator GetDefaultInstantiator(ICodeLogger logger)
+        {
+            return new GameObjectInstantiator(Importer, transform, logger);//, instantiationSettings);
+        }
         // public void Load(string location, System.Action<GameObject> callback) {
         //     this.location = location;
         //     this.callback = callback;
@@ -62,7 +71,8 @@ namespace GLTFast
 
             currentCallback = callback;
 
-            await Load(url);
+downloadProvider = new Loading.KomodoDownloadProvider();
+            await Load(url, downloadProvider);
         }
 
         System.Action<GameObject> currentCallback;
@@ -82,7 +92,7 @@ namespace GLTFast
                 // Auto-Instantiate
                 if (sceneId >= 0)
                 {
-                    success = await InstantiateScene(sceneId, logger);
+                 //   success = await InstantiateScene(sceneId, logger);
                 }
                 else
                 {
@@ -99,7 +109,10 @@ namespace GLTFast
             //currentCallback(gameObject.transform.GetChild(0).GetChild(0).gameObject);
             Debug.Log("komoddo",gameObject );
 
-         //   StartCoroutine(Instantiate(gameObject));
+
+
+base.PostInstantiation(instantiator, success);
+          //  StartCoroutine(Instantiate(gameObject));
 
             //base.OnLoadComplete(success);
         }
@@ -109,9 +122,13 @@ namespace GLTFast
             GLTFastInstance = new GltfImport();
         }
 
-        public override void ClearScenes() {
-    // You can add your own implementation here, or simply call the base class method.
-    //base.ClearScenes();
+      public override void ClearScenes()
+        {
+            foreach (Transform child in transform)
+            {
+                Destroy(child.gameObject);
+            }
+            SceneInstance = null;
         }
 
         /**
@@ -121,7 +138,7 @@ namespace GLTFast
         public IEnumerator Instantiate (GameObject result) {
 
             yield return new WaitUntil ( () => {
-                bool success = GLTFastInstance.InstantiateMainScene(result.transform);
+                bool success = GLTFastInstance.InstantiateScene(result.transform);
 
                 //Debug.Log($"Instantiate {gameObject.name}: {success}");
 

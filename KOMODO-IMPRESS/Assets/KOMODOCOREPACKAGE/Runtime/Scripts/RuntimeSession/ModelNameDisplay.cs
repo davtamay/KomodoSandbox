@@ -9,6 +9,8 @@ namespace Komodo.Runtime
     {
         private Text display;
 
+        public string GetName()=>display.text;
+
         public void Initialize (String name)
         {
             display = GetComponent<Text>();
@@ -16,6 +18,11 @@ namespace Komodo.Runtime
             this.display.text = "...";
 
             this.display.text = name;
+        }
+
+        public void Set(String text){
+
+            display.text = text;
         }
     }
 }

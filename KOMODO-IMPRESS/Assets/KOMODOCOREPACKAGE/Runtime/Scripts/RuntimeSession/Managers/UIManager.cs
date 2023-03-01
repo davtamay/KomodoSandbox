@@ -256,8 +256,11 @@ namespace Komodo.Runtime
 
         public void ToggleModelVisibility (int index, bool doShow)
         {
+            //If buttons are setup but not the model we have to not invoke this if not found.
+
             GameObject gObject = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index).gameObject;
 
+            if(gObject != null) 
             gObject.SetActive(doShow);
         }
 
@@ -290,6 +293,8 @@ namespace Komodo.Runtime
         public void SendVisibilityUpdate (int index, bool doShow)
         {
             GameObject gObject = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index).gameObject;
+
+            if(gObject== null) return;
 
             NetworkedGameObject netObject = gObject.GetComponent<NetworkedGameObject>();
 

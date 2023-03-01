@@ -44,11 +44,14 @@ namespace Komodo.Runtime
             unlockedIcon.SetActive(true);
         }
 
+        public void Awake(){
+
+//toggle = GetComponentInChildren<Toggle>(true);
+        }
         public void Initialize (int index)
         {
            // entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-
-            toggle = GetComponent<Toggle>();
+              if(!toggle) toggle = GetComponentInChildren<Toggle>(true);
 
             if (!toggle)
             {
@@ -67,6 +70,7 @@ namespace Komodo.Runtime
 
         public void OnPointerClick (PointerEventData data)
         {
+            if(!toggle) toggle = GetComponentInChildren<Toggle>(true);
             Toggle(this.toggle.isOn); // The value of toggle should be changed by the time this event handler fires, so we should be able to use its updated value here.
         }
 

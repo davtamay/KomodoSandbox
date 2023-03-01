@@ -306,7 +306,9 @@ namespace Komodo.Runtime
         {
             //add a Net component to the object
             NetworkedGameObject netObject = gObject.AddComponent<NetworkedGameObject>();
+            netObject.buttonIndex = modelListIndex;
 
+           // Debug.Log("DRAGON BUTTON INDEX : " + modelListIndex);
             //to look a decomposed set of objects we need to keep track of what Index we are iterating over regarding or importing models to create sets
             //we keep a list reference for each index and keep on adding to it if we find a model with the same id
             //make sure we are using it as a button reference
@@ -373,7 +375,12 @@ namespace Komodo.Runtime
             //     {
             //         throw new System.Exception("Button ID value is out-of-bounds for networked objects list.");
             //     }
+            if(netObject.buttonIndex == -1)
+            return;
 
+                if(ModelImportInitializer.Instance.networkedGameObjects.Count <= netObject.buttonIndex)
+                    ModelImportInitializer.Instance.networkedGameObjects.Add(netObject);
+                else
                 ModelImportInitializer.Instance.networkedGameObjects[netObject.buttonIndex] = netObject;
          //   }
         }
@@ -420,7 +427,7 @@ namespace Komodo.Runtime
                 return false;
             }
 
-            networkedObjectFromEntityId[id].gameObject.SetActive(false);
+     //       networkedObjectFromEntityId[id].gameObject.SetActive(false);
 
             return true;
         }

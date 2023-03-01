@@ -41,6 +41,10 @@ using Komodo.Utilities;
 namespace Komodo.Runtime
 {
 
+    // Declare the GetParentURL method from the WebGLPlugin.jslib file
+    //[DllImport("__Internal")]
+    //private static extern string GetParentURL();
+
     /// <summary>
     /// To Invoke our process of downloading and setting up imported objects to be used in session
     /// </summary>
@@ -62,7 +66,8 @@ namespace Komodo.Runtime
         public ModelImportSettings settings;
 
         //root object of runtime-imported models
-        private GameObject list;
+        public GameObject list;
+        public GameObject  GetRoot()=> list;
 
         private string listName = "Imported Models";
 
@@ -82,6 +87,9 @@ namespace Komodo.Runtime
 
         public int modelsToInstantiate;
 
+        public ModelButtonList modelButtonList;
+    
+
         private IEnumerator Start()
         {
             //WebGLMemoryStats.LogMoreStats("ModelImportInitializer.Start Setup BEFORE");
@@ -98,7 +106,7 @@ namespace Komodo.Runtime
                 throw new System.Exception("Missing progress display");
             }
 
-            CreateAndSetPositionForModelsList();
+      //      CreateAndSetPositionForModelsList();
 
             //initialize a list of blank gameObjects so we can instantiate models even if they load out-of-order. 
             for (int i = 0; i < modelData.models.Count; i += 1)
@@ -146,11 +154,12 @@ namespace Komodo.Runtime
             GameStateManager.Instance.isAssetImportFinished = true;
         }
 
-        public void CreateAndSetPositionForModelsList () {
-            list = new GameObject(listName);
 
-            list.transform.SetParent(transform, false);
-        }
+        // public void CreateAndSetPositionForModelsList () {
+        //     list = new GameObject(listName);
+
+        //     list.transform.SetParent(transform, false);
+        // }
 
         /**
         * Download uncached or load cached model files.
@@ -163,7 +172,7 @@ namespace Komodo.Runtime
             {
                 //Debug.Log($"retrieving model #{i}");
 
-                int menuIndex = i;
+               
 
                 var model = modelData.models[i];
                 VerifyModelData(model);
@@ -171,7 +180,7 @@ namespace Komodo.Runtime
                 progressDisplay.text = $"{model.name}: Retrieving";
 
                 //download or load our model
-                yield return loader.GetFileFromURL(model, progressDisplay, menuIndex, localFile => {
+                yield return loader.GetFileFromURL(model, progressDisplay, localFile => {
                     localFiles.Add(localFile);
                     modelsToRetrieve -= 1;
                 });
@@ -202,7 +211,7 @@ namespace Komodo.Runtime
             }
         }
 
-        public void VerifyModelData(ModelDataTemplate.ModelImportData data)
+        public void VerifyModelData(ModelImportData data)
         {
             if (string.IsNullOrEmpty(data.name) || string.IsNullOrWhiteSpace(data.name))
             {

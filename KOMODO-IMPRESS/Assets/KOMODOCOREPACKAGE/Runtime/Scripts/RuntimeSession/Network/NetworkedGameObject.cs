@@ -93,7 +93,7 @@ namespace Komodo.Runtime
 #else
             //entityManager.SetName(Entity, gameObject.name);
 #endif
-
+            if(buttonIndex == -1)
             buttonIndex = importIndex;
 
             //set the data that our entity will be storing

@@ -44,6 +44,7 @@ namespace Komodo.Runtime
     public class ModelButtonList : ButtonList
     {
         public ModelDataTemplate modelData;
+        public GameObject placeHolderInputTemplate;
 
         private EntityManager entityManager;
 
@@ -63,11 +64,17 @@ namespace Komodo.Runtime
                 gameObject.SetActive(true);
             }
 
+
+             InstantiatePlaceHolderButton("", ModelImportInitializer.Instance.modelData.models.Count);
+
             yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
 
             InitializeButtons();
 
             NotifyIsReady();
+
+
+            
         }
 
         protected override void InitializeButtons()
@@ -116,6 +123,68 @@ namespace Komodo.Runtime
                 }
             }
         }
+
+
+         public void InstantiatePlaceHolderButton(string name, int buttonIndex)
+        {
+       //  yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished );
+               // yield return null;
+                // if (UIManager.IsAlive)
+                // {
+                    GameObject item = Instantiate(placeHolderInputTemplate, transformToPlaceButtonUnder);
+
+                    if (item.TryGetComponent(out ModelItem modelItem))
+                    {
+                        
+                     //   Debug.Log("initializing buttons :" + modelItem);
+                        // if (name == null)
+                        // {
+                        //     Debug.LogError($"modelData.models[{buttonIndex}].name was null. Proceeding anyways.");
+
+                        //     name = "null";
+                        // }
+                        System.Action<string,int> addPlaceHolderAfterUsed = (s,i) => InstantiatePlaceHolderButton("", ModelImportInitializer.Instance.GetRoot().transform.childCount );
+                        
+
+                        modelItem.Initialize(buttonIndex, modelItem.inputURL.text, true, addPlaceHolderAfterUsed);
+                    }
+                    else
+                    {
+                        throw new MissingComponentException("modelItem on GameObject (from ModelButtonTemplate)");
+                    }
+           
+            //}
+        }
+        public void InstantiateButton(string name, int buttonIndex)
+        {
+           
+                
+                if (UIManager.IsAlive)
+                {
+                    GameObject item = Instantiate(buttonTemplate, transformToPlaceButtonUnder);
+
+                    if (item.TryGetComponent(out ModelItem modelItem))
+                    {
+                        
+                     //   Debug.Log("initializing buttons :" + modelItem);
+                        // if (name == null)
+                        // {
+                        //     Debug.LogError($"modelData.models[{buttonIndex}].name was null. Proceeding anyways.");
+
+                        //     name = "null";
+                        // }
+
+                        modelItem.Initialize(buttonIndex, name);
+                    }
+                    else
+                    {
+                        throw new MissingComponentException("modelItem on GameObject (from ModelButtonTemplate)");
+                    }
+           
+            }
+        }
+
+        
 
         protected override void NotifyIsReady()
         {

@@ -35,19 +35,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Komodo.AssetImport
-{
-    /// <summary>
-    /// Used for creating an model through Unity project context that is used to store the models that we want to 
-    /// download in the begining through ClientSpawnManager.
-    /// </summary>
-    [CreateAssetMenu(fileName = "ModelDataTemplate", menuName = "ModelDataTemplate", order = 0)]
-    public class ModelDataTemplate : ScriptableObject
-    {
-        //list our data objects to import
-        public List<ModelImportData> models;
+namespace Komodo.AssetImport{
 
-        [System.Serializable]
+[System.Serializable]
         public struct ModelImportData
     
         {
@@ -61,6 +51,18 @@ namespace Komodo.AssetImport
 
             public bool isWholeObject;
         }
+
+    /// <summary>
+        [System.Serializable]
+    /// Used for creating an model through Unity project context that is used to store the models that we want to 
+    /// download in the begining through ClientSpawnManager.
+    /// </summary>
+    [CreateAssetMenu(fileName = "ModelDataTemplate", menuName = "ModelDataTemplate", order = 0)]
+    public class ModelDataTemplate : ScriptableObject
+    {
+        //list our data objects to import
+        public List<ModelImportData> models;
+
 
     }
 }

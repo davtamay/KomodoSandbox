@@ -20,7 +20,7 @@ namespace Komodo.Runtime
 
         public virtual void Start()
         {
-            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+         //   entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         }
 
         /// <summary>
@@ -29,16 +29,16 @@ namespace Komodo.Runtime
         /// <param name="netObj"></param>
         public virtual void TryAndErase(NetworkedGameObject netObj)
         {
-            var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObj.Entity).entityID;
+           // var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObj.Entity).entityID;
 
             //draw functionality 
-            if (entityManager.HasComponent<DrawingTag>(netObj.Entity))
-            {
+            // if (entityManager.HasComponent<DrawingTag>(netObj.Entity))
+            // {
                 //turn it off for ourselves and others
                 netObj.gameObject.SetActive(false);
 
                 // when actions of erasing are being captured, the curStrokepos and curColor will both be set to 0. 
-                DrawingInstanceManager.Instance.SendDrawUpdate(entityID, Entity_Type.LineNotRender);
+                // DrawingInstanceManager.Instance.SendDrawUpdate(entityID, Entity_Type.LineNotRender);
 
                 //save our reverted action for undoing the process with the undo button
                 if (UndoRedoManager.IsAlive)
@@ -51,12 +51,12 @@ namespace Komodo.Runtime
                             {
                                 netObj.gameObject.SetActive(true);
 
-                                DrawingInstanceManager.Instance.SendDrawUpdate(entityID, Entity_Type.LineRender);
+                             //   DrawingInstanceManager.Instance.SendDrawUpdate(entityID, Entity_Type.LineRender);
                             }
                         )
                     );
                 }
-            }
+            //}
 
     }
     }

@@ -37,7 +37,8 @@ namespace Komodo.AssetImport
 
                 GameObject result = new GameObject("GLTFastImport");
 
-                KomodoGLTFAsset loader = result.AddComponent<KomodoGLTFAsset>();
+                    GLTFast.GltfAsset loader = result.AddComponent<GLTFast.GltfAsset>();
+                // KomodoGLTFAsset loader = result.AddComponent<KomodoGLTFAsset>();
 
                await loader.Load(localFilename);
 
@@ -51,7 +52,7 @@ namespace Komodo.AssetImport
         * Reads through file contents to check if GLB is Tilt Brush-specific.
         * Reads line-by-line and stops after finding the beginning of the binary section.
         */
-        private bool isTiltBrushFile(string filename)
+        public static bool isTiltBrushFile(string filename)
         {
             int timeOut = 5000; // length of time in milliseconds to allow file scan
             int minNumCharactersToRead = 1000;
@@ -122,7 +123,7 @@ namespace Komodo.AssetImport
             }
         }
 
-        private GameObject LoadFileWithTiltBrushToolkit(string localFilename)
+        public GameObject LoadFileWithTiltBrushToolkit(string localFilename)
         {
             return Glb2Importer.ImportTiltBrushAsset(localFilename);
         }

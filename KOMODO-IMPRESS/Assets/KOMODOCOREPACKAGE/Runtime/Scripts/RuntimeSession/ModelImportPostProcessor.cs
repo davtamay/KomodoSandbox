@@ -52,7 +52,7 @@ namespace Komodo.Runtime
         /// <param name="loadedObject"> our loaded object</param>
         /// <param name="setupFlags"> setup instructions</param>
         /// <returns></returns>
-        public static GameObject SetUpGameObject(int menuButtonIndex, ModelDataTemplate.ModelImportData modelData, GameObject loadedObject, ModelImportSettings setupFlags = null)
+        public static GameObject SetUpGameObject(int menuButtonIndex, ModelImportData modelData, GameObject loadedObject, ModelImportSettings setupFlags = null)
         {
             const float defaultFitToScale = 2;
             const bool defaultDoSetUpColliders = true;
@@ -116,7 +116,7 @@ namespace Komodo.Runtime
             return newParent.gameObject;
         }
 
-        public static void AdjustPose(Transform newParent, ModelDataTemplate.ModelImportData modelData, Bounds bounds)
+        public static void AdjustPose(Transform newParent, ModelImportData modelData, Bounds bounds)
         {
             //set custom properties
             newParent.transform.localScale *= modelData.scale;
@@ -173,7 +173,7 @@ namespace Komodo.Runtime
           //  }
         }
 
-        public static void SetUpColliders(GameObject loadedObject, Bounds bounds, Transform newParent, ModelDataTemplate.ModelImportData modelData, ModelImportSettings setupFlags, int menuButtonIndex)
+        public static void SetUpColliders(GameObject loadedObject, Bounds bounds, Transform newParent, ModelImportData modelData, ModelImportSettings setupFlags, int menuButtonIndex)
         {
             //clear subobjectlist for new object processiong
             List<Bounds> subObjectBounds = new List<Bounds>();

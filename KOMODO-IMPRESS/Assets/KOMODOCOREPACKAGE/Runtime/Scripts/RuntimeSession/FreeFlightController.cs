@@ -132,7 +132,7 @@ namespace Komodo.Runtime
                 return;
             }
 
-            if ((rotationEnabled && Input.GetMouseButton(0)) || (rotationEnabled && Input.GetMouseButton(1)))
+            if ((rotationEnabled && Input.GetMouseButton(0))) //|| (rotationEnabled && Input.GetMouseButton(1)))
             {
                 RotatePlayerFromInput();
             }
@@ -475,13 +475,17 @@ namespace Komodo.Runtime
         /// </Summary>
         public void MousePositionToTeleportationIndicator() 
         {
-              Ray ray = spectatorCamera.ScreenPointToRay(Input.mousePosition);
+                Debug.DrawRay(spectatorCamera.transform.position, spectatorCamera.transform.position + spectatorCamera.transform.forward *20);
+            
+              Ray ray = spectatorCamera.ScreenPointToRay( Input.mousePosition);
+              ray.origin = spectatorCamera.transform.position;
               RaycastHit hit;
 
-              if (Physics.Raycast(ray, out hit)) 
+              if (Physics.Raycast(ray, out hit,100)) 
               {
-                  targetPosition = hit.point;
-                  floorIndicator.transform.position = targetPosition;
+                
+                  targetPosition =   targetPosition = hit.point + (hit.normal * 0.1f * 5f);;
+                 floorIndicator.transform.position =    targetPosition;
               }
         }
     }

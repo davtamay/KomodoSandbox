@@ -24,8 +24,6 @@ namespace Komodo.Runtime
             if (UIManager.IsAlive)
             {
                 UIManager.Instance.ToggleModelVisibility(this.index, doShow);
-
-               // UIManager.Instance.SendVisibilityUpdate(this.index, doShow);
             }
 
             SelectOrDeselect(doShow);
@@ -70,7 +68,7 @@ namespace Komodo.Runtime
 
             this.index = index;
 
-            Toggle(false);
+           // Toggle(false);
         }
 
         public void OnPointerClick (PointerEventData data)

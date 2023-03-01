@@ -31,7 +31,7 @@ namespace Komodo.AssetImport
         /** 
         * Creates a directory to store the model in and then passes model data onto a download coroutine.
         */
-        public IEnumerator GetFileFromURL(ModelDataTemplate.ModelImportData modelData, Text progressDisplay, int index, System.Action<ModelFile> callback)
+        public IEnumerator GetFileFromURL(ModelImportData modelData, Text progressDisplay, System.Action<ModelFile> callback)
         {
             //Gets guid and filename and extension       
             string[] modelParams = getModelParameters(modelData.url); 
@@ -47,11 +47,11 @@ namespace Komodo.AssetImport
 
             var modelFileLocation = $"{modelDirectoryLocation}/{fileNameAndExtension}";
 
-            if (!File.Exists(modelFileLocation)) {
+         //   if (!File.Exists(modelFileLocation)) {
                 Debug.Log($"Downloading {modelData.name}");
-                yield return StartCoroutine(DownloadFile(modelData, progressDisplay, index, modelFileLocation, callback));
+                yield return StartCoroutine(DownloadFile(modelData, progressDisplay, modelFileLocation, callback));
                 yield break;
-            }
+           // }
 
             Debug.Log($"{modelData.name} cached. Loading immediately.");
             
@@ -69,7 +69,7 @@ namespace Komodo.AssetImport
         /** 
         * Downloads a file to a local path, then loads the file
         */
-        private IEnumerator DownloadFile(ModelDataTemplate.ModelImportData modelData, Text progressDisplay, int index, string localPathAndFilename, System.Action<ModelFile> callback = null)
+        private IEnumerator DownloadFile(ModelImportData modelData, Text progressDisplay, string localPathAndFilename, System.Action<ModelFile> callback = null)
         {
             UnityWebRequest fileDownloader = UnityWebRequest.Get(modelData.url);
 

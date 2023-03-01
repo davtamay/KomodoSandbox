@@ -219,8 +219,19 @@ namespace Komodo.IMPRESS
                 throw new UnassignedReferenceException("animalRuler");
             }
 
-            //new
-            CustomScalling(5);
+            //average human height, need to readjust ruller
+            CustomScalling(1.77f);
+
+            if(!teleportPlayer)
+            teleportPlayer = player.GetComponent<TeleportPlayer>();
+            
+
+         //   teleportPlayer.AdjustYAccordingToWorldPulling(playspace.localScale.x );
+
+           //  playspace.position = new Vector3(playspace.position.x, 1.77f, playspace.position.z);
+            // teleportPlayer.SetManualYOffset(1.77f);
+
+            
 
            // onChangeScale.Invoke(5);
 
@@ -236,6 +247,18 @@ namespace Komodo.IMPRESS
           
 
         }
+
+       public IEnumerator Start(){
+
+//DOES NOT WORK IN BUILD...
+yield return null;
+             playspace.position = new Vector3(playspace.position.x, 1.77f, playspace.position.z);
+
+              if(!teleportPlayer)
+            teleportPlayer = player.GetComponent<TeleportPlayer>();
+        
+             // teleportPlayer.SetManualYOffset(1.77f);
+       }
 
         // It will feel like the player is pulling the world, but really they are pushing themselves
         // in the opposite direction, with an inverse rotation, and and inverse scale.
@@ -353,6 +376,8 @@ namespace Komodo.IMPRESS
             UpdateRulerPose(hands[0].transform.position, hands[1].transform.position, clampedNewScale);
 
             UpdateHandToHandLineEndpoints(hands[0].transform.position, hands[1].transform.position);
+
+            
         }
 
         // This function is used externally by the GameStateManager.
@@ -439,7 +464,10 @@ namespace Komodo.IMPRESS
             Vector3 deltaPosition = Vector3.zero - (currentPivotPointInPlayspace.position - initialPivotPointInPlayspace.position);
             
             Vector3 newPos = scaledAroundPosition + deltaPosition;
+
+            //need to set the y according to a sizing height + a offset offground
             playspace.position = new Vector3(newPos.x,  playspace.position.y, newPos.z);
+            teleportPlayer.AdjustYAccordingToWorldPulling(playspace.localScale.x );
 
   //teleportPlayer.SetManualYOffset(playspace.position.y);
 
@@ -495,6 +523,11 @@ namespace Komodo.IMPRESS
             handToHandLine.SetPosition(1, hand1Position);
         }
 
+public float offsetAdjustment = 0.05f;
+public float offsetMultiplier = 1f;
+
+ float power = 2.0f;
+public float middleValueStrength = 1f;
         // Scales the playspace scale range to the ruler's texture offset range
         public float ComputeRulerValue (float playerScale)
         {
@@ -513,19 +546,52 @@ namespace Komodo.IMPRESS
 
             float percentScale = (playerScale - scaleMin) / (scaleMax - scaleMin);
 
-            return (percentScale * (rulerMax - rulerMin)) + rulerMin;
+
+//  float adjustedPercentScale;
+
+//     if (percentScale < 0.5f)
+//     {
+//         adjustedPercentScale = Mathf.Pow(percentScale / 0.5f, power) * 0.5f;
+//     }
+//     else
+//     {
+//         adjustedPercentScale = 0.5f + Mathf.Pow((percentScale - 0.5f) / 0.5f, power) * 0.5f;
+//     }
+
+
+
+
+//             return  (adjustedPercentScale * (rulerMax - rulerMin)) + rulerMin;
+  return  (percentScale * (rulerMax - rulerMin)) + rulerMin;
         }
 
         // Updates the ruler's texture offset
         public void UpdateRulerValue (float newScale)
         {
-            var rulerValue = ComputeRulerValue(newScale);
+             var rulerValue = ComputeRulerValue(newScale);
 
-            float min = ComputeRulerValue(scaleMin);
+    float min = ComputeRulerValue(scaleMin);
 
-            float max = ComputeRulerValue(scaleMax);
+    float max = ComputeRulerValue(scaleMax);
 
-            animalRulerMesh.material.SetTextureOffset("_MainTex", new Vector2(Mathf.Clamp(rulerValue - 0.2f, min - 0.05f, max), 0));
+    float textureRange = max - min;
+
+rulerValue *= offsetMultiplier;
+
+
+    // Calculate the amount by which the ruler value exceeds the max or min
+    //float excessValue = Mathf.Max(rulerValue - max, min - rulerValue, 0f);
+
+    // Calculate the amount by which to adjust the ruler value to fit within the texture range
+   // float adjustment = excessValue * (textureRange / (textureRange - 2 * Mathf.Abs(excessValue)));
+
+    // Adjust the ruler value and clamp it to the range defined by min and max
+    float adjustedRulerValue = Mathf.Clamp(rulerValue , min, max);
+
+    //adjustedRulerValue -=  adjustment;
+
+    // Set the texture offset based on the adjusted ruler value
+    animalRulerMesh.material.SetTextureOffset("_MainTex", new Vector2(adjustedRulerValue - offsetAdjustment , 0));
         }
 
         // TODO: Makes the current line renderer scale change proportionally with the playspace scale

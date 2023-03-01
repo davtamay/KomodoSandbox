@@ -270,24 +270,40 @@ namespace Komodo.Runtime
             playspace.position = finalPlayspacePosition;
         }
 
+        public float currentPlayspacePositionY;
+        public void AdjustYAccordingToWorldPulling (float value){
+
+        if(playspace){
+           playspace.position = new Vector3(playspace.position.x,  currentPlayspacePositionY + value, playspace.position.z);
+            manualYOffset =  value;
+        }
+    
+        // currentPlayspacePositionY = playspace.position.y;
+          //UpdatePlayerYPosition(playspace.position.y);
+
+         
+        }
         public void UpdatePlayerYPosition (float teleportY) 
         {
-            Debug.Log(teleportY);
-            // if (justBumped) 
-            // {
-            //     justBumped = false;
+           // Debug.Log(teleportY);
+            if (justBumped) 
+            {
+                justBumped = false;
 
-            //     return;
-            // }
+                return;
+            }
 
             Vector3 finalPlayspacePosition = playspace.position;
 
+            currentPlayspacePositionY = teleportY;
             finalPlayspacePosition.y = teleportY;
 
             if (useManualHeightOffset) 
             {
 
                 finalPlayspacePosition.y += manualYOffset;
+
+                
 
                 justBumped = true;
             }
