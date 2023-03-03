@@ -6,13 +6,14 @@ using TiltBrushToolkit;
 using GLTFast;
 using System.Threading.Tasks;
 
+
 namespace Komodo.AssetImport
 {
     public class TiltBrushAndGLTFastLoader : ModelDownloaderAndLoader
     {
 
       //  private GLTFast.GLTFast gltf;
-        public async override void LoadLocalFile(string localFilename, System.Action<GameObject> callback)
+        public async override void LoadLocalFile(string url, string localFilename, System.Action<GameObject> callback)
         {
 
             if (isTiltBrushFile(localFilename))
@@ -37,10 +38,18 @@ namespace Komodo.AssetImport
 
                 GameObject result = new GameObject("GLTFastImport");
 
-                    GLTFast.GltfAsset loader = result.AddComponent<GLTFast.GltfAsset>();
+                //GLTFast.GltfAsset loader = result.AddComponent<GLTFast.GltfAsset>();
+                //loader.Url = url;
+
+
+                GLTFast.GltfAsset loader = result.AddComponent<GLTFast.GltfAsset>();
                 // KomodoGLTFAsset loader = result.AddComponent<KomodoGLTFAsset>();
 
-               await loader.Load(localFilename);
+                await loader.Load(url);
+
+                // KomodoGLTFAsset loader = result.AddComponent<KomodoGLTFAsset>();
+                // loader.
+                // await loader.Load(localFilename);
 
                 callback(loader.gameObject);
 
@@ -70,55 +79,61 @@ namespace Komodo.AssetImport
             int numCharactersToRead = lengthOfLongestString;
 
             bool isFirstLine = true;
-
-            using (StreamReader reader = new StreamReader(filename))
+            try
             {
-                var buffer = new char[numCharactersToRead];
-                int numCharactersRead = numCharactersToRead;
-                while (reader.Peek() > -1)
+                using (StreamReader reader = new StreamReader(filename))
                 {
-                    reader.ReadBlock(buffer, startIndex, numCharactersToRead);
-
-                    string bufferAsString = new string(buffer);
-
-                    if (numCharactersRead >= minNumCharactersToRead && watch.ElapsedMilliseconds > timeOut)
+                    var buffer = new char[numCharactersToRead];
+                    int numCharactersRead = numCharactersToRead;
+                    while (reader.Peek() > -1)
                     {
-                        watch.Stop();
-                        //Debug.Log($"Hit time-out of {timeOut} ms before finding string. Read {numCharactersRead} total characters.");
-                        return false;
+                        reader.ReadBlock(buffer, startIndex, numCharactersToRead);
+
+                        string bufferAsString = new string(buffer);
+
+                        if (numCharactersRead >= minNumCharactersToRead && watch.ElapsedMilliseconds > timeOut)
+                        {
+                            watch.Stop();
+                            //Debug.Log($"Hit time-out of {timeOut} ms before finding string. Read {numCharactersRead} total characters.");
+                            return false;
+                        }
+
+                        if (bufferAsString.Contains("}") && bufferAsString.Contains("BIN"))
+                        { // reached the end of the JSON section
+                            watch.Stop();
+                            //Debug.Log($"Encountered BIN section of file before finding Tilt Brush string. Took {watch.ElapsedMilliseconds} ms.");
+                            return false;
+                        }
+
+                        if (bufferAsString.Contains(tiltBrushString1) ||
+                            bufferAsString.Contains(tiltBrushString2) ||
+                            bufferAsString.Contains(tiltBrushString3))
+                        {
+                            watch.Stop();
+                            //Debug.Log($"Detected Tilt Brush file in {watch.ElapsedMilliseconds} ms.");
+                            return true;
+                        }
+
+                        if (isFirstLine)
+                        {
+                            startIndex = lengthOfLongestString - 1;
+                            numCharactersToRead = 1;
+                            isFirstLine = false;
+                            continue;
+                        }
+
+                        // after the first line, shift buffer to the left one character so we read the next substring.
+                        Array.Copy(buffer, 1, buffer, 0, buffer.Length - 1);
+                        numCharactersRead += 1;
                     }
 
-                    if (bufferAsString.Contains("}") && bufferAsString.Contains("BIN"))
-                    { // reached the end of the JSON section
-                        watch.Stop();
-                        //Debug.Log($"Encountered BIN section of file before finding Tilt Brush string. Took {watch.ElapsedMilliseconds} ms.");
-                        return false;
-                    }
-
-                    if (bufferAsString.Contains(tiltBrushString1) ||
-                        bufferAsString.Contains(tiltBrushString2) ||
-                        bufferAsString.Contains(tiltBrushString3))
-                    {
-                        watch.Stop();
-                        //Debug.Log($"Detected Tilt Brush file in {watch.ElapsedMilliseconds} ms.");
-                        return true;
-                    }
-
-                    if (isFirstLine)
-                    {
-                        startIndex = lengthOfLongestString - 1;
-                        numCharactersToRead = 1;
-                        isFirstLine = false;
-                        continue;
-                    }
-
-                    // after the first line, shift buffer to the left one character so we read the next substring.
-                    Array.Copy(buffer, 1, buffer, 0, buffer.Length - 1);
-                    numCharactersRead += 1;
+                    watch.Stop();
+                    //Debug.Log($"Did not find Tilt Brush string in entire file. Took {watch.ElapsedMilliseconds} ms");
+                    return false;
                 }
-
-                watch.Stop();
-                //Debug.Log($"Did not find Tilt Brush string in entire file. Took {watch.ElapsedMilliseconds} ms");
+            }
+            catch
+            {
                 return false;
             }
         }

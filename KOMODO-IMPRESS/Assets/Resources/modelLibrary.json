@@ -1,0 +1,248 @@
+{
+    "modelLibrary": [
+        {
+            "modelName": "Duck",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "Buggy",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Buggy/glTF-Binary/Buggy.glb",
+            "imagePath": "",
+            "scale": 0.01
+        },
+        {
+            "modelName": "Fish",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BarramundiFish/glTF-Binary/BarramundiFish.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "brushTests",
+            "modelURL": "https://s3.us-east-2.amazonaws.com/vrcat-assets/fe562af4-e660-454c-b9e5-b6c57086cc12/model.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "Bernard2",
+            "modelURL": "https://raw.githubusercontent.com/YvesBB/models/main/bernard2.glb",
+            "imagePath": "",
+            "scale": 0.01
+        },
+        {
+            "modelName": "Engine",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/2CylinderEngine/glTF-Binary/2CylinderEngine.glb",
+            "imagePath": "",
+            "scale": 0.005
+        },
+        {
+            "modelName": "Antique Camera",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/AntiqueCamera/glTF-Binary/AntiqueCamera.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "Avocado",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "BoomBox",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoomBox/glTF-Binary/BoomBox.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "Corset",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Corset/glTF-Binary/Corset.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "Damaged Helmet",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "Flight Helmet",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/FlightHelmet/glTF/FlightHelmet.gltf",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "Lantern",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Lantern/glTF-Binary/Lantern.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "SciFiHelmet",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/SciFiHelmet/glTF/SciFiHelmet.gltf",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "Suzanne",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Suzanne/glTF/Suzanne.gltf",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "WaterBottle",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/WaterBottle/glTF-Binary/WaterBottle.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "ReciprocatingSaw",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/ReciprocatingSaw/glTF-Binary/ReciprocatingSaw.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+
+
+        {
+            "modelName": "GearboxAssy",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/GearboxAssy/glTF-Binary/GearboxAssy.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "SciFiHelmet",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/SciFiHelmet/glTF/SciFiHelmet.gltf",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "Suzanne",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Suzanne/glTF/Suzanne.gltf",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "WaterBottle",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/WaterBottle/glTF-Binary/WaterBottle.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "ReciprocatingSaw",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/ReciprocatingSaw/glTF-Binary/ReciprocatingSaw.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "GearboxAssy",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/GearboxAssy/glTF-Binary/GearboxAssy.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "BoxAnimated",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoxAnimated/glTF-Binary/BoxAnimated.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "CesiumMilkTruck",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/CesiumMilkTruck/glTF-Binary/CesiumMilkTruck.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "BrainStem",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BrainStem/glTF-Binary/BrainStem.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "Fox",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Fox/glTF/Fox.gltf",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "CesiumMan",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/VC/glTF-Binary/VC.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "Sponza",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Sponza/glTF/Sponza.gltf",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "AlphaBlendModeTest",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/AlphaBlendModeTest/glTF-Binary/AlphaBlendModeTest.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "ABeautifulGame",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/ABeautifulGame/glTF/ABeautifulGame.gltf",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "DragonAttenuation",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DragonAttenuation/glTF/DragonAttenuation.gltf",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "GlamVelvetSofa",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/GlamVelvetSofa/glTF-Binary/GlamVelvetSofa.glb",
+            "imagePath": "",
+            "scale": 1
+        }
+        ,
+        {
+            "modelName": "IridescentDishWithOlives",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/IridescentDishWithOlives/glTF-Binary/IridescentDishWithOlives.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "LightsPunctualLamp",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/LightsPunctualLamp/glTF-Binary/LightsPunctualLamp.glb",
+            "imagePath": "",
+            "scale": 1
+        }
+        ,
+        {
+            "modelName": "MosquitoInAmber",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/MosquitoInAmber/glTF-Binary/MosquitoInAmber.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "SheenChair",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/SheenChair/glTF-Binary/SheenChair.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "SheenCloth",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/SheenCloth/glTF/SheenCloth.gltf",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "ToyCar",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/ToyCar/glTF-Binary/ToyCar.glb",
+            "imagePath": "",
+            "scale": 1
+        },
+        {
+            "modelName": "MaterialsVariantsShoe",
+            "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb",
+            "imagePath": "",
+            "scale": 1
+        }
+    ]
+}

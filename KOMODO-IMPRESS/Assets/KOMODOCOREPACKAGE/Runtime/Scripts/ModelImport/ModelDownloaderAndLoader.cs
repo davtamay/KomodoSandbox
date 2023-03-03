@@ -126,7 +126,7 @@ namespace Komodo.AssetImport
             return Instantiate(failureObject);
         }
 
-        public IEnumerator TryLoadLocalFile (string localPathAndFileName, string name, ulong downloadedSize, Text progressDisplay, System.Action<GameObject> callback) {
+        public IEnumerator TryLoadLocalFile (string url, string localPathAndFileName, string name, ulong downloadedSize, Text progressDisplay, System.Action<GameObject> callback) {
             progressDisplay.text = $"{name}: Measuring file size";
 
             // WebGLMemoryStats.LogMoreStats($"--- TryLoadLocalFile {name} ---");
@@ -166,7 +166,7 @@ namespace Komodo.AssetImport
 
             progressDisplay.text = $"{name}: Instantiating";
             
-           LoadLocalFile(localPathAndFileName, callback);
+           LoadLocalFile(url, localPathAndFileName, callback);
 
             yield return null;
         }
@@ -177,7 +177,7 @@ namespace Komodo.AssetImport
         * GameObject and then call the passed callback on that GameObject.
         * If the callback is null, it should do nothing.
         */
-        public virtual void LoadLocalFile(string localFilename, System.Action<GameObject> callback) { }
+        public virtual void LoadLocalFile(string url, string localFilename, System.Action<GameObject> callback) { }
 
         public static IEnumerator GetFileSize(string url, Action<long> callback)
         {

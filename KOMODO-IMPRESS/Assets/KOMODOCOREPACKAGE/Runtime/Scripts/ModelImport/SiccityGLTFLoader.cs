@@ -5,7 +5,7 @@ namespace Komodo.AssetImport
 {
     public class SiccityGLTFLoader : ModelDownloaderAndLoader
     {
-        public override void LoadLocalFile(string localFilename, System.Action<GameObject> callback)
+        public override void LoadLocalFile(string url, string localFilename, System.Action<GameObject> callback)
         {
             if (callback != null)
             {

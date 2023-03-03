@@ -140,26 +140,26 @@ public class KomodoGLTFAssetV5 : GltfAssetBase
         //url = thisModelInfo.url;
 
         //   if(TiltBrushAndGLTFastLoader.isTiltBrushFile())
-        if ( !string.IsNullOrEmpty(tryUrl))
-        {
-            if (!IsValidGLTFExtension(tryUrl))
-            {
-                thisModelInfo.onImportAttempted("No .glb/.gltf extension provided");
-                return;
+        //if ( !string.IsNullOrEmpty(tryUrl))
+        //{
+        //    if (!IsValidGLTFExtension(tryUrl))
+        //    {
+        //        thisModelInfo.onImportAttempted("No .glb/.gltf extension provided");
+        //        return;
 
-            }
+        //    }
 
-            try
-            {
-                UnityWebRequest.Get(tryUrl);
+        //    try
+        //    {
+        //        UnityWebRequest.Get(tryUrl);
 
-            }
-            catch
-            {
-                thisModelInfo.onImportAttempted("Error importing file check url");
-                return;
+        //    }
+        //    catch
+        //    {
+        //        thisModelInfo.onImportAttempted("Error importing file check url");
+        //        return;
 
-            }
+        //    }
             // thisModelInfo.CheckValidURL(Url);
 
 
@@ -170,54 +170,13 @@ public class KomodoGLTFAssetV5 : GltfAssetBase
             //  else
             // Automatic load on startup
             await Load(tryUrl, logger: thisModelInfo);
-        }
-        else
-        {
-            thisModelInfo?.onImportAttempted("No Input Provided");
-        }
+       // }
+        //else
+        //{
+        //    thisModelInfo?.onImportAttempted("No Input Provided");
+        //}
     }
-    public bool IsNotEmpty(string url)
-    {
-
-
-        if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url))
-        {
-            return false;
-            // throw new System.Exception("model name cannot be empty.");
-        }
-        else
-            return true;
-
-    }
-
-    public bool IsValidGLTFExtension(string url)
-    {
-
-        string extension = null;
-
-        //to check for illigal characters
-        try
-        {
-            extension = Path.GetExtension(url);
-        }
-        catch
-        {
-            return false;
-        }
-
-        //to check if there is no extension given
-        if (extension == null)
-            return false;
-
-        if ( extension.ToLower() == ".glb" || extension.ToLower() == ".gltf")
-        {
-            return true;
-            // throw new System.Exception("model name cannot be empty.");
-        }
-        else
-            return false;
-    }
-
+    
     /// <inheritdoc />
     public override async Task<bool> Load(
             string gltfUrl,

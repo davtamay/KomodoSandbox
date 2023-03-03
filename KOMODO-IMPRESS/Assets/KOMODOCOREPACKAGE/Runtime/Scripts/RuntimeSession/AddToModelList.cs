@@ -128,7 +128,7 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
 
     public void Warning(LogCode code, params string[] messages)
     {
-        SetFailed(messages[0]);
+       // SetFailed(messages[0]);
     }
 
     public void Info(LogCode code, params string[] messages)

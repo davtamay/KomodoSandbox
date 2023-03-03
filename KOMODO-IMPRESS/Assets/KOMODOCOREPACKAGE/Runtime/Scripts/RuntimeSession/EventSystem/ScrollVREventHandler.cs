@@ -11,9 +11,14 @@ namespace Komodo.Runtime
         private RectTransform rectTrans;
         private Rect rect;
 
+        public bool useScrollRectInsteadOfSlider = false;
+
+        public ScrollRect scrollRect;
         public void Start()
         {
-            slider = GetComponent<Slider>();
+            if (useScrollRectInsteadOfSlider == true) { }  //scrollbar = GetComponent<Scrollbar>(); 
+            else slider = GetComponent<Slider>();
+
             rectTrans = GetComponent<RectTransform>();
         }
 
@@ -24,12 +29,29 @@ namespace Komodo.Runtime
                 return;
 
             //get relative location of the hit from our rectTransform
-            var locPos = rectTrans.InverseTransformPoint(cursorData.currentHitLocation);
+         var locPos = rectTrans.InverseTransformPoint(cursorData.currentHitLocation);
 
             //move our reference point above the half point removing negative numbers then divide that with the total width to get ther normalized position
             var posShift = (locPos.x + (rectTrans.rect.width / 2)) / rectTrans.rect.width;
 
-            slider.normalizedValue = posShift;
+
+
+        if (useScrollRectInsteadOfSlider == true)
+        {
+             posShift = (locPos.y + (rectTrans.rect.height / 2)) / rectTrans.rect.height;
+
+            //float totalWidth = rectTrans.rect.height;// find total width of scroll rect transform.
+            //float targetValue = posShift;//100;
+            //float targetPercentage = targetValue / totalWidth;
+
+            //scrollRect.verticalNormalizedPosition = targetPercentage;
+
+            scrollRect.verticalNormalizedPosition = posShift;
+            //   scrollRect.verticalNormalizedPosition = 1 - (posShift + 0.50f);
+
+
+        }
+        else slider.normalizedValue = posShift;
         }
 
     }

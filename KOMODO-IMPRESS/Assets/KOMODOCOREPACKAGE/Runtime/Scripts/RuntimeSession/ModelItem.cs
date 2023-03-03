@@ -7,6 +7,8 @@ using System.IO;
 using System.Collections;
 using System.Threading.Tasks;
 using GLTFast.Logging;
+using UnityEngine.Networking;
+using UnityEngine.Events;
 
 namespace Komodo.Runtime
 {
@@ -26,15 +28,15 @@ namespace Komodo.Runtime
         public ModelNameDisplay nameDisplay;
 
         public string inputURLText;
-    
-        GameObject newInstance;
-      
 
-        
-        public async void Initialize(int index, String name, bool isDownloadPlaceHolder = false, Action<string,int> onPlaceHolderUsed = null)
+        GameObject newInstance;
+
+
+
+        public async void Initialize(int index, String name, float scale = 1, bool isDownloadPlaceHolder = false, Action<string, int> onPlaceHolderUsed = null, UnityAction onAssetLoaded = null)
         {
             nameDisplay.Initialize("");
-            
+
 
             visibilityToggle.Initialize(index);
             lockToggle.Initialize(index);
@@ -45,46 +47,73 @@ namespace Komodo.Runtime
 
                 downloadButton.onClick.AddListener(delegate ()
                 {
-                    downloadButton.transform.parent.parent.gameObject.SetActive(false);
-                  
-                    AddToModelList model;
-                    KomodoGLTFAssetV5 importInstance;
+                downloadButton.transform.parent.parent.gameObject.SetActive(false);
 
-                    if (newInstance == null)
+                AddToModelList model;
+                KomodoGLTFAssetV5 importInstance;
+
+                if (newInstance == null)
+                {
+                    newInstance = new GameObject("placeholder");
+
+                }
+
+
+                if (newInstance.TryGetComponent(out AddToModelList currentModel))
+                {
+                    model = currentModel;
+                    importInstance = currentModel.GetComponent<KomodoGLTFAssetV5>();
+
+
+                }
+                else
+                {
+
+                    model = newInstance.AddComponent<AddToModelList>();
+                    model.SetIndex(index);
+                        model.scale = scale;
+
+                    importInstance = newInstance.AddComponent<KomodoGLTFAssetV5>();
+
+                    model.onImportAttempted += (Message) =>
                     {
-                        newInstance = new GameObject("placeholder");
+                      StartCoroutine( ReturnToFunctionalInputUseAfterSeconds(2, Message));
 
-                    }
-                  
 
-                    if(newInstance.TryGetComponent(out AddToModelList currentModel))
+                    };
+
+
+                }
+
+
+
+
+                    if (!string.IsNullOrEmpty(inputURL.text))
                     {
-                        model = currentModel;
-                        importInstance = currentModel.GetComponent<KomodoGLTFAssetV5>();
-
-
-                    }else
-                    {
-                        
-                        model = newInstance.AddComponent<AddToModelList>();
-                        model.SetIndex(index);
-
-                        importInstance = newInstance.AddComponent<KomodoGLTFAssetV5>();
-
-                        model.onImportAttempted += (Message) =>
+                        if (!IsValidGLTFExtension(inputURL.text))
                         {
-                            ReturnToFunctionalInputUseAfterSeconds(2, Message);
+                             model.onImportAttempted("No .glb/.gltf extension provided");
+                            return;
 
+                        }
 
-                        };
+                        try
+                        {
+                            UnityWebRequest.Get(inputURL.text);
 
+                        }
+                        catch
+                        {
+                            model.onImportAttempted("Error importing file check url");
+                            return;
 
-
-
-                        //UIManager.Instance.modelVisibilityToggleList.Add(visibilityToggle);
-                        //UIManager.Instance.modelLockToggleList.Add(lockToggle);
+                        }
                     }
-
+                    else
+                    {
+                        model?.onImportAttempted("No Input Provided");
+                        return;
+                    }
 
 
                     importInstance.TryImport(inputURL.text);
@@ -95,6 +124,8 @@ namespace Komodo.Runtime
                     {
                         if (importSuccess == "")
                         {
+                            onAssetLoaded?.Invoke();
+
                             UIManager.Instance.modelVisibilityToggleList.Add(visibilityToggle);
                             UIManager.Instance.modelLockToggleList.Add(lockToggle);
                             visibilityToggle.Toggle(true);
@@ -106,7 +137,7 @@ namespace Komodo.Runtime
 
                             onPlaceHolderUsed?.Invoke(nameDisplay.GetName(), index);
 
-                           
+
 
                         }
 
@@ -131,41 +162,44 @@ namespace Komodo.Runtime
                 });
 
                 return;
-            }else{
+            }
+            else
+            {
                 nameDisplay.Set(name);
 
                 visibilityToggle.Initialize(this.index);
 
-            UIManager.Instance.modelVisibilityToggleList.Add(visibilityToggle); 
+                UIManager.Instance.modelVisibilityToggleList.Add(visibilityToggle);
 
-            //lockToggle.Initialize(this.index);
+                //lockToggle.Initialize(this.index);
 
-            UIManager.Instance.modelLockToggleList.Add(lockToggle);
+                UIManager.Instance.modelLockToggleList.Add(lockToggle);
 
-            //nameDisplay.Initialize(name);
+                //nameDisplay.Initialize(name);
 
-                
+
             }
 
 
 
-         
+
         }
 
-        public async void ReturnToFunctionalInputUseAfterSeconds(int seconds, string message){
-           
-            
+        public IEnumerator ReturnToFunctionalInputUseAfterSeconds(int seconds, string message)
+        {
+
+
 
             inputURL.gameObject.SetActive(false);
-             downloadButton.transform.parent.gameObject.SetActive(false);
-             nameDisplay.gameObject.SetActive(true);
+            downloadButton.transform.parent.gameObject.SetActive(false);
+            nameDisplay.gameObject.SetActive(true);
             nameDisplay.Set(message);
             // isWholeObject.gameObject.SetActive(false);
 
+            yield return new WaitForSeconds(seconds);
+           // await System.Threading.Tasks.Task.Delay(seconds * 1000);
 
-            await System.Threading.Tasks.Task.Delay(seconds *1000);
 
-           
             inputURL.gameObject.SetActive(true);
             nameDisplay.gameObject.SetActive(false);
 
@@ -178,47 +212,53 @@ namespace Komodo.Runtime
             isWholeObject.gameObject.SetActive(true);
             downloadButton.gameObject.SetActive(true);
 
-                        if (newInstance)
-                        Destroy(newInstance);
+            if (newInstance)
+                Destroy(newInstance);
 
         }
 
 
-        public bool IsNotEmpty(string url){
+        public bool IsNotEmpty(string url)
+        {
 
 
             if (string.IsNullOrEmpty(url) || string.IsNullOrWhiteSpace(url))
             {
                 return false;
                 // throw new System.Exception("model name cannot be empty.");
-            }else
-               return true;
+            }
+            else
+                return true;
 
         }
 
-          public bool IsValidGLTFExtension(string url){
+        public bool IsValidGLTFExtension(string url)
+        {
 
-            string extension = Path.GetExtension(url);
-   
-            if (extension.ToLower() == ".glb" || extension.ToLower() == ".gltf")
+            string extension = null;
+
+            //to check for illigal characters
+            try
+            {
+                extension = Path.GetExtension(url);
+            }
+            catch
             {
                 return false;
+            }
+
+            //to check if there is no extension given
+            if (extension == null)
+                return false;
+
+            if (extension.ToLower() == ".glb" || extension.ToLower() == ".gltf")
+            {
+                return true;
                 // throw new System.Exception("model name cannot be empty.");
-            }else
-               return true;
+            }
+            else
+                return false;
         }
 
-        //  public bool IsValidGLTFFile(string url){
-
-        //     string extension = Path.GetExtension(url);
-   
-        //     if (extension.ToLower() == ".glb" || extension.ToLower() == ".gltf")
-        //     {
-        //         return false;
-        //         // throw new System.Exception("model name cannot be empty.");
-        //     }else
-        //        return true;
-
-        // }
     }
 }

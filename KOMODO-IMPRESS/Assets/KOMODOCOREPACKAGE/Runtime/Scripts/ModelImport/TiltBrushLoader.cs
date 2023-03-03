@@ -8,7 +8,7 @@ namespace Komodo.AssetImport
     public class TiltBrushLoader : ModelDownloaderAndLoader
     {
 
-        public override void LoadLocalFile(string localFilename, System.Action<GameObject> callback)
+        public override void LoadLocalFile(string url, string localFilename, System.Action<GameObject> callback)
         {
 
             //load with tiltbrush instead

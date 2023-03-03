@@ -88,7 +88,8 @@ namespace Komodo.Runtime
         public int modelsToInstantiate;
 
         public ModelButtonList modelButtonList;
-    
+
+        //public GameObject modelLibraryLoadingGO;
 
         private IEnumerator Start()
         {
@@ -195,8 +196,8 @@ namespace Komodo.Runtime
 
                 var model = modelData.models[i];
                 VerifyModelData(model);
-
-                yield return loader.TryLoadLocalFile(localFiles[i].location, localFiles[i].name, localFiles[i].size, progressDisplay, gObject =>
+                Debug.Log(localFiles[i].location);
+                yield return loader.TryLoadLocalFile(model.url, localFiles[i].location, localFiles[i].name, localFiles[i].size, progressDisplay, gObject =>
                 {
                     //WebGLMemoryStats.LogMoreStats($"ModelImportPostProcessor.SetUpGameObject {model.name} BEFORE");
 
