@@ -21,11 +21,13 @@ namespace Komodo.Runtime
 
         public void Toggle (bool doLock)
         {
+                entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+
             UpdateComponentData(doLock);
 
             UpdateUI(doLock);
 
-            SendNetworkUpdate(doLock);
+        //    SendNetworkUpdate(doLock);
         }
 
         public void UpdateUI (bool doLock)
@@ -36,12 +38,16 @@ namespace Komodo.Runtime
 
                 unlockedIcon.SetActive(false);
 
+                toggle.isOn = true;
+
                 return;
             }
 
             lockedIcon.SetActive(false);
 
             unlockedIcon.SetActive(true);
+
+            toggle.isOn = false;
         }
 
         public void Awake(){
@@ -50,7 +56,7 @@ namespace Komodo.Runtime
         }
         public void Initialize (int index)
         {
-           // entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+         
               if(!toggle) toggle = GetComponentInChildren<Toggle>(true);
 
             if (!toggle)
@@ -65,7 +71,7 @@ namespace Komodo.Runtime
 
             this.index = index;
 
-            Toggle(false);
+          //  Toggle(false);
         }
 
         public void OnPointerClick (PointerEventData data)
@@ -105,21 +111,28 @@ namespace Komodo.Runtime
 
         public void UpdateComponentData (bool doLock, int id)
         {
+           
+            
             foreach (NetworkedGameObject item in NetworkedObjectsManager.Instance.GetNetworkedSubObjectList(id))
             {
+                Debug.Log("lock update for: " + item.name);
                 if (doLock)
                 {
-                    if (!entityManager.HasComponent<TransformLockTag>(item.Entity))
-                    {
-                        entityManager.AddComponentData(item.Entity, new TransformLockTag());
-                    }
+                    item.SetTransformLockedStated(true);
+
+                    //if (!entityManager.HasComponent<TransformLockTag>(item.entity))
+                    //{
+                    //    Debug.Log("lock update for: " + item.name);
+                    //    entityManager.AddComponentData(item.entity, new TransformLockTag());
+                    //}
                 }
                 else
                 {
-                    if (entityManager.HasComponent<TransformLockTag>(item.Entity))
-                    {
-                        entityManager.RemoveComponent<TransformLockTag>(item.Entity);
-                    }
+                    item.SetTransformLockedStated(false);
+                    //if (entityManager.HasComponent<TransformLockTag>(item.entity))
+                    //{
+                    //    entityManager.RemoveComponent<TransformLockTag>(item.entity);
+                    //}
                 }
             }
         }

@@ -350,7 +350,7 @@ using Komodo.IMPRESS;
         {
             if (webXRController.GetButtonUp(WebXRController.ButtonTypes.Trigger))
             {
-                onTriggerButtonUp.Invoke();
+                onTriggerButtonUp?.Invoke();
 
                 if (firstControllerOfStretchGesture == this)
                 {
@@ -633,7 +633,7 @@ using Komodo.IMPRESS;
         {
             Debug.Log("Individual");
 
-            var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity).entityID;
+            var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).entityID;
 
             NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
             {
@@ -645,7 +645,7 @@ using Komodo.IMPRESS;
             });
 
             MainClientUpdater.Instance.AddUpdatable(currentGrabbedNetObject);
-            entityManager.AddComponentData(currentGrabbedNetObject.Entity, new SendNetworkUpdateTag { });
+            entityManager.AddComponentData(currentGrabbedNetObject.entity, new SendNetworkUpdateTag { });
         }
 
             
@@ -786,14 +786,14 @@ using Komodo.IMPRESS;
             MainClientUpdater.Instance.RemoveUpdatable(currentGrabbedNetObject);
 
 
-            if (!entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.Entity))
+            if (!entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
             {
                 Debug.LogWarning("Tried to remove SendNetworkUpdateTag from netObject, but the tag was not found.");
 
                 return;
             }
 
-            entityManager.RemoveComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.Entity);
+            entityManager.RemoveComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
         }
     }
 
@@ -803,7 +803,7 @@ using Komodo.IMPRESS;
         if (currentGrabbedGroupObject)
             return;
 
-        int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity).entityID;
+        int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).entityID;
 
             NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
             {
@@ -875,12 +875,12 @@ using Komodo.IMPRESS;
                 return;
             }
 
-            if (entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.Entity))
+            if (entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
             {
                 return;
             }
 
-            entityManager.AddComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.Entity);
+            entityManager.AddComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
         }
 
         private void ResetStretchParameters()
@@ -965,16 +965,19 @@ using Komodo.IMPRESS;
 
         private Transform GetUnlockedNetworkedObjectTransformIfExists(Collider nearestTransform)
         {
+      //  entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             if (nearestTransform.TryGetComponent(out NetworkedGameObject netObj))
             {
-                // if (entityManager.HasComponent<TransformLockTag>(netObj.Entity))
-                // {
-                //     // TODO(Brandon) -- instead of returning null here, keep searching for the next rigid body. Otherwise, we trap smaller, unlocked objects inside larger, locked objects.
+            if (netObj.isTransformLocked)
+                return null;
+            //if (entityManager.HasComponent<TransformLockTag>(netObj.entity))
+            //{
+            //    // TODO(Brandon) -- instead of returning null here, keep searching for the next rigid body. Otherwise, we trap smaller, unlocked objects inside larger, locked objects.
 
-                //     return null;
-                // }
+            //    return null;
+            //}
 
-                currentGrabbedNetObject = netObj;
+            currentGrabbedNetObject = netObj;
 
               //  InitializeNetworkedPhysicsObjectIfNeeded();
             }
@@ -1027,7 +1030,7 @@ using Komodo.IMPRESS;
 
         private void InitializeNetworkedPhysicsObjectIfNeeded()
         {
-            Entity_Type netObjectType = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity).current_Entity_Type;
+            Entity_Type netObjectType = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).current_Entity_Type;
 
             if (netObjectType != Entity_Type.physicsObject)
             {

@@ -32,6 +32,9 @@ namespace Komodo.Runtime
 
         public UnityEvent onNewSceneLoaded;
 
+        public UnityEvent onFirstSceneLoaded;
+      [ShowOnly] public bool isFirstScene = true;
+
         public void Awake()
         {
             //used to set our managers alive state to true to detect if it exist within scene
@@ -137,6 +140,12 @@ namespace Komodo.Runtime
             additiveScene = SceneManager.GetActiveScene();
 
             onNewSceneLoaded.Invoke();
+
+            if (isFirstScene)
+            {
+                isFirstScene = false;
+                onFirstSceneLoaded.Invoke();
+            }
         }
 
         private bool IsSceneAlreadyLoaded (int sceneID) {

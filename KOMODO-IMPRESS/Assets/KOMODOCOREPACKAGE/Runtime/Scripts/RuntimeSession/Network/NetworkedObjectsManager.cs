@@ -64,12 +64,12 @@ namespace Komodo.Runtime
         {
              List<NetworkedGameObject> result = new List<NetworkedGameObject>();
 
-            // bool success = networkedSubObjectListFromIndex.TryGetValue(index, out result);
+            bool success = networkedSubObjectListFromIndex.TryGetValue(index, out result);
 
-            // if (!success)
-            // {
-            //     throw new System.Exception($"Value was not found in client's networked game objects dictionary for key {index}.");
-            // }
+            if (!success)
+            {
+                throw new System.Exception($"Value was not found in client's networked game objects dictionary for key {index}.");
+            }
 
             return result;
         }
@@ -243,7 +243,7 @@ namespace Komodo.Runtime
                 return;
             }
 
-            var targetEntity = Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].Entity;
+            var targetEntity = Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].thisEntityID;
 
             // if (!entityManager.HasComponent<ButtonIDSharedComponentData>(targetEntity))
             // {
@@ -274,7 +274,7 @@ namespace Komodo.Runtime
                 return;
             }
 
-            var targetEntity = Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].Entity;
+            var targetEntity = Instance.networkedObjectFromEntityId[interactionData.targetEntity_id].thisEntityID;
 
             // if (!entityManager.HasComponent<ButtonIDSharedComponentData>(targetEntity))
             // {

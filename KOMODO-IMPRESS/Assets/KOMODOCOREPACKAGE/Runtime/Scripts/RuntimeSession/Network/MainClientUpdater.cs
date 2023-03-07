@@ -268,7 +268,7 @@ namespace Komodo.Runtime
 
         public void SendSyncNetObject(NetworkedGameObject eContainer)
         {
-            var entityData = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.Entity);
+            var entityData = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.entity);
 
             Position position = new Position
             {

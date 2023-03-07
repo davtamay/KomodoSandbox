@@ -5,6 +5,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using UnityEngine.XR;
 using WebXR;
+using CSCore.XAudio2;
 
 namespace Komodo.Runtime
 {
@@ -26,6 +27,10 @@ namespace Komodo.Runtime
         private Rect leftRect, rightRect;
         private int viewsCount = 1;
 
+        public void Start()
+        {
+            cameraMainEditor.gameObject.SetActive(false);
+        }
         void OnEnable()
         {
 
@@ -33,6 +38,7 @@ namespace Komodo.Runtime
             WebXRManager.OnXRChange += onVRChange;
 #else 
             WebXRManagerEditorSimulator.OnXRChange += onVRChange;
+
 #endif
 
             WebXRManager.OnHeadsetUpdate += OnHeadsetUpdate;

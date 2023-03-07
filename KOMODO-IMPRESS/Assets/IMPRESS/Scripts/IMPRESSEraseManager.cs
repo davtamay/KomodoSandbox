@@ -61,9 +61,9 @@ namespace Komodo.IMPRESS
             // komodo stuff
             base.TryAndErase(netReg);
 
-            var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netReg.Entity).entityID;
+            var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netReg.entity).entityID;
 
-            if (entityManager.HasComponent<PrimitiveTag>(netReg.Entity))
+            if (entityManager.HasComponent<PrimitiveTag>(netReg.entity))
             {
                 // hide object in our view instead ofdestroying it, so we can undo the erasure. 
                 netReg.gameObject.SetActive(false);

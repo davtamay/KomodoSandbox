@@ -618,7 +618,7 @@ namespace Komodo.Runtime
 
         private void SendInteractionStartGrab()
         {
-            var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity).entityID;
+            var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).entityID;
 
             NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
             {
@@ -631,7 +631,7 @@ namespace Komodo.Runtime
 
             MainClientUpdater.Instance.AddUpdatable(currentGrabbedNetObject);
 
-            entityManager.AddComponentData(currentGrabbedNetObject.Entity, new SendNetworkUpdateTag { });
+            entityManager.AddComponentData(currentGrabbedNetObject.entity, new SendNetworkUpdateTag { });
         }
 
         private void InitializeStretchParameters()
@@ -731,7 +731,7 @@ namespace Komodo.Runtime
                     return;
                 }
 
-                var netIDComp = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity);
+                var netIDComp = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity);
 
                 SendInteractionEndGrab(netIDComp);
 
@@ -760,20 +760,20 @@ namespace Komodo.Runtime
 
             MainClientUpdater.Instance.RemoveUpdatable(currentGrabbedNetObject);
 
-            if (!entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.Entity))
+            if (!entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
             {
                 Debug.LogWarning("Tried to remove SendNetworkUpdateTag from netObject, but the tag was not found.");
 
                 return;
             }
 
-            entityManager.RemoveComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.Entity);
+            entityManager.RemoveComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
         }
 
         // TODO -- compare to SendInteractionEndGrab and see if we need to perform those actions as well.
         private void SendInteractionEndGrabAlternateVersion()
         {
-            int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity).entityID;
+            int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).entityID;
 
             NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
             {
@@ -845,12 +845,12 @@ namespace Komodo.Runtime
                 return;
             }
 
-            if (entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.Entity))
+            if (entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
             {
                 return;
             }
 
-            entityManager.AddComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.Entity);
+            entityManager.AddComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
         }
 
         private void ResetStretchParameters ()
@@ -931,10 +931,13 @@ namespace Komodo.Runtime
 
         private Transform GetUnlockedNetworkedObjectTransformIfExists(Collider nearestTransform)
         {
+            Debug.Log(  "AAA");
             if (nearestTransform.TryGetComponent(out NetworkedGameObject netObj))
             {
-                if (entityManager.HasComponent<TransformLockTag>(netObj.Entity))
+                Debug.Log("bbb");
+                if (entityManager.HasComponent<TransformLockTag>(netObj.entity))
                 {
+                    Debug.Log("ccc");
                     // TODO(Brandon) -- instead of returning null here, keep searching for the next rigid body. Otherwise, we trap smaller, unlocked objects inside larger, locked objects.
 
                     return null;
@@ -982,7 +985,7 @@ namespace Komodo.Runtime
 
         private void InitializeNetworkedPhysicsObjectIfNeeded()
         {
-            Entity_Type netObjectType = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity).current_Entity_Type;
+            Entity_Type netObjectType = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).current_Entity_Type;
 
             if (netObjectType != Entity_Type.physicsObject)
             {

@@ -93,7 +93,7 @@ namespace Komodo.Runtime
             {
                 //skip opperation if current object is grabbed to avoid turning physics back on
 
-                if (entityManager.HasComponent<TransformLockTag>(NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.entityId].Entity))
+                if (entityManager.HasComponent<TransformLockTag>(NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.entityId].entity))
                     return;
 
                 if (!rigidbodyFromEntityId.ContainsKey(positionData.entityId))
@@ -129,7 +129,7 @@ namespace Komodo.Runtime
             int entityID = default;
             NetworkEntityIdentificationComponentData entityIDContainer = default;
 
-            entityIDContainer = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.Entity);
+            entityIDContainer = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.entity);
             entityID = entityIDContainer.entityID;
 
             //make sure that we setup the reference to our rigidBody of our physics object that we are using to send data from
@@ -147,7 +147,7 @@ namespace Komodo.Runtime
 
             Position coords = default;
 
-            if (!rb.isKinematic && rb.IsSleeping() || entityManager.HasComponent<TransformLockTag>(eContainer.Entity))
+            if (!rb.isKinematic && rb.IsSleeping() || entityManager.HasComponent<TransformLockTag>(eContainer.entity))
             {
                 physicsnRGOToRemove.Add(eContainer);
 
@@ -176,7 +176,7 @@ namespace Komodo.Runtime
     {
         Position coords = default;
 
-        NetworkEntityIdentificationComponentData entityIDContainer = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.Entity);
+        NetworkEntityIdentificationComponentData entityIDContainer = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.entity);
 
         coords = new Position
         {

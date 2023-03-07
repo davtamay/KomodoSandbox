@@ -45,6 +45,7 @@ namespace Komodo.Runtime
 
         public GameObject floorIndicator;
         [SerializeField] private Camera spectatorCamera;
+        //[SerializeField] private TeleportPlayer cameraOffset;
 
         [Tooltip("Hierarchy: Spectator Camera -> TeleportationLine")]
         [SerializeField] private GameObject teleportationIndicator;
@@ -76,11 +77,20 @@ namespace Komodo.Runtime
             WebXRManagerEditorSimulator.OnXRChange += onXRChange;
 #endif
             WebXRManager.OnXRCapabilitiesUpdate += onXRCapabilitiesUpdate;
+
+
         }
 
         private void WebXRManager_OnXRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
         {
-            throw new System.NotImplementedException();
+            if (state == WebXRState.VR)
+            {
+             //   SetToXR();
+            }
+            else if (state == WebXRState.NORMAL)
+            {
+             //   SetToDesktop();
+            }
         }
 
         public IEnumerator Start()
@@ -111,14 +121,24 @@ namespace Komodo.Runtime
                     standaloneInputModule_Desktop = EventSystemManager.Instance.desktopStandaloneInput;
             }
 
-            if (UIManager.IsAlive)
-                yield return new WaitUntil(() => UIManager.Instance.IsReady());
-
+            yield return null;
+            //if (UIManager.IsAlive)
+            //    yield return new WaitUntil(() => UIManager.Instance.IsReady());
+            teleportPlayer.OnSceneLoadedAndFirstTransport += OnSceneLoadedAndFirstTransportIsDone;
             //start using our freflightcontroller after we finish loading UI
-            GameStateManager.Instance.RegisterUpdatableObject(this);
+           // GameStateManager.Instance.RegisterUpdatableObject(this);
 
             //teleportPlayer.BeginPlayerHeightCalibration(left hand? right hand?); //TODO turn back on and ask for handedness 
         }
+
+        public void OnSceneLoadedAndFirstTransportIsDone()
+        {
+
+
+            GameStateManager.Instance.RegisterUpdatableObject(this);
+        }
+
+   //     teleportPlayer.
 
 
         public void OnUpdate(float deltaTime)
@@ -383,15 +403,38 @@ namespace Komodo.Runtime
             movement = desktopCamera.TransformDirection(movement) * (naturalStrafeDirection ? -1 : 1);
             desktopCamera.position += movement;
         }
-
+        private Vector3 lastMousePosition;
         public void RotatePlayerFromInput() {
-            curRotationY += Input.GetAxis("Mouse X") * rotationSensitivity * (naturalRotationDirection ? -1 : 1); //horizontal mouse motion translates to rotation around the Y axis.
-            curRotationX -= Input.GetAxis("Mouse Y") * rotationSensitivity * (naturalRotationDirection ? -1 : 1); // vertical mouse motion translates to rotation around the X axis.
 
-            curRotationX = ClampAngle(curRotationX, minimumY, maximumY);
-            curRotationY = ClampAngle(curRotationY, minimumX, maximumX);
 
-            desktopCamera.localRotation = Quaternion.Euler(new Vector3(curRotationX, curRotationY, 0));
+            if (Input.touchCount == 1)
+            {
+                Touch touch = Input.GetTouch(0);
+                if (touch.phase == TouchPhase.Moved)
+                {
+                    Vector3 deltaMousePosition = touch.deltaPosition * 0.1f;
+                    curRotationY += deltaMousePosition.x * rotationSensitivity * (naturalRotationDirection ? -1 : 1);
+                    curRotationX -= deltaMousePosition.y * rotationSensitivity * (naturalRotationDirection ? -1 : 1);
+                }
+            }
+            else
+            {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    lastMousePosition = Input.mousePosition;
+                }
+                Vector3 deltaMousePosition = Input.mousePosition - lastMousePosition;
+                deltaMousePosition *= 0.1f;
+
+                curRotationY += deltaMousePosition.x * rotationSensitivity * (naturalRotationDirection ? -1 : 1); //horizontal mouse motion translates to rotation around the Y axis.
+                curRotationX -= deltaMousePosition.y * rotationSensitivity * (naturalRotationDirection ? -1 : 1); // vertical mouse motion translates to rotation around the X axis.
+             
+                lastMousePosition = Input.mousePosition;
+            }
+                curRotationX = ClampAngle(curRotationX, minimumY, maximumY);
+                curRotationY = ClampAngle(curRotationY, minimumX, maximumX);
+
+                desktopCamera.localRotation = Quaternion.Euler(new Vector3(curRotationX, curRotationY, 0));
         }
 
         public void PanPlayerFromInput() {
@@ -475,18 +518,48 @@ namespace Komodo.Runtime
         /// </Summary>
         public void MousePositionToTeleportationIndicator() 
         {
-                Debug.DrawRay(spectatorCamera.transform.position, spectatorCamera.transform.position + spectatorCamera.transform.forward *20);
-            
-              Ray ray = spectatorCamera.ScreenPointToRay( Input.mousePosition);
-              ray.origin = spectatorCamera.transform.position;
-              RaycastHit hit;
+            // Check if a right click is currently down or two fingers are touching the screen
+            if (Input.GetMouseButton(1) || (Input.touchCount > 1 && Input.GetTouch(1).phase == TouchPhase.Began))
+            {
+                // Get the position of the mouse or the second touch
+                Vector3 position = Input.GetMouseButton(1) ? Input.mousePosition : Input.GetTouch(1).position;
 
-              if (Physics.Raycast(ray, out hit,100)) 
-              {
-                
-                  targetPosition =   targetPosition = hit.point + (hit.normal * 0.1f * 5f);;
-                 floorIndicator.transform.position =    targetPosition;
-              }
+                // Get a ray from the position
+                Ray ray = spectatorCamera.ScreenPointToRay(position);
+
+                // Perform a raycast to see if the ray hits a collider
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    // Set the target position to the hit point plus an offset
+                    Vector3 targetPosition = hit.point;
+
+                    // Update the floor indicator position and rotation
+                    floorIndicator.transform.position = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
+                    floorIndicator.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                }
+            }
+            //// Check if a touch or right click is currently down
+            //if ( Input.GetMouseButton(1) 
+            //    ||
+            //      (Input.touchCount > 1 && Input.GetTouch(1).phase == TouchPhase.Began))
+            //{
+            //    // Get a ray from the touch or right click position
+            //    Ray ray = spectatorCamera.ScreenPointToRay(Input.mousePosition);
+
+
+            //    // Perform a raycast to see if the ray hits a collider
+            //    if (Physics.Raycast(ray, out RaycastHit hit))
+            //    {
+            //        // Set the target position to the hit point plus an offset
+            //        Vector3 targetPosition = hit.point;
+
+            //        // Update the floor indicator position and rotation
+            //        floorIndicator.transform.position = new Vector3( targetPosition.x, targetPosition.y, targetPosition.z);
+            //       // floorIndicator.transform.position = new Vector3(floorIndicator.transform.position.x, targetPosition.y, floorIndicator.transform.position.z);
+            //            floorIndicator.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+            //    }
+            //}
+
         }
     }
 }

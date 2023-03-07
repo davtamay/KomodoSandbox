@@ -114,6 +114,16 @@ public class KomodoGLTFAssetV5 : GltfAssetBase
         : url;
 
     public AddToModelList thisModelInfo;
+
+    public void Awake()
+    {
+        var instantiationSettingsCustom = new InstantiationSettings();
+        instantiationSettingsCustom.Mask = ComponentType.Animation | ComponentType.Mesh;
+
+        //   loader.InstantiationSettings = instantiationSettings;
+
+        instantiationSettings = instantiationSettingsCustom;/*ComponentType.Mesh | ComponentType.Animation;*/
+    }
     /// <summary>
     /// Called at initialization phase
     /// </summary>
@@ -135,41 +145,15 @@ public class KomodoGLTFAssetV5 : GltfAssetBase
     }
     public async void TryImport(string tryUrl)
     {
+
+
         if(!thisModelInfo)
         thisModelInfo = GetComponent<AddToModelList>();
-        //url = thisModelInfo.url;
 
-        //   if(TiltBrushAndGLTFastLoader.isTiltBrushFile())
-        //if ( !string.IsNullOrEmpty(tryUrl))
-        //{
-        //    if (!IsValidGLTFExtension(tryUrl))
-        //    {
-        //        thisModelInfo.onImportAttempted("No .glb/.gltf extension provided");
-        //        return;
-
-        //    }
-
-        //    try
-        //    {
-        //        UnityWebRequest.Get(tryUrl);
-
-        //    }
-        //    catch
-        //    {
-        //        thisModelInfo.onImportAttempted("Error importing file check url");
-        //        return;
-
-        //    }
-            // thisModelInfo.CheckValidURL(Url);
-
-
-
-
-            //  if(TiltBrushAndGLTFastLoader.isTiltBrushFile(url))
-            //  ModelImportInitializer.Instance.gameObject.GetComponent<TiltBrushAndGLTFastLoader>().LoadFileWithTiltBrushToolkit(url);
-            //  else
-            // Automatic load on startup
-            await Load(tryUrl, logger: thisModelInfo);
+       // if (TiltBrushAndGLTFastLoader.isTiltBrushFile(tryUrl))
+       //     TiltBrushAndGLTFastLoader.LoadFileWithTiltBrushToolkit(tryUrl);
+       //else
+        await Load(tryUrl, logger: thisModelInfo);
        // }
         //else
         //{

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEditor.XR.LegacyInputHelpers;
 using UnityEngine;
+using UnityEngine.Events;
+using WebXR;
 
 namespace Komodo.Runtime
 {
@@ -28,41 +30,55 @@ namespace Komodo.Runtime
 
         private bool justBumped = false;
 
-        public CameraOffset cameraOffset;
+        public CameraOffset webXRCameraOffset;
 
         [UnityEngine.Serialization.FormerlySerializedAs("lRToAdjustWidth")]
         public List<LineRenderer> lineRenderersToScaleWithPlayer;
 
         float originalHeight;
 
-        public float manualYOffset = 1.0f;
+        public float manualYOffset = 1.36144f;
 
         float originalFixedDeltaTime;
 
         private int teleportationCount = 0;
+
+        public FreeFlightController freeFlightController;
+
+
+        public UnityAction OnSceneLoadedAndFirstTransport;
 
 
         public void Start()
         {
             originalFixedDeltaTime = Time.fixedDeltaTime;
 
-            originalHeight = cameraOffset.cameraYOffset;
+            originalHeight = webXRCameraOffset.cameraYOffset;
 
             currentScale = 1;
 
             SetPlayerSpawnCenter();
 
             SetPlayerPositionToHome2();
+
+            //#if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
+            //                        WebXRManager.OnXRChange += onXRChange_SwitchCameraGroundOffsetsBetweenWebXRAndDesktop;
+            //#else
+            //            WebXRManagerEditorSimulator.OnXRChange += onXRChange_SwitchCameraGroundOffsetsBetweenWebXRAndDesktop;
+            //#endif
+            //GameStateManager.Instance.
         }
-        
+
         public void Awake()
         {
-            if (!cameraSet) 
+            //     freeFlightController = GetComponent<FreeFlightController>();
+
+            if (!cameraSet)
             {
                 cameraSet = GameObject.FindWithTag(TagList.cameraSet).transform;
             }
-            
-            if (!playspace) 
+
+            if (!playspace)
             {
                 playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
             }
@@ -81,14 +97,14 @@ namespace Komodo.Runtime
             {
                 centerEye = leftEye;
             }
-            
+
             if (!spectatorCamera)
             {
                 spectatorCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;
             }
         }
 
-        public Transform GetXRPlayer () 
+        public Transform GetXRPlayer()
         {
             return playspace;
         }
@@ -104,22 +120,25 @@ namespace Komodo.Runtime
         * where you want players to spawn, and tag the empty with 
         * <playerSpawnCenterTag>.
         */
-        public void SetPlayerSpawnCenter ()
+        public void SetPlayerSpawnCenter()
         {
             const string generatedSpawnCenterName = TagList.playerSpawnCenter;
 
             var spawnCentersFound = GameObject.FindGameObjectsWithTag(TagList.playerSpawnCenter);
 
-            if (currentSpawnCenter == null) {
+            if (currentSpawnCenter == null)
+            {
                 Debug.Log("currentSpawnCenter was not found for TeleportPlayer.Proceeding.");
             }
 
             // If we found gameObjects with the right tag,
             // pick the first one that's different from the current one
 
-            for (int i = 0; i < spawnCentersFound.Length; i += 1) {
+            for (int i = 0; i < spawnCentersFound.Length; i += 1)
+            {
 
-                if (currentSpawnCenter == null || spawnCentersFound[i] != currentSpawnCenter.gameObject) {
+                if (currentSpawnCenter == null || spawnCentersFound[i] != currentSpawnCenter.gameObject)
+                {
 
                     //Debug.Log($"[PlayerSpawnCenter] New center found: {spawnCentersFound[i].name}");
 
@@ -132,7 +151,8 @@ namespace Komodo.Runtime
             // If we didn't find any new gameObjects with the right tag,
             // and there's no existing one, make a new one with default settings
 
-            if (spawnCentersFound.Length == 0 && currentSpawnCenter == null) {
+            if (spawnCentersFound.Length == 0 && currentSpawnCenter == null)
+            {
                 //Debug.LogWarning($"[PlayerSpawnCenter] No GameObjects with tag {playerSpawnCenterTag} were found. Generating one with position <0, 0, 0>.");
 
                 var generatedSpawnCenter = new GameObject(generatedSpawnCenterName);
@@ -146,10 +166,49 @@ namespace Komodo.Runtime
                 return;
             }
 
+
+
+
+
             // If no gameObjects with the right tag were found, and there is an 
             // existing one, use the existing one. 
 
             //Debug.Log($"[PlayerSpawnCenter] Using existing Player Spawn Center: {currentSpawnCenter.gameObject.name}");
+        }
+
+        public void SetYPositionForFirstScene()
+        {
+            if (isFirstYAdjustment)
+            {
+                if (Physics.Linecast(transform.position + Vector3.up, Vector3.down, out RaycastHit hit))
+                {
+                    // to provide reliable height get the difference from webxrcamera and floor.
+                    //   cameraOffset.cameraYOffset = Mathf.Abs(cameraOffset.cameraFloorOffsetObject.transform.position.y - hit.point.y);
+
+
+                    //    cameraOffset.cameraYOffset = cameraOffset.
+                    // playspace.transform.position =  Vector3.up;
+                    AdjustYAccordingToWorldPulling(1f);
+                    UpdatePlayerYPosition(hit.point.y);
+
+
+
+                    //+  cameraOffset.cameraYOffset );
+                    //   currentPlayspacePositionY= hit.point.y;
+                    //webxr camera offset from hit.point.y - we have to determine this from the begining
+                    //    manualYOffset = cameraOffset.cameraYOffset;// currentPlayspacePositionY + cameraOffset.cameraYOffset;
+
+
+                    //                    freeFlightController.SyncXRWithSpectator();
+
+                    //    isFirstYAdjustment = false;
+                    Debug.Log("adddjustment");
+
+                    OnSceneLoadedAndFirstTransport?.Invoke();
+                }
+            }
+
+
         }
 
         /// <summary>
@@ -163,7 +222,7 @@ namespace Komodo.Runtime
 
             playspace.localRotation = rot;
         }
-        
+
         public void SetXRAndSpectatorRotation(Quaternion rot)
         {
             playspace.localRotation = rot;
@@ -171,14 +230,14 @@ namespace Komodo.Runtime
             cameraSet.localRotation = rot;
         }
 
-        public void SnapTurnLeft (float degrees)
+        public void SnapTurnLeft(float degrees)
         {
             UpdateCenterEye();
 
             playspace.RotateAround(centerEye.position, Vector3.up, degrees);
         }
 
-        public void SnapTurnRight (float degrees)
+        public void SnapTurnRight(float degrees)
         {
             UpdateCenterEye();
 
@@ -187,14 +246,14 @@ namespace Komodo.Runtime
 
         public void SetPlayerPositionToHome()
         {
-            var homePos = (Vector3.up * cameraOffset.cameraYOffset); //SceneManagerExtensions.Instance.anchorPositionInNewScene.position +//defaultPlayerInitialHeight);
+            var homePos = (Vector3.up * webXRCameraOffset.cameraYOffset); //SceneManagerExtensions.Instance.anchorPositionInNewScene.position +//defaultPlayerInitialHeight);
 
             spectatorCamera.position = homePos;//UIManager.Instance.anchorPositionInNewScene.position;//Vector3.up * defaultPlayerInitialHeight;
 
             UpdatePlayerPosition(new Position { pos = homePos });
         }
 
-        public void SetPlayerPositionToHome2 () 
+        public void SetPlayerPositionToHome2()
         {
             var homePosition = currentSpawnCenter.position;
 
@@ -202,49 +261,49 @@ namespace Komodo.Runtime
 
             UpdatePlayerPosition2(new Position { pos = homePosition });
         }
-        
+
         public void UpdatePlayerPosition(Position newData)
         {
             //used in VR
             var finalPosition = newData.pos;
-            finalPosition.y = newData.pos.y + cameraOffset.cameraYOffset;//defaultPlayerInitialHeight; //+ WebXR.WebXRManager.Instance.DefaultHeight;
+            finalPosition.y = newData.pos.y + webXRCameraOffset.cameraYOffset;//defaultPlayerInitialHeight; //+ WebXR.WebXRManager.Instance.DefaultHeight;
 
-//#if UNITY_EDITOR
+            //#if UNITY_EDITOR
             cameraSet.position = finalPosition;
-//#elif UNITY_WEBGL
+            //#elif UNITY_WEBGL
             playspace.position = finalPosition;
-//#endif
+            //#endif
             //  mainPlayer_RootTransformData.pos = finalPosition;
         }
 
-        public void UpdatePlayerPosition2 (Position newData)
+        public void UpdatePlayerPosition2(Position newData)
         {
-            if (teleportationCount >= 2) 
-            {
-                KomodoEventManager.TriggerEvent("TeleportedTwice");
-            }
+            //if (teleportationCount >= 2) 
+            //{
+            //    KomodoEventManager.TriggerEvent("TeleportedTwice");
+            //}
             UpdateCenterEye();
 
             UpdatePlayerXZPosition(newData.pos.x, newData.pos.z);
 
             UpdatePlayerYPosition(newData.pos.y);
 
-            teleportationCount += 1;
+            //  teleportationCount += 1;
         }
 
-        public void UpdatePlayerPosition (Transform otherTransform)
+        public void UpdatePlayerPosition(Transform otherTransform)
         {
             playspace.position = otherTransform.position;
         }
 
-        public void UpdateCenterEye () 
-        { 
+        public void UpdateCenterEye()
+        {
             centerEye.position = (leftEye.position + rightEye.position) / 2;
 
             centerEye.rotation = leftEye.rotation;
         }
 
-        public void UpdatePlayerXZPosition (float teleportX, float teleportZ) 
+        public void UpdatePlayerXZPosition(float teleportX, float teleportZ)
         {
             var finalPlayspacePosition = playspace.position;
 
@@ -259,7 +318,7 @@ namespace Komodo.Runtime
             playspace.position = finalPlayspacePosition;
         }
 
-        public void UpdatePlayerXZPosition (Transform otherTransform) 
+        public void UpdatePlayerXZPosition(Transform otherTransform)
         {
             var finalPlayspacePosition = playspace.position;
 
@@ -270,53 +329,140 @@ namespace Komodo.Runtime
             playspace.position = finalPlayspacePosition;
         }
 
-        public float currentPlayspacePositionY;
-        public void AdjustYAccordingToWorldPulling (float value){
 
-        if(playspace){
-           playspace.position = new Vector3(playspace.position.x,  currentPlayspacePositionY + value, playspace.position.z);
-            manualYOffset =  value;
-        }
-    
-        // currentPlayspacePositionY = playspace.position.y;
-          //UpdatePlayerYPosition(playspace.position.y);
-
-         
-        }
-        public void UpdatePlayerYPosition (float teleportY) 
+        public void onXRChange_SwitchCameraGroundOffsetsBetweenWebXRAndDesktop(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
         {
-           // Debug.Log(teleportY);
-            if (justBumped) 
+            Debug.Log("this is");
+            if (state == WebXRState.VR)
             {
-                justBumped = false;
 
-                return;
+                if (Physics.Linecast(transform.position + Vector3.up, Vector3.down, out RaycastHit hit))
+                {
+                    //use a max function here to grab either a default small height(y) value or the actual height 
+                    // to provide reliable height get the difference from webxrcamera and floor.
+                    webXRCameraOffset.cameraYOffset = Mathf.Abs(webXRCameraOffset.cameraFloorOffsetObject.transform.position.y - hit.point.y);
+                }
+                //AdjustYAccordingToWorldPulling(1f);
+
+                else if (state == WebXRState.NORMAL)
+                {
+                    webXRCameraOffset.cameraYOffset = manualYOffset;
+                    //     SetToDesktop();
+                }
             }
+
+
+        }
+        //   public float currentPlayspacePositionY;
+
+        public bool isFirstYAdjustment = true;
+        public float initialYHit;
+        public float initialOffset = 1f;
+        public float currentScaleValue = 1f;
+
+        public float originalCamDif;
+        public void AdjustYAccordingToWorldPulling(float scaleValue)
+        {
+            if (playspace)
+            {
+
+                currentScaleValue = scaleValue;
+                //this gets set when scene loadss not when it is instantiated.
+                if (isFirstYAdjustment)
+                {
+                    //if (Physics.Linecast(transform.position + Vector3.up, Vector3.down, out RaycastHit hit))
+                    //{
+                    //    initialOffset = Mathf.Abs(hit.point.y - webXRCameraOffset.cameraFloorOffsetObject.transform.position.y);
+                    originalCamDif = manualYOffset;
+                    isFirstYAdjustment = false;
+                    //}
+
+                }
+
+                //theres a .13 offset when teleporting after this.
+                if (Physics.Linecast(webXRCameraOffset.cameraFloorOffsetObject.transform.position, Vector3.down, out RaycastHit hit))
+                {
+
+                    UpdatePlayerYPositionMODIFIED(hit.point.y);
+                }
+
+                // /
+                //again moving cameraoffset has no effect in the editor but it does in webxr build.
+                //here we are just setting the set offset thats why we see a difference in the editor.
+                //need to sync these values... i think it may be playspace...
+            }
+
+
+        }
+        public void UpdatePlayerYPositionMODIFIED(float teleportY)
+        {
+
 
             Vector3 finalPlayspacePosition = playspace.position;
 
-            currentPlayspacePositionY = teleportY;
-            finalPlayspacePosition.y = teleportY;
+            // /
+            //again moving cameraoffset has no effect in the editor but it does in webxr build.
+            //here we are just setting the set offset thats why we see a difference in the editor.
+            //need to sync these values... i think it may be playspace...
 
-            if (useManualHeightOffset) 
-            {
 
-                finalPlayspacePosition.y += manualYOffset;
+            // currentPlayspacePositionY = teleportY; 
+            finalPlayspacePosition.y = teleportY + (manualYOffset * currentScaleValue); //+ cameraOffset.cameraYOffset; //* (currentScaleValue);
 
-                
+            //FOR WEBXR 
+            webXRCameraOffset.cameraYOffset = teleportY + manualYOffset * currentScaleValue;
 
-                justBumped = true;
-            }
-            
+
+            //if (useManualHeightOffset)
+            //{
+            //    //this is the webxr camera offset
+            //    //finalPlayspacePosition.y += manualYOffset;
+
+
+
+            //    justBumped = true;
+            //}
+
             playspace.position = finalPlayspacePosition;
         }
+        public void UpdatePlayerYPosition(float teleportY)
+        {
 
-        public void SetManualYOffset (float y)
+
+            Vector3 finalPlayspacePosition = playspace.position;
+
+            // /
+            //again moving cameraoffset has no effect in the editor but it does in webxr build.
+            //here we are just setting the set offset thats why we see a difference in the editor.
+            //need to sync these values... i think it may be playspace...
+
+
+            // currentPlayspacePositionY = teleportY; 
+            finalPlayspacePosition.y = teleportY + (manualYOffset * currentScaleValue); //+ cameraOffset.cameraYOffset; //* (currentScaleValue);
+
+            //FOR WEBXR 
+            webXRCameraOffset.cameraYOffset = manualYOffset * currentScaleValue;
+
+
+            //if (useManualHeightOffset)
+            //{
+            //    //this is the webxr camera offset
+            //    //finalPlayspacePosition.y += manualYOffset;
+
+
+
+            //    justBumped = true;
+            //}
+
+            playspace.parent.position = finalPlayspacePosition;
+        }
+
+        public void SetManualYOffset(float y)
         {
             manualYOffset = y;
         }
 
-        public void BumpYAndUpdateOffset (float deltaY)
+        public void BumpYAndUpdateOffset(float deltaY)
         {
             justBumped = true;
 
@@ -329,23 +475,23 @@ namespace Komodo.Runtime
             SetManualYOffset(manualYOffset + deltaY);
         }
 
-        public void BumpPlayerUpAndUpdate (float bumpAmount) 
+        public void BumpPlayerUpAndUpdate(float bumpAmount)
         {
-            justBumped = true; 
-            
+            justBumped = true;
+
             Vector3 finalPlayspacePosition = playspace.position;
 
             finalPlayspacePosition.y += bumpAmount;
 
             playspace.position = finalPlayspacePosition;
-            
+
             SetManualYOffset(manualYOffset + bumpAmount);
         }
 
-        public void BumpPlayerDownAndUpdate (float bumpAmount)
+        public void BumpPlayerDownAndUpdate(float bumpAmount)
         {
-            justBumped = true; 
-            
+            justBumped = true;
+
             Vector3 finalPlayspacePosition = playspace.position;
 
             finalPlayspacePosition.y -= bumpAmount;
@@ -360,7 +506,7 @@ namespace Komodo.Runtime
         /// and assign the position of this gameobject to spectatorCamera, so that player will get teleported.
         /// </summary>
         /// <param name="floorIndicator"> the gameobject that highlights the floor when trying to teleport in spectator/PC mode. </param>
-        public void TeleportPlayerPC (GameObject floorIndicator) 
+        public void TeleportPlayerPC(GameObject floorIndicator)
         {
             Vector3 teleportDestination = floorIndicator.transform.position;
             teleportDestination.y = 2.0f; // manually bump player by 2; otherwise, player will get stuck in floor after every teleportation. 
@@ -377,7 +523,7 @@ namespace Komodo.Runtime
             var ratioScale = currentScale / 1;
             var offsetFix = ratioScale * newHeight;// 1.8f;
 
-            cameraOffset.cameraYOffset = offsetFix;//(newHeight);// * currentScale);
+            webXRCameraOffset.cameraYOffset = offsetFix;//(newHeight);// * currentScale);
         }
 
 
@@ -401,7 +547,7 @@ namespace Komodo.Runtime
             spectatorCamera.transform.localScale = Vector3.one * newScale;
             playspace.transform.localScale = Vector3.one * newScale;
 
-            cameraOffset.cameraYOffset = offsetFix;//newScale;
+            webXRCameraOffset.cameraYOffset = offsetFix;//newScale;
 
 
             //adjust the line renderers our player uses to be scalled accordingly

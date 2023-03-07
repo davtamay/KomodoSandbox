@@ -56,15 +56,15 @@ public class ToggleMenuDisplayMode : MonoBehaviour
 
         uiManager.PlaceMenuOnCurrentHand();
 
-        uiManager.ConvertMenuToAlwaysExpanded();
+       // uiManager.ConvertMenuToAlwaysExpanded();
 
         uiManager.EnableCreateMenu(true);
 
         uiManager.HeightCalibrationButtonsSettings(true);
 
-        uiManager.EnableInstructorMenuButton(false);
+        //uiManager.EnableInstructorMenuButton(false);
 
-        uiManager.EnableIgnoreLayoutForVRmode(false);
+    //    uiManager.EnableIgnoreLayoutForVRmode(false);
 
     }
 

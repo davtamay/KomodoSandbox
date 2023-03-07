@@ -5,7 +5,8 @@ using UnityEngine.EventSystems;
 using WebXR;
 using Komodo.Utilities;
 using System.Collections.Generic;
-
+using UnityEngine.XR;
+using UnityEditor.XR.LegacyInputHelpers;
 namespace Komodo.Runtime
 {
     //Camera collection to reference for eventsystem interaction
@@ -28,6 +29,8 @@ namespace Komodo.Runtime
 
         [Header("UI Canvases to set event camera for when switching between desktop and xr modes")]
         public List<Canvas> canvasesToReceiveEvents;
+
+        public CameraOffset cameraOffsetToSetWhenSwitchingToXR;
 
         //Check for null references
         public void Awake()

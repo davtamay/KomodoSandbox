@@ -350,6 +350,8 @@ MonoBehaviour:
     type: 3}
   transformToPlaceButtonUnder: {fileID: 3837076191595334081}
   modelData: {fileID: 11400000, guid: db1c1f0b227417243a9386a0bffdac56, type: 2}
+  placeHolderInputTemplate: {fileID: 0}
+  isInitiateOnStart: 1
 --- !u!1 &2112001885213848376
 GameObject:
   m_ObjectHideFlags: 0
@@ -4142,7 +4144,7 @@ PrefabInstance:
     - target: {fileID: 2065990546619097078, guid: bf57ce328bf1a6f45b67bf612dc8ebf2,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2065990546619097078, guid: bf57ce328bf1a6f45b67bf612dc8ebf2,
         type: 3}
@@ -4152,7 +4154,7 @@ PrefabInstance:
     - target: {fileID: 2065990546619097078, guid: bf57ce328bf1a6f45b67bf612dc8ebf2,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2065990546619097078, guid: bf57ce328bf1a6f45b67bf612dc8ebf2,
         type: 3}
@@ -4202,12 +4204,12 @@ PrefabInstance:
     - target: {fileID: 2065990546619097078, guid: bf57ce328bf1a6f45b67bf612dc8ebf2,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2065990546619097078, guid: bf57ce328bf1a6f45b67bf612dc8ebf2,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -80
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2065990546619097078, guid: bf57ce328bf1a6f45b67bf612dc8ebf2,
         type: 3}

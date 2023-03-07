@@ -305,7 +305,7 @@ namespace Komodo.Runtime
                 return;
             }
 
-            int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.Entity).entityID;
+            int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.entity).entityID;
 
             if (doShow)
             {
@@ -367,7 +367,7 @@ namespace Komodo.Runtime
                 return;
             }
 
-            var index = entityManager.GetSharedComponentManaged<ButtonIDSharedComponentData>(netObject.Entity).buttonID;
+            var index = entityManager.GetSharedComponentManaged<ButtonIDSharedComponentData>(netObject.entity).buttonID;
 
             GameObject currentObj = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index).gameObject;
 

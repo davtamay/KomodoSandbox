@@ -136,7 +136,7 @@ namespace Komodo.Runtime
             pivot.tag = TagList.interactable;
 
             //tag created drawing object will be useful in the future for having items with multiple tags
-            entityManager.AddComponentData(netObject.Entity, new DrawingTag { });
+            entityManager.AddComponentData(netObject.entity, new DrawingTag { });
 
             var collider = pivot.GetComponent<BoxCollider>();
 

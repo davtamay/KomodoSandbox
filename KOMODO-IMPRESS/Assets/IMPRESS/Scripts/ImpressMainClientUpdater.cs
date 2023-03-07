@@ -103,7 +103,7 @@ public class ImpressMainClientUpdater : SingletonComponent<ImpressMainClientUpda
       
 
 
-        var entityData = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.Entity);
+        var entityData = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.entity);
 
         IMPRESSPosition position = new IMPRESSPosition
         {

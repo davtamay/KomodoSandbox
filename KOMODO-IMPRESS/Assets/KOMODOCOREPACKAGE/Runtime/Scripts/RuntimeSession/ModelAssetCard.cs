@@ -10,7 +10,7 @@ using UnityEngine.Events;
 
 public class ModelAssetCard : MonoBehaviour
 {
-
+    
     public string name;
     public string url;
     public float scale;
@@ -22,6 +22,8 @@ public class ModelAssetCard : MonoBehaviour
     public Material material;
     public UnityAction onAssetCardClicked;
     public UnityAction onAssetLoaded;
+    public Toggle wholeObjectToggle;
+
 
     // public List<ModelData> modelLibrary;
     public void Instantiate()
@@ -37,9 +39,12 @@ public class ModelAssetCard : MonoBehaviour
     }
     public void CardIsClicked()
     {
-        onAssetCardClicked.Invoke();
-        
-        mbl.InstantiateNewAssetToList(url, name, scale, onAssetLoaded);
+     //   onAssetCardClicked.Invoke();
+
+
+      
+
+        mbl.InstantiateNewAssetToList(url, name, scale, !wholeObjectToggle.isOn, onAssetCardClicked, onAssetLoaded, true);
 
     }
 

@@ -48,7 +48,7 @@ namespace Komodo.Runtime
 
         private EntityState GetEntityStateFromNetObject(NetworkedGameObject netObject)
         {
-            int desiredEntityId = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.Entity).entityID;
+            int desiredEntityId = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.entity).entityID;
 
             foreach (var candidateEntityState in _state.entities)
             {

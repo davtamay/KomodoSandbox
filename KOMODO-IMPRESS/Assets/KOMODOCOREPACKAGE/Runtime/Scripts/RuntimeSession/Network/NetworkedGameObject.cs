@@ -29,9 +29,17 @@ namespace Komodo.Runtime
         private Rigidbody thisRigidBody;
 
         //entity used to access our data through entityManager
-        public Entity Entity;
+        public Entity entity;
 
         private EntityManager entityManager;
+
+        public bool isTransformLocked;
+
+        public void SetTransformLockedStated (bool isLocked)
+        {
+             isTransformLocked = isLocked;
+        }
+        public bool GetTransformLockedState() => isTransformLocked;
 
         public IEnumerator Start()
         {
@@ -75,43 +83,49 @@ namespace Komodo.Runtime
         public void Instantiate(int importIndex = -1, int uniqueEntityID = -1)
         {
             // get our entitymanager to get access to the entity world
-            // entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
             //set custom id if we are not given a specified id when instantiating this network associated object
             int EntityID = (uniqueEntityID == -1) ? NetworkedObjectsManager.Instance.GenerateUniqueEntityID() : uniqueEntityID;
 
-            //create our entity reference
-            // if (Entity == Entity.Null)
-            // {
-            //     Entity = entityManager.CreateEntity();
-            // }
 
-            // thisEntityID = EntityID;
+            // if (entityManager == null)
+            //  entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            // entityManager.get
+            //create our entity reference
+            //if (entity == Entity.Null)
+            //{
+              //  entity = entityManager.CreateEntity();
+            //}
+
+            thisEntityID = EntityID;
 
 #if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
 //do nothing
 #else
             //entityManager.SetName(Entity, gameObject.name);
 #endif
-            if(buttonIndex == -1)
+            if (buttonIndex == -1)
             buttonIndex = importIndex;
 
-            //set the data that our entity will be storing
+            //  set the data that our entity will be storing
             // if (buttonIndex != -1)
-            // {
-            //     entityManager.AddSharedComponentManaged(Entity, new ButtonIDSharedComponentData { buttonID = buttonIndex });
-            // }
+            //{
+            //    entityManager.AddSharedComponentManaged(entity, new ButtonIDSharedComponentData { buttonID = buttonIndex });
+            //}
 
-            // entityManager.AddComponentData(Entity, new NetworkEntityIdentificationComponentData
-            // {
-            //     entityID = EntityID,
 
-            //     clientID = NetworkUpdateHandler.Instance.client_id,
 
-            //     sessionID = NetworkUpdateHandler.Instance.session_id,
+            //entityManager.AddComponentData(entity, new NetworkEntityIdentificationComponentData
+            //{
+            //    entityID = EntityID,
 
-            //     current_Entity_Type = !usePhysics ? Entity_Type.objects : Entity_Type.physicsObject,
-            // });
+            //    clientID = NetworkUpdateHandler.Instance.client_id,
+
+            //    sessionID = NetworkUpdateHandler.Instance.session_id,
+
+            //    current_Entity_Type = !usePhysics ? Entity_Type.objects : Entity_Type.physicsObject,
+            //});
 
             NetworkedObjectsManager.Instance.Register(EntityID, this);
 
@@ -145,12 +159,12 @@ namespace Komodo.Runtime
                 NetworkedPhysicsManager.Instance.physics_networkedEntities.Add(this);
             }
 
-            if (entityManager.HasComponent<SendNetworkUpdateTag>(Entity))
+            if (entityManager.HasComponent<SendNetworkUpdateTag>(entity))
             {
                 return;
             }
 
-            entityManager.AddComponent<SendNetworkUpdateTag>(Entity);
+            entityManager.AddComponent<SendNetworkUpdateTag>(entity);
         }
         #endregion
 

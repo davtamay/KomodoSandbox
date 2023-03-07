@@ -7,6 +7,7 @@ using Komodo.Utilities;
 using System.Threading.Tasks;
 using System;
 using GLTFast.Logging;
+
 public class AddToModelList : MonoBehaviour, ICodeLogger
 {
     GameObject root;
@@ -81,6 +82,7 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
     }
     public async void Setup(bool wasSuccesful)
     {
+   
         // yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished );
 
         if (!wasSuccesful)
@@ -89,8 +91,12 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
         //    onFinishLoading?.Invoke("Import Failed");
             return;
         }
-         
 
+            //take care of the initual input box for import -- we have to set the index later incase other assets are setup through model library
+        if (index == -1)
+        {
+            index = ModelImportInitializer.Instance.GetRoot().transform.childCount;
+        }
 
         await TaskUtils.WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
 
@@ -108,11 +114,29 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
 
 
         //we initiate this in the post process of our gltfimport;
-        Debug.Log("SETUP GO, " + index);
+        Debug.Log("SETUP GO, " + index  + "   " + "with whole object" + mID.isWholeObject);
         GameObject komodoImportedModel = ModelImportPostProcessor.SetUpGameObject(index, mID, gameObject);
         //ModelImportInitializer.Instance.modelButtonList.InstantiateButton(mID.name, index);  
 
         komodoImportedModel.transform.SetParent(root.transform, false);
+
+
+        foreach (Transform item in ClientSpawnManager.Instance.mainPlayer_AvatarEntityGroup.transform.GetChild(0))
+        {
+            if (item.gameObject.activeInHierarchy)
+            {
+                //   Debug.Log("item " + item.gameObject.name, item.gameObject);
+                komodoImportedModel.transform.position = item.TransformPoint(Vector3.forward * 1.2f);//item.GetChild(0).position; 
+
+                //  item.GetChild(0).TransformPoint(Vector3.forward * 0.2f);
+                // komodoImportedModel.transform.LookAt(item.GetChild(0).position);
+                 komodoImportedModel.transform.rotation = Quaternion.LookRotation(komodoImportedModel.transform.position - item.position, Vector3.up);
+                //  komodoImportedModel.transform.localRotation.SetLookRotation(item.GetChild(0).position); // = Quaternion.LookRotation(item.GetChild(0).position, Vector3.up);
+                //komodoImportedModel.transform.rotation = item.GetChild(0).localEulerAngles.y; //Quaternion.Euler(item.GetChild(0).TransformDirection(Vector3.forward));
+                break;
+            }
+        }
+        //komodoImportedModel.transform.position =  ClientSpawnManager.Instance.mainPlayer_AvatarEntityGroup.gameObject.transform.TransformPoint(Vector3.forward);
 
         // if(!wasSuccesful)
         //           onFinishLoading?.Invoke("Import Failed");

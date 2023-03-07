@@ -38,6 +38,7 @@ using Unity.Transforms;
 using UnityEngine;
 using Komodo.AssetImport;
 using Unity.Collections;
+using System;
 
 namespace Komodo.Runtime
 {
@@ -258,12 +259,12 @@ namespace Komodo.Runtime
 
             //a dictionary to keep new parent and child references to set correct pivot parents after child iteration
             Dictionary<Transform, Transform> childToNewParentPivot = new Dictionary<Transform, Transform>();
-            AddRigidBodiesAndColliders(loadedObject.transform, menuButtonIndex, ref childToNewParentPivot);
+            AddRigidBodiesAndColliders(loadedObject.transform, loadedObject.transform, menuButtonIndex, ref childToNewParentPivot);
 
             //since we are creating new parent pivots during the child iteration process we have to set parents after the fact
             foreach (KeyValuePair<Transform, Transform> item in childToNewParentPivot)
             {
-                SetParentAsPivot(item.Key, item.Value);
+                SetParentAsPivot(item.Key, item.Value, loadedObject.transform);
             }
         }
 
@@ -284,10 +285,10 @@ namespace Komodo.Runtime
                 }
                 else
                 {
-                    if (netREg.Entity == Entity.Null)
+                    if (netREg.entity == Entity.Null)
                         entityCreated = entityManager.CreateEntity();
                     else
-                        entityCreated = netREg.Entity;
+                        entityCreated = netREg.entity;
 
 
                     //entityCreated = entityManager.CreateEntity();
@@ -295,11 +296,11 @@ namespace Komodo.Runtime
                 }
 
                 linkedEntityGroupList.Add(entityCreated);
-                netREg.Entity = entityCreated;//associatedEntity;
+                netREg.entity = entityCreated;//associatedEntity;
 
                 //add identification data
-                if (!entityManager.HasComponent<NetworkEntityIdentificationComponentData>(netREg.Entity))
-                    ecbs.AddComponent(netREg.Entity, new NetworkEntityIdentificationComponentData
+                if (!entityManager.HasComponent<NetworkEntityIdentificationComponentData>(netREg.entity))
+                    ecbs.AddComponent(netREg.entity, new NetworkEntityIdentificationComponentData
                     {
                         entityID = netREg.thisEntityID,
                         clientID = NetworkUpdateHandler.Instance.client_id,
@@ -308,7 +309,7 @@ namespace Komodo.Runtime
 
                     });
 
-                ecbs.AddSharedComponent(netREg.Entity, new ButtonIDSharedComponentData { buttonID = buttonIndex });
+                ecbs.AddSharedComponent(netREg.entity, new ButtonIDSharedComponentData { buttonID = buttonIndex });
             }
 
 
@@ -370,7 +371,7 @@ namespace Komodo.Runtime
             }
         }
 
-        public static Transform CheckForIndividualFiltersAndSkins(GameObject gameObjectToCheck, int menuButtonIndex = -1, bool isNetworked = true)
+        public static Transform CheckForIndividualFiltersAndSkins(GameObject gameObjectToCheck, Transform root, int menuButtonIndex = -1, bool isNetworked = true)
         {
             bool hasMeshFilter = false;
             MeshFilter filter = default;
@@ -392,6 +393,12 @@ namespace Komodo.Runtime
                 //  create new parent to be a pivot of object to deform correctly when grabbing
                 Transform newParent = new GameObject().transform;
 
+                //Debug.Log(gameObjectToCheck.transform.parent);
+
+                //if (gameObjectToCheck.transform.parent)
+                //    newParent.SetParent(gameObjectToCheck.transform.parent, true);
+                //else
+                //    newParent.SetParent(gameObjectToCheck.transform, true);
                 //set new parent with sibling pos and scale
                 newParent.SetParent(gameObjectToCheck.transform.parent, true);
                 newParent.localPosition = gameObjectToCheck.transform.localPosition;
@@ -433,13 +440,13 @@ namespace Komodo.Runtime
         /// <param name="transform"></param>
         /// <param name="menuButtonIndex"></param>
         /// <param name="childToNewParentPivot"></param>
-        static void AddRigidBodiesAndColliders(Transform transform, int menuButtonIndex, ref Dictionary<Transform, Transform> childToNewParentPivot)
+        static void AddRigidBodiesAndColliders(Transform transform, Transform root, int menuButtonIndex, ref Dictionary<Transform, Transform> childToNewParentPivot)
         {
             //check that we are not looking at a transform that we already looked at
             if (!childToNewParentPivot.ContainsValue(transform))
             {
                 //Check parent first for renderers 
-                Transform newPO2 = CheckForIndividualFiltersAndSkins(transform.gameObject, menuButtonIndex);
+                Transform newPO2 = CheckForIndividualFiltersAndSkins(transform.gameObject, root.transform, menuButtonIndex);
 
                 if (newPO2 != null)
                     childToNewParentPivot.Add(newPO2, transform);
@@ -448,13 +455,13 @@ namespace Komodo.Runtime
             //check children for renderers
             foreach (Transform child in transform)
             {
-                Transform newParent = CheckForIndividualFiltersAndSkins(child.gameObject, menuButtonIndex);
+                Transform newParent = CheckForIndividualFiltersAndSkins(child.gameObject, root, menuButtonIndex);
 
                 //if we made a new pivot parent add it to the dictionary to iterate after completing iteraction for the specific model
                 if (newParent != null) childToNewParentPivot.Add(newParent, child);
 
-                //deeper children search //resets our dic
-                if (child.childCount > 0) AddRigidBodiesAndColliders(child, menuButtonIndex, ref childToNewParentPivot);
+                //deeper children search //resets our dic 
+                if (child.childCount > 0) AddRigidBodiesAndColliders(child, root.transform, menuButtonIndex, ref childToNewParentPivot);
             }
         }
 
@@ -464,7 +471,7 @@ namespace Komodo.Runtime
         /// </summary>
         /// <param name="pivot"></param>
         /// <param name="child"></param>
-        public static void SetParentAsPivot(Transform pivot, Transform child)
+        public static void SetParentAsPivot(Transform pivot, Transform child, Transform parentRoot)
         {
             //grab the original parent before changing it
             Transform previousParent = child.parent;
@@ -475,8 +482,18 @@ namespace Komodo.Runtime
             //now attach child to new parent to have pivot point parent
             child.transform.SetParent(pivot, true);
 
+          //  Debug.Log(previousParent);
             //set pivot to be parented to the original child parent
-            pivot.transform.SetParent(previousParent);
+            //if (previousParent)
+            //{
+            //    pivot.transform.SetParent(previousParent);
+            //}
+            //else
+            //{
+            //    Debug.Log("2nd" + parentRoot);
+            //works but disrupts annimation because gameobject go out of order in hyerarchy
+                pivot.transform.SetParent(parentRoot, false);
+          //  }
         }
 
     }

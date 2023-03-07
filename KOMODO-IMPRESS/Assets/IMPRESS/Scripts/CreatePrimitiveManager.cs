@@ -561,7 +561,7 @@ namespace Komodo.IMPRESS
 
             NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive);
 
-            entityManager.AddComponentData(nAGO.Entity, new PrimitiveTag { });
+            entityManager.AddComponentData(nAGO.entity, new PrimitiveTag { });
 
             primitive.tag = "Interactable";
 

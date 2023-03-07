@@ -35,6 +35,9 @@ namespace Komodo.Runtime
         [ShowOnly] public bool isAvatarLoadingFinished;
 
         [ShowOnly] public bool isAssetImportFinished;
+
+        [ShowOnly] public bool isSceneLoadingFinished;
+
         private EntityManager entityManager;
 
         public void Awake()

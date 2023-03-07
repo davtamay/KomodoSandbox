@@ -50,7 +50,30 @@ namespace Komodo.Runtime
 
         private EntityManager entityManager;
 
-        public override IEnumerator Start()
+        public bool isInitiateOnStart = true;
+
+        //private ModelItem currentPlaceholderModelItem;
+        //public ModelItem GetCurrentPlaceholderModelItem () => currentPlaceholderModelItem;
+
+        public UnityAction<ModelItem> onPlaceholderModelItemChanged;
+        //public  void Awake()
+        //{ 
+
+
+        //}
+        public void Start()
+        {
+            if (isInitiateOnStart)
+                Instantiate(null,null);
+        }
+
+        public void Instantiate(UnityAction onModelClick, UnityAction onModelLoaded)
+        {
+
+            StartCoroutine(InstantiateList(onModelClick, onModelLoaded));
+
+        }
+        public IEnumerator InstantiateList(UnityAction onModelClick, UnityAction onModelLoaded)
         {
             //entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
@@ -67,7 +90,7 @@ namespace Komodo.Runtime
             }
 
 
-            InstantiatePlaceHolderButton("", ModelImportInitializer.Instance.modelData.models.Count, true, 1.0f, null);
+            onPlaceholderModelItemChanged?.Invoke(InstantiatePlaceHolderButton("", -1, true, 1.0f, true, onModelClick, onModelLoaded));
 
             yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
 
@@ -79,9 +102,9 @@ namespace Komodo.Runtime
 
         }
 
-        public void InstantiateNewAssetToList(string url, string name, float scale, UnityAction onAssetLoadedCallback)
+        public ModelItem InstantiateNewAssetToList(string url, string name, float scale, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary)
         {
-          ModelItem modelItem =   InstantiatePlaceHolderButton("", ModelImportInitializer.Instance.GetRoot().transform.childCount, false, scale, onAssetLoadedCallback);
+          ModelItem modelItem =   InstantiatePlaceHolderButton("", ModelImportInitializer.Instance.GetRoot().transform.childCount, false, scale, isWhole, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary);
 
 
             modelItem.inputURL.text = url;
@@ -89,6 +112,8 @@ namespace Komodo.Runtime
             modelItem.nameDisplay.Set(name);
 
             modelItem.downloadButton.onClick.Invoke();
+
+            return modelItem;
     }
 
         protected override void InitializeButtons()
@@ -139,8 +164,10 @@ namespace Komodo.Runtime
         }
 
 
-        public ModelItem InstantiatePlaceHolderButton(string name, int buttonIndex, bool addNewPlaceHolderAfterClick, float scale, UnityAction onAssetLoadedCallback)
+        public ModelItem InstantiatePlaceHolderButton(string name, int buttonIndex, bool addNewPlaceHolderAfterClick, float scale, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary = false)
         {
+          //  int Index = ModelImportInitializer.Instance.GetRoot().transform.childCount;
+            //Debug.Log("button as : :" + isWhole);
             //  yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished );
             // yield return null;
             // if (UIManager.IsAlive)
@@ -159,13 +186,16 @@ namespace Komodo.Runtime
                 // }
                 System.Action<string, int> addPlaceHolderAfterUsed = (s, i) => { if (addNewPlaceHolderAfterClick)
 
-                        InstantiatePlaceHolderButton("", ModelImportInitializer.Instance.GetRoot().transform.childCount, true, scale, null
-                            );
-                        
-                        };
+                        onPlaceholderModelItemChanged?.Invoke(InstantiatePlaceHolderButton("", -1, true,scale, true, onAssetClicked, onAssetLoadedCallback));
+
+                    //InstantiatePlaceHolderButton("", -1, true, scale, isWhole, null
+                    //  );
 
 
-                modelItem.Initialize(buttonIndex, modelItem.inputURL.text, scale, true, addPlaceHolderAfterUsed, onAssetLoadedCallback);
+                };
+
+
+                modelItem.Initialize(buttonIndex, modelItem.inputURL.text, scale, isWhole, true, addPlaceHolderAfterUsed, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary);
 
                 return modelItem;
             }

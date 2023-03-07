@@ -94,7 +94,7 @@ namespace Komodo.IMPRESS
         public float scaleMin = 0.1f;
 
         // Set the max scale for the avatar
-        public float scaleMax = 10.0f;
+        public float scaleMax = 12.0f;
 
         // This is taken from Google Tilt Brush and has a texture that shows the current scale
         public MeshRenderer animalRulerMesh;
@@ -220,9 +220,10 @@ namespace Komodo.IMPRESS
             }
 
             //average human height, need to readjust ruller
-            CustomScalling(1.77f);
+            // CustomScalling(1.77f);
+          // CustomScalling(1);
 
-            if(!teleportPlayer)
+            if (!teleportPlayer)
             teleportPlayer = player.GetComponent<TeleportPlayer>();
             
 
@@ -248,11 +249,11 @@ namespace Komodo.IMPRESS
 
         }
 
-       public IEnumerator Start(){
+       public void Start(){
 
 //DOES NOT WORK IN BUILD...
-yield return null;
-             playspace.position = new Vector3(playspace.position.x, 1.77f, playspace.position.z);
+//yield return null;
+//             playspace.position = new Vector3(playspace.position.x, 1.77f, playspace.position.z);
 
               if(!teleportPlayer)
             teleportPlayer = player.GetComponent<TeleportPlayer>();
@@ -541,7 +542,7 @@ public float middleValueStrength = 1f;
 
                 scaleMin = 0.1f;
 
-                scaleMax = 10f;
+                scaleMax = 12f;
             }
 
             float percentScale = (playerScale - scaleMin) / (scaleMax - scaleMin);

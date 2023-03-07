@@ -33,57 +33,74 @@ namespace Komodo.Runtime
 
 
 
-        public async void Initialize(int index, String name, float scale = 1, bool isDownloadPlaceHolder = false, Action<string, int> onPlaceHolderUsed = null, UnityAction onAssetLoaded = null)
+        public void Initialize(int index, String name, float scale = 1, bool isWhole = true, bool isDownloadPlaceHolder = false, Action<string, int> onPlaceHolderUsed = null, UnityAction onAssetClicked = null, UnityAction onAssetLoaded = null, bool isFromModelLibrary = false)
         {
             nameDisplay.Initialize("");
 
 
             visibilityToggle.Initialize(index);
             lockToggle.Initialize(index);
-            this.index = index;
+
+            if (index != -1)
+                this.index = index;
+            //else
+            //    this.index = ModelImportInitializer.Instance.GetRoot().transform.childCount;
+
+
 
             if (isDownloadPlaceHolder)
             {
 
                 downloadButton.onClick.AddListener(delegate ()
                 {
-                downloadButton.transform.parent.parent.gameObject.SetActive(false);
-
-                AddToModelList model;
-                KomodoGLTFAssetV5 importInstance;
-
-                if (newInstance == null)
-                {
-                    newInstance = new GameObject("placeholder");
-
-                }
+                    onAssetClicked?.Invoke();
 
 
-                if (newInstance.TryGetComponent(out AddToModelList currentModel))
-                {
-                    model = currentModel;
-                    importInstance = currentModel.GetComponent<KomodoGLTFAssetV5>();
+                    if (index == -1)
+                      this.index = ModelImportInitializer.Instance.GetRoot().transform.childCount;
+
+                    visibilityToggle.Initialize(this.index);
+
+                    downloadButton.transform.parent.parent.gameObject.SetActive(false);
+
+                    AddToModelList model;
+                    KomodoGLTFAssetV5 importInstance;
+
+                    if (newInstance == null)
+                    {
+                        newInstance = new GameObject("placeholder");
+
+                    }
 
 
-                }
-                else
-                {
+                    if (newInstance.TryGetComponent(out AddToModelList currentModel))
+                    {
+                        model = currentModel;
+                        //model.isWholeObject = isWhole;
+                        importInstance = currentModel.GetComponent<KomodoGLTFAssetV5>();
 
-                    model = newInstance.AddComponent<AddToModelList>();
-                    model.SetIndex(index);
+
+                    }
+                    else
+                    {
+                      //  Debug.Log("button as : :" + isWhole + "isdownloadPlaceholder" + isDownloadPlaceHolder);
+                        model = newInstance.AddComponent<AddToModelList>();
+                        model.isWholeObject = isWhole;
+                        model.SetIndex(index);
                         model.scale = scale;
 
-                    importInstance = newInstance.AddComponent<KomodoGLTFAssetV5>();
+                        importInstance = newInstance.AddComponent<KomodoGLTFAssetV5>();
 
-                    model.onImportAttempted += (Message) =>
-                    {
-                      StartCoroutine( ReturnToFunctionalInputUseAfterSeconds(2, Message));
-
-
-                    };
+                        model.onImportAttempted += (Message) =>
+                        {
+                          
+                           StartCoroutine(ReturnToFunctionalInputUseAfterSeconds(2, Message, onAssetLoaded));
 
 
-                }
+                        };
+
+
+                    }
 
 
 
@@ -92,7 +109,7 @@ namespace Komodo.Runtime
                     {
                         if (!IsValidGLTFExtension(inputURL.text))
                         {
-                             model.onImportAttempted("No .glb/.gltf extension provided");
+                            model.onImportAttempted("No .glb/.gltf extension provided");
                             return;
 
                         }
@@ -125,6 +142,9 @@ namespace Komodo.Runtime
                         if (importSuccess == "")
                         {
                             onAssetLoaded?.Invoke();
+                            
+                            if(!isFromModelLibrary)
+                                downloadButton.transform.parent.parent.gameObject.SetActive(false);
 
                             UIManager.Instance.modelVisibilityToggleList.Add(visibilityToggle);
                             UIManager.Instance.modelLockToggleList.Add(lockToggle);
@@ -132,10 +152,11 @@ namespace Komodo.Runtime
 
                             lockToggle.transform.parent.gameObject.SetActive(true);
 
-                            nameDisplay.Set(Path.GetFileName(model.url.TrimEnd('\\')));
+                         //  if (!isFromModelLibrary)
+                                nameDisplay.Set(Path.GetFileName(inputURL.text.TrimEnd('\\')));
                             //  Path.GetFileName( model.url.TrimEnd('\\'))
 
-                            onPlaceHolderUsed?.Invoke(nameDisplay.GetName(), index);
+                            onPlaceHolderUsed?.Invoke(nameDisplay.GetName(), ModelImportInitializer.Instance.GetRoot().transform.childCount);
 
 
 
@@ -143,19 +164,20 @@ namespace Komodo.Runtime
 
                     };
 
-                    model.isWholeObject = !isWholeObject.isOn;
-                    model.url = inputURL.text;
-                    downloadButton.gameObject.SetActive(false);
-                    isWholeObject.gameObject.SetActive(false);
-                    inputURL.gameObject.SetActive(false);
+                    //have to check if this is coming from input box or is selected from modellibrary
+                        nameDisplay.Set("LOADING...");
+                        downloadButton.gameObject.SetActive(false);
+                        isWholeObject.gameObject.SetActive(false);
+                        inputURL.gameObject.SetActive(false);
 
-                    nameDisplay.Initialize("LOADING...");
-                    nameDisplay.gameObject.SetActive(true);
-                    // lockToggle.transform.gameObject.SetActive(true);
-                    //model.Setup();
+                        nameDisplay.gameObject.SetActive(true);
 
-                    //  index = model.index;
+                    if (!isFromModelLibrary)
+                    {
+                        model.isWholeObject = isWhole;//!isWholeObject.isOn;
+                        model.url = inputURL.text;
 
+                    }
 
 
 
@@ -167,7 +189,7 @@ namespace Komodo.Runtime
             {
                 nameDisplay.Set(name);
 
-                visibilityToggle.Initialize(this.index);
+                //visibilityToggle.Initialize(this.index);
 
                 UIManager.Instance.modelVisibilityToggleList.Add(visibilityToggle);
 
@@ -184,8 +206,20 @@ namespace Komodo.Runtime
 
 
         }
+       
+        public void SignalModelLibraryLoading()
+        {
+            downloadButton.transform.parent.parent.gameObject.SetActive(false);
+      //      nameDisplay.gameObject.SetActive(true);
+          //  nameDisplay.Set
+            //  StartCoroutine(ReturnToFunctionalInputUseAfterSeconds(2, "Loading..."));
+        }
+        public void SignalModelLibraryLoadingEnd()
+        {
+            downloadButton.transform.parent.parent.gameObject.SetActive(true);
+        }
 
-        public IEnumerator ReturnToFunctionalInputUseAfterSeconds(int seconds, string message)
+        public IEnumerator ReturnToFunctionalInputUseAfterSeconds(int seconds, string message, UnityAction onAssetLoadingFinished)
         {
 
 
@@ -197,7 +231,7 @@ namespace Komodo.Runtime
             // isWholeObject.gameObject.SetActive(false);
 
             yield return new WaitForSeconds(seconds);
-           // await System.Threading.Tasks.Task.Delay(seconds * 1000);
+            // await System.Threading.Tasks.Task.Delay(seconds * 1000);
 
 
             inputURL.gameObject.SetActive(true);
@@ -212,8 +246,10 @@ namespace Komodo.Runtime
             isWholeObject.gameObject.SetActive(true);
             downloadButton.gameObject.SetActive(true);
 
-            if (newInstance)
-                Destroy(newInstance);
+
+            onAssetLoadingFinished.Invoke();
+            //if (newInstance)
+            //    Destroy(newInstance);
 
         }
 

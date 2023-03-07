@@ -32,6 +32,7 @@ namespace Komodo.Runtime
         [Tooltip("How manu angles from world up the surface can point and still be valid. Avoids casting onto walls.")]
         public float surfaceAngle = 5;
 
+        public bool isSpectatortTeleportation;
 
         // Where the curve ends
         public Vector3 End { get; protected set; }
@@ -87,9 +88,15 @@ namespace Komodo.Runtime
             }
             // colliderInput.enabled = false;
         }
-
+        public Camera spectatorCamera;
         public void Update()
         {
+
+            //if (isSpectatortTeleportation)
+            //{
+            //    transportationIndicator.SetActive(true);
+            //    return;
+            //}
             //if (colliderInput.enabled == false)
             //    return;
 
@@ -100,26 +107,48 @@ namespace Komodo.Runtime
             //raycast are either meant to be for selection or teleportation which takes into account the differences in implementation.
             if (!isParabolic)
             {
-                //PLACING THIS HERE AFFECTS WORLD COLLIDER INTERACTIONS WITH LINE RENDERER?
-                if (Physics.Linecast(transform.position, pos, out RaycastHit hit, layerMask))
-                {
-                    if (!isOverObject)
-                        lineRenderer.material.color = selectionLineColor;
+                isOverObject = false;
 
+                // Get a ray from the touch or right click position
+                Ray ray = spectatorCamera.ScreenPointToRay(Input.mousePosition);
+
+
+                // Perform a raycast to see if the ray hits a collider
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {     
                     pos = hit.point;
+
+                    //rotate appropriate to the surface normal
+                    transportationIndicator.transform.rotation = (Quaternion.FromToRotation(transportationIndicator.transform.up, hit.normal)) * transportationIndicator.transform.rotation;
+                    transportationIndicator.transform.position = pos;
+
                     isOverObject = true;
-                    //  colliderInput.transform.position = hit.point;
+                    newPlayerPos = pos;
 
-                }
-                else
-                {
-                    if (isOverObject)
-                        lineRenderer.material.color = originalLineColor;
+                }else
+                    newPlayerPos = null;
 
-                    isOverObject = false;
-                }
+                // if(isOverObject)
+                ////PLACING THIS HERE AFFECTS WORLD COLLIDER INTERACTIONS WITH LINE RENDERER?
+                //if (Physics.Linecast(transform.position, pos, out RaycastHit hit, layerMask))
+                //{
+                //    if (!isOverObject)
+                //        lineRenderer.material.color = selectionLineColor;
 
-                lineRenderer.SetPosition(1, pos);
+                //    pos = hit.point;
+                //    isOverObject = true;
+                //    //  colliderInput.transform.position = hit.point;
+
+                //}
+                //else
+                //{
+                //    if (isOverObject)
+                //        lineRenderer.material.color = originalLineColor;
+
+                //    isOverObject = false;
+                //}
+
+                //lineRenderer.SetPosition(1, pos);
             }
             else
             {

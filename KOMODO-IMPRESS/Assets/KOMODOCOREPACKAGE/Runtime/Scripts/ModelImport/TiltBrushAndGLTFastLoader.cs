@@ -11,8 +11,8 @@ namespace Komodo.AssetImport
 {
     public class TiltBrushAndGLTFastLoader : ModelDownloaderAndLoader
     {
-
-      //  private GLTFast.GLTFast gltf;
+        //public GLTFast.GltfAssetBase gltfAssetToUse;
+        //  private GLTFast.GLTFast gltf;
         public async override void LoadLocalFile(string url, string localFilename, System.Action<GameObject> callback)
         {
 
@@ -43,6 +43,18 @@ namespace Komodo.AssetImport
 
 
                 GLTFast.GltfAsset loader = result.AddComponent<GLTFast.GltfAsset>();
+               
+                var instantiationSettings = new InstantiationSettings();
+                instantiationSettings.Mask = ComponentType.Animation | ComponentType.Mesh;
+
+                loader.InstantiationSettings = instantiationSettings;
+
+
+
+
+               // loader.components
+
+                //     loader.
                 // KomodoGLTFAsset loader = result.AddComponent<KomodoGLTFAsset>();
 
                 await loader.Load(url);
@@ -138,7 +150,7 @@ namespace Komodo.AssetImport
             }
         }
 
-        public GameObject LoadFileWithTiltBrushToolkit(string localFilename)
+        public static GameObject LoadFileWithTiltBrushToolkit(string localFilename)
         {
             return Glb2Importer.ImportTiltBrushAsset(localFilename);
         }
