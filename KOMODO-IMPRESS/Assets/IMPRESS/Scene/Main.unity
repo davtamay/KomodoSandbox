@@ -5483,8 +5483,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1062921327}
   - component: {fileID: 1062921330}
-  - component: {fileID: 1062921329}
-  - component: {fileID: 1062921328}
+  - component: {fileID: 1062921331}
+  - component: {fileID: 1062921332}
   m_Layer: 5
   m_Name: Viewport
   m_TagString: Untagged
@@ -5513,7 +5513,15 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &1062921328
+--- !u!222 &1062921330
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1062921326}
+  m_CullTransparentMesh: 0
+--- !u!114 &1062921331
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5525,8 +5533,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ShowMaskGraphic: 1
---- !u!114 &1062921329
+  m_ShowMaskGraphic: 0
+--- !u!114 &1062921332
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5539,7 +5547,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.6117647}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5554,16 +5562,8 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
-  m_UseSpriteMesh: 0
+  m_UseSpriteMesh: 1
   m_PixelsPerUnitMultiplier: 1
---- !u!222 &1062921330
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1062921326}
-  m_CullTransparentMesh: 0
 --- !u!1 &1095883412
 GameObject:
   m_ObjectHideFlags: 0
@@ -6096,7 +6096,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.00022888184}
+  m_AnchoredPosition: {x: 0, y: -0.00024414062}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1238599604
@@ -13411,7 +13411,7 @@ MonoBehaviour:
   - {fileID: 5749747150658729526}
   - {fileID: 5749747149540404015}
   - {fileID: 5749747150273087298}
-  manualYOffset: 1.36144
+  webXRCameraHeightDefault: 1.36144
   freeFlightController: {fileID: 2310806580073120148}
   isFirstYAdjustment: 1
   initialYHit: 0
@@ -18350,6 +18350,11 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4590373502844269824, guid: ae7642adfb1024d4f87c44af7f2084d3,
+        type: 3}
+      propertyPath: m_Maskable
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4639573931865504665, guid: ae7642adfb1024d4f87c44af7f2084d3,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -19105,6 +19110,11 @@ PrefabInstance:
       propertyPath: heightCalibration
       value: 
       objectReference: {fileID: 1429055716}
+    - target: {fileID: 5154001067214927901, guid: ae7642adfb1024d4f87c44af7f2084d3,
+        type: 3}
+      propertyPath: m_CullTransparentMesh
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5430697207869190032, guid: ae7642adfb1024d4f87c44af7f2084d3,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -19334,6 +19344,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 6911349987339563799, guid: ae7642adfb1024d4f87c44af7f2084d3,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0.53333336
       objectReference: {fileID: 0}
     - target: {fileID: 6911349987339563799, guid: ae7642adfb1024d4f87c44af7f2084d3,
         type: 3}

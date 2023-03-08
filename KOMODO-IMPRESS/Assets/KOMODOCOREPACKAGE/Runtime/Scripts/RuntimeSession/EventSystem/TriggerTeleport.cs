@@ -125,8 +125,15 @@ namespace Komodo.Runtime
                     isOverObject = true;
                     newPlayerPos = pos;
 
-                }else
+                    transportationIndicator.SetActive(true);
+                }
+                else
+                {
+                    transportationIndicator.SetActive(false);
+
+
                     newPlayerPos = null;
+                }
 
                 // if(isOverObject)
                 ////PLACING THIS HERE AFFECTS WORLD COLLIDER INTERACTIONS WITH LINE RENDERER?

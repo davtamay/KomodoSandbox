@@ -405,6 +405,12 @@ namespace Komodo.Runtime
         }
         private Vector3 lastMousePosition;
         public void RotatePlayerFromInput() {
+          
+            if (Input.touchCount >= 2)
+            {
+                // Exit early if there are two or more touches.
+                return;
+            }
 
 
             if (Input.touchCount == 1)
@@ -538,6 +544,38 @@ namespace Komodo.Runtime
                     floorIndicator.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
                 }
             }
+
+            // Check if a right click is currently down or a touch is detected
+            //if (Input.GetMouseButton(1) || Input.touchCount > 0)
+            //{
+            //    // Determine if we're using a touch or the mouse
+            //    bool isTouch = Input.touchCount > 0;
+
+            //    // Get the position of the mouse or the first touch
+            //    Vector3 position = isTouch ? Input.GetTouch(0).position : Input.mousePosition;
+
+            //    // Get a ray from the position
+            //    Ray ray = spectatorCamera.ScreenPointToRay(position);
+
+            //    // Perform a raycast to see if the ray hits a collider
+            //    if (Physics.Raycast(ray, out RaycastHit hit))
+            //    {
+            //        // Set the target position to the hit point plus an offset from the touch (if using a touch)
+            //        Vector3 targetPosition = hit.point;
+            //        if (isTouch)
+            //        {
+            //            Vector3 offset = position - Camera.main.WorldToScreenPoint(hit.point);
+            //            targetPosition += offset;
+            //        }
+
+            //        // Update the floor indicator position and rotation
+            //        floorIndicator.transform.position = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
+            //        floorIndicator.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+            //    }
+            //}
+          
+            
+            
             //// Check if a touch or right click is currently down
             //if ( Input.GetMouseButton(1) 
             //    ||

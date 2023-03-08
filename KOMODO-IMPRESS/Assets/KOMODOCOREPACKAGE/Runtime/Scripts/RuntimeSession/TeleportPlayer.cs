@@ -37,7 +37,7 @@ namespace Komodo.Runtime
 
         float originalHeight;
 
-        public float manualYOffset = 1.36144f;
+        public float webXRCameraHeightDefault = 1.36144f;
 
         float originalFixedDeltaTime;
 
@@ -61,11 +61,11 @@ namespace Komodo.Runtime
 
             SetPlayerPositionToHome2();
 
-            //#if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
-            //                        WebXRManager.OnXRChange += onXRChange_SwitchCameraGroundOffsetsBetweenWebXRAndDesktop;
-            //#else
-            //            WebXRManagerEditorSimulator.OnXRChange += onXRChange_SwitchCameraGroundOffsetsBetweenWebXRAndDesktop;
-            //#endif
+#if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
+                                    WebXRManager.OnXRChange += onXRChange_SwitchCameraGroundOffsetsBetweenWebXRAndDesktop;
+#else
+            WebXRManagerEditorSimulator.OnXRChange += onXRChange_SwitchCameraGroundOffsetsBetweenWebXRAndDesktop;
+#endif
             //GameStateManager.Instance.
         }
 
@@ -316,6 +316,7 @@ namespace Komodo.Runtime
             finalPlayspacePosition.z += deltaZ;
 
             playspace.position = finalPlayspacePosition;
+            spectatorCamera.position = finalPlayspacePosition;
         }
 
         public void UpdatePlayerXZPosition(Transform otherTransform)
@@ -340,16 +341,21 @@ namespace Komodo.Runtime
                 {
                     //use a max function here to grab either a default small height(y) value or the actual height 
                     // to provide reliable height get the difference from webxrcamera and floor.
-                    webXRCameraOffset.cameraYOffset = Mathf.Abs(webXRCameraOffset.cameraFloorOffsetObject.transform.position.y - hit.point.y);
+                    webXRCameraOffset.cameraYOffset = Mathf.Max(Mathf.Abs(webXRCameraOffset.cameraFloorOffsetObject.transform.position.y - hit.point.y), 0.5f);
+                }
+                else
+                {
+                    webXRCameraOffset.cameraYOffset = webXRCameraHeightDefault;
+
                 }
                 //AdjustYAccordingToWorldPulling(1f);
-
-                else if (state == WebXRState.NORMAL)
-                {
-                    webXRCameraOffset.cameraYOffset = manualYOffset;
-                    //     SetToDesktop();
-                }
             }
+            else if (state == WebXRState.NORMAL)
+            {
+                webXRCameraOffset.cameraYOffset = webXRCameraHeightDefault;
+                //     SetToDesktop();
+            }
+            
 
 
         }
@@ -373,7 +379,7 @@ namespace Komodo.Runtime
                     //if (Physics.Linecast(transform.position + Vector3.up, Vector3.down, out RaycastHit hit))
                     //{
                     //    initialOffset = Mathf.Abs(hit.point.y - webXRCameraOffset.cameraFloorOffsetObject.transform.position.y);
-                    originalCamDif = manualYOffset;
+                    originalCamDif = webXRCameraHeightDefault;
                     isFirstYAdjustment = false;
                     //}
 
@@ -407,10 +413,10 @@ namespace Komodo.Runtime
 
 
             // currentPlayspacePositionY = teleportY; 
-            finalPlayspacePosition.y = teleportY + (manualYOffset * currentScaleValue); //+ cameraOffset.cameraYOffset; //* (currentScaleValue);
+            finalPlayspacePosition.y = teleportY + (webXRCameraHeightDefault * currentScaleValue); //+ cameraOffset.cameraYOffset; //* (currentScaleValue);
 
             //FOR WEBXR 
-            webXRCameraOffset.cameraYOffset = teleportY + manualYOffset * currentScaleValue;
+            webXRCameraOffset.cameraYOffset = teleportY + webXRCameraHeightDefault * currentScaleValue;
 
 
             //if (useManualHeightOffset)
@@ -438,10 +444,10 @@ namespace Komodo.Runtime
 
 
             // currentPlayspacePositionY = teleportY; 
-            finalPlayspacePosition.y = teleportY + (manualYOffset * currentScaleValue); //+ cameraOffset.cameraYOffset; //* (currentScaleValue);
+            finalPlayspacePosition.y = teleportY + (webXRCameraHeightDefault * currentScaleValue); //+ cameraOffset.cameraYOffset; //* (currentScaleValue);
 
             //FOR WEBXR 
-            webXRCameraOffset.cameraYOffset = manualYOffset * currentScaleValue;
+            webXRCameraOffset.cameraYOffset = webXRCameraHeightDefault * currentScaleValue;
 
 
             //if (useManualHeightOffset)
@@ -453,13 +459,14 @@ namespace Komodo.Runtime
 
             //    justBumped = true;
             //}
-
-            playspace.parent.position = finalPlayspacePosition;
+            playspace.position = finalPlayspacePosition;
+            spectatorCamera.position = finalPlayspacePosition;
+           // playspace.parent.position = finalPlayspacePosition;
         }
 
         public void SetManualYOffset(float y)
         {
-            manualYOffset = y;
+            webXRCameraHeightDefault = y;
         }
 
         public void BumpYAndUpdateOffset(float deltaY)
@@ -472,7 +479,7 @@ namespace Komodo.Runtime
 
             playspace.position = finalPlayspacePosition;
 
-            SetManualYOffset(manualYOffset + deltaY);
+            SetManualYOffset(webXRCameraHeightDefault + deltaY);
         }
 
         public void BumpPlayerUpAndUpdate(float bumpAmount)
@@ -485,7 +492,7 @@ namespace Komodo.Runtime
 
             playspace.position = finalPlayspacePosition;
 
-            SetManualYOffset(manualYOffset + bumpAmount);
+            SetManualYOffset(webXRCameraHeightDefault + bumpAmount);
         }
 
         public void BumpPlayerDownAndUpdate(float bumpAmount)
@@ -498,7 +505,7 @@ namespace Komodo.Runtime
 
             playspace.position = finalPlayspacePosition;
 
-            SetManualYOffset(manualYOffset - bumpAmount);
+            SetManualYOffset(webXRCameraHeightDefault - bumpAmount);
         }
 
         /// <summary>
@@ -509,8 +516,11 @@ namespace Komodo.Runtime
         public void TeleportPlayerPC(GameObject floorIndicator)
         {
             Vector3 teleportDestination = floorIndicator.transform.position;
-            teleportDestination.y = 2.0f; // manually bump player by 2; otherwise, player will get stuck in floor after every teleportation. 
-            spectatorCamera.position = teleportDestination;
+           // teleportDestination.y = 2.0f; // manually bump player by 2; otherwise, player will get stuck in floor after every teleportation. 
+           // spectatorCamera.position = teleportDestination;
+          
+            UpdatePlayerXZPosition(floorIndicator.transform.position.x, floorIndicator.transform.position.z);
+            UpdatePlayerYPosition(floorIndicator.transform.position.y);
             //UpdateCenterEye();
         }
 

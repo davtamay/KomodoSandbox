@@ -617,19 +617,19 @@ namespace Komodo.Runtime
             //TODO: One of the above actually does the job. Which is it?
             menuCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
-            ConvertMenuToExpandable(false);
+        //    ConvertMenuToExpandable(false);
 
-            HeightCalibrationButtonsSettings(false);
+          //  HeightCalibrationButtonsSettings(false);
 
-            EnableCreateMenu(false);
+            //EnableCreateMenu(false);
 
-            HeightCalibrationButtonsSettings(false);
+          //  HeightCalibrationButtonsSettings(false);
 
             EnableInstructorMenuButton(true);
 
             createTab.GetComponent<TabButton>().onTabDeselected.Invoke();
 
-            LayoutRebuilder.ForceRebuildLayoutImmediate(settingsMenu.GetComponent<RectTransform>());
+           // LayoutRebuilder.ForceRebuildLayoutImmediate(settingsMenu.GetComponent<RectTransform>());
 
         }
     }

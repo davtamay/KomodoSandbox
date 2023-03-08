@@ -66,6 +66,9 @@ public class InstantiateAssetCards : MonoBehaviour
             card.onAssetLoaded = onAssetLoaded;
             card.scale = modelData.scale;
 
+            Texture2D texture = Resources.Load<Texture2D>("thumbnails/" + modelData.modelName);
+            card.image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+
             card.Instantiate();
             // Load the sprite for the card's image and assign it to the card's 'sprite' field
             // ...

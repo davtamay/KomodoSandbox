@@ -1275,7 +1275,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4185419869529021862}
   - component: {fileID: 6698885236933872279}
-  - component: {fileID: 5962973225021112782}
+  - component: {fileID: 4638316848819954594}
   - component: {fileID: 9089199154181432293}
   m_Layer: 5
   m_Name: WholeObjectColliders
@@ -1355,7 +1355,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 0
---- !u!114 &5962973225021112782
+--- !u!114 &4638316848819954594
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1364,7 +1364,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5964167964610332134}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52900383b6729754a801a6b6d4766665, type: 3}
+  m_Script: {fileID: 11500000, guid: 6fd687f9d115d4042bb6dce453f8c8a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   lockedIcon: {fileID: 5596409780452679219}

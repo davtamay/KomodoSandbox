@@ -19,12 +19,6 @@
             "scale": 1
         },
         {
-            "modelName": "brushTests",
-            "modelURL": "https://s3.us-east-2.amazonaws.com/vrcat-assets/fe562af4-e660-454c-b9e5-b6c57086cc12/model.glb",
-            "imagePath": "",
-            "scale": 1
-        },
-        {
             "modelName": "Bernard2",
             "modelURL": "https://raw.githubusercontent.com/YvesBB/models/main/bernard2.glb",
             "imagePath": "",
@@ -76,7 +70,7 @@
             "modelName": "Lantern",
             "modelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Lantern/glTF-Binary/Lantern.glb",
             "imagePath": "",
-            "scale": 1
+            "scale": 0.5
         },
         {
             "modelName": "SciFiHelmet",
