@@ -12,8 +12,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
-  productName: New Unity Project (1)
+  companyName: XRDevSpace
+  productName: KomodoSandbox
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -133,7 +133,7 @@ PlayerSettings:
   vulkanEnableLateAcquireNextImage: 0
   vulkanEnableCommandBufferRecycling: 1
   loadStoreDebugModeEnabled: 0
-  bundleVersion: 0.1
+  bundleVersion: 0.8
   preloadedAssets:
   - {fileID: 0}
   - {fileID: 0}
@@ -191,9 +191,6 @@ PlayerSettings:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 969649649858225607, guid: 552445d583cb06c4eaf9d56596dd45c2, type: 2}
-  - {fileID: -9031516062645641280, guid: 2a1c1b256c6dffe4fac315d769a8b8f0, type: 2}
-  - {fileID: 11400000, guid: a5e5b7605fb48984988490688c2a74e2, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1

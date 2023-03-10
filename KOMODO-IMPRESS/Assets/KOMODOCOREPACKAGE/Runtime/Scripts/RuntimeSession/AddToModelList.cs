@@ -120,22 +120,40 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
 
         komodoImportedModel.transform.SetParent(root.transform, false);
 
-
-        foreach (Transform item in ClientSpawnManager.Instance.mainPlayer_AvatarEntityGroup.transform.GetChild(0))
+        //find the enabled camera
+        Camera[] allCameras = ClientSpawnManager.Instance.mainPlayer_AvatarEntityGroup.transform.GetChild(0).GetComponentsInChildren<Camera>(true);
+        Debug.Log("TOTAL CAMERAS " + allCameras.Length);
+        foreach (var item in allCameras)
         {
-            if (item.gameObject.activeInHierarchy)
+            if (item.enabled && item.gameObject.activeInHierarchy)
             {
-                //   Debug.Log("item " + item.gameObject.name, item.gameObject);
-                komodoImportedModel.transform.position = item.TransformPoint(Vector3.forward * 1.2f);//item.GetChild(0).position; 
+                Debug.Log("CAMERA ON " + item.gameObject.name);
+                komodoImportedModel.transform.position = item.transform.TransformPoint(Vector3.forward * 1.2f);
+                Vector3 direction = item.transform.position - komodoImportedModel.transform.position;
+                direction.y = 0; // set the y-component of the direction vector to 0
+                Quaternion rotation = Quaternion.LookRotation(direction, Vector3.up);
+                komodoImportedModel.transform.rotation = rotation;
 
-                //  item.GetChild(0).TransformPoint(Vector3.forward * 0.2f);
-                // komodoImportedModel.transform.LookAt(item.GetChild(0).position);
-                 komodoImportedModel.transform.rotation = Quaternion.LookRotation(komodoImportedModel.transform.position - item.position, Vector3.up);
-                //  komodoImportedModel.transform.localRotation.SetLookRotation(item.GetChild(0).position); // = Quaternion.LookRotation(item.GetChild(0).position, Vector3.up);
-                //komodoImportedModel.transform.rotation = item.GetChild(0).localEulerAngles.y; //Quaternion.Euler(item.GetChild(0).TransformDirection(Vector3.forward));
+
+                // komodoImportedModel.transform.rotation = Quaternion.LookRotation(komodoImportedModel.transform.position - item.transform.position, Vector3.up);
                 break;
             }
         }
+        //foreach (Transform item in ClientSpawnManager.Instance.mainPlayer_AvatarEntityGroup.transform.GetChild(0))
+        //{
+        //    if (item.gameObject.activeInHierarchy)
+        //    {
+        //        //   Debug.Log("item " + item.gameObject.name, item.gameObject);
+        //        komodoImportedModel.transform.position = item.TransformPoint(Vector3.forward * 1.2f);//item.GetChild(0).position; 
+
+        //        //  item.GetChild(0).TransformPoint(Vector3.forward * 0.2f);
+        //        // komodoImportedModel.transform.LookAt(item.GetChild(0).position);
+        //         komodoImportedModel.transform.rotation = Quaternion.LookRotation(komodoImportedModel.transform.position - item.position, Vector3.up);
+        //        //  komodoImportedModel.transform.localRotation.SetLookRotation(item.GetChild(0).position); // = Quaternion.LookRotation(item.GetChild(0).position, Vector3.up);
+        //        //komodoImportedModel.transform.rotation = item.GetChild(0).localEulerAngles.y; //Quaternion.Euler(item.GetChild(0).TransformDirection(Vector3.forward));
+        //        break;
+        //    }
+        //}
         //komodoImportedModel.transform.position =  ClientSpawnManager.Instance.mainPlayer_AvatarEntityGroup.gameObject.transform.TransformPoint(Vector3.forward);
 
         // if(!wasSuccesful)

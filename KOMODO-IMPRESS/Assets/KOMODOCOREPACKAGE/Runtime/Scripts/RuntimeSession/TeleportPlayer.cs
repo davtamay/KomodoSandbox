@@ -66,6 +66,7 @@ namespace Komodo.Runtime
 #else
             WebXRManagerEditorSimulator.OnXRChange += onXRChange_SwitchCameraGroundOffsetsBetweenWebXRAndDesktop;
 #endif
+
             //GameStateManager.Instance.
         }
 
@@ -102,7 +103,11 @@ namespace Komodo.Runtime
             {
                 spectatorCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;
             }
+
+     
         }
+
+        
 
         public Transform GetXRPlayer()
         {
@@ -128,7 +133,7 @@ namespace Komodo.Runtime
 
             if (currentSpawnCenter == null)
             {
-                Debug.Log("currentSpawnCenter was not found for TeleportPlayer.Proceeding.");
+               // Debug.Log("currentSpawnCenter was not found for TeleportPlayer.Proceeding.");
             }
 
             // If we found gameObjects with the right tag,
@@ -202,7 +207,7 @@ namespace Komodo.Runtime
                     //                    freeFlightController.SyncXRWithSpectator();
 
                     //    isFirstYAdjustment = false;
-                    Debug.Log("adddjustment");
+                 //   Debug.Log("adddjustment");
 
                     OnSceneLoadedAndFirstTransport?.Invoke();
                 }
@@ -333,7 +338,8 @@ namespace Komodo.Runtime
 
         public void onXRChange_SwitchCameraGroundOffsetsBetweenWebXRAndDesktop(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
         {
-            Debug.Log("this is");
+            UpdatePlayerScale(currentScale);
+
             if (state == WebXRState.VR)
             {
 
