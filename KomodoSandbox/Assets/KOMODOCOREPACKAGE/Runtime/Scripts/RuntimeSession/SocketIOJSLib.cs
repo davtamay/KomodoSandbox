@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace Komodo.Runtime
 {
@@ -24,10 +25,10 @@ namespace Komodo.Runtime
         public static extern int OpenChatConnection();
 
         [DllImport("__Internal")]
-        public static extern int JoinSyncSession();
+        public static extern int JoinSyncSession(int session_id);
 
         [DllImport("__Internal")]
-        public static extern int JoinChatSession();
+        public static extern int JoinChatSession(int session_id);
 
         [DllImport("__Internal")]
         public static extern int SendStateCatchUpRequest();
@@ -43,6 +44,30 @@ namespace Komodo.Runtime
 
         [DllImport("__Internal")]
         public static extern int GetIsTeacherFlagFromBrowser();
+
+
+
+
+        //send an emit to request info
+
+        [DllImport("__Internal")]
+        public static extern void RequestSessionIdFromServer(string sessionInfo);
+
+
+        //set listener to get the request info
+        [DllImport("__Internal")]
+        public static extern void ListenForSessionIdFromServer();
+
+
+
+        [DllImport("__Internal")]
+        public static extern void RequestAllSessionIdsFromServer();
+
+        [DllImport("__Internal")]
+        public static extern void ListenForSessionIdsFromServer();
+
+
+
 
         // [DllImport("__Internal")]
         // private static extern void InitSocketIOReceivePosition(float[] array, int size);

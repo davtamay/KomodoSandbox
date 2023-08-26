@@ -7,7 +7,8 @@ namespace Komodo.Runtime
 {
     public class ConnectionAdapter : MonoBehaviour
     {
-        public Text socketIODisplay;
+        public TMPro.TMP_Text socketIODisplay;
+        public Image displayImage;
 
         private string pingPongClients;
 
@@ -32,15 +33,15 @@ namespace Komodo.Runtime
 
             NetworkUpdateHandler netHandler = NetworkUpdateHandler.Instance;
 
-            // KomodoEventManager.StartListening("connection.leaveAndRejoin", () =>
-            // {
-            //     SocketIOAdapter.Instance.LeaveAndRejoin();
-            // });
+            KomodoEventManager.StartListening("connection.leaveAndRejoin", () =>
+            {
+                SocketIOAdapter.Instance.LeaveAndRejoin();
+            });
 
-            // KomodoEventManager.StartListening("connection.closeConnectionAndRejoin", () =>
-            // {
-            //     SocketIOAdapter.Instance.CloseConnectionAndRejoin();
-            // });
+            KomodoEventManager.StartListening("connection.closeConnectionAndRejoin", () =>
+            {
+                SocketIOAdapter.Instance.CloseConnectionAndRejoin();
+            });
         }
 
         public void DisplayError (string error)
@@ -139,6 +140,8 @@ namespace Komodo.Runtime
 
             pingPongClients = "Reconnect succeeded.";
 
+            displayImage.color = new Color(0, 1, 0);
+
             ClearError();
 
             DisplayStatus();
@@ -151,6 +154,8 @@ namespace Komodo.Runtime
             sessionStatus = $"[...] {sessionName}";
 
             pingPongClients = "Connected.";
+
+            displayImage.color = new Color(0, 1, 0);
 
             ClearError();
 
@@ -165,6 +170,8 @@ namespace Komodo.Runtime
 
             pingPongClients = "Connect timeout.";
 
+            displayImage.color = new Color(1, 0, 0);
+
             ClearError();
 
             DisplayStatus();
@@ -177,6 +184,8 @@ namespace Komodo.Runtime
             sessionStatus = $"[!] {sessionName}";
 
             pingPongClients = "Connect error.";
+
+            displayImage.color = new Color(1, 0, 0);
 
             SetError($"{error}");
 
@@ -224,6 +233,8 @@ namespace Komodo.Runtime
 
             this.error = $"[SocketIOAdapter] {status}";
 
+            displayImage.color = new Color(1, 0, 0);
+
             DisplayStatus();
         }
 
@@ -257,6 +268,8 @@ namespace Komodo.Runtime
             this.connectDisconnectReconnect = $"{serverName}";
 
             this.sessionStatus = $"[!] {sessionName}";
+
+            displayImage.color = new Color(1, 0, 0);
 
             SetError($"Failed to join session {session_id}.");
 

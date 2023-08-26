@@ -146,19 +146,24 @@ namespace Komodo.Runtime
             return pos;
         }
 
-        private void _CreateSocketSimulator ()
+        private void _CreateSocketSimulator()
         {
-// #if UNITY_WEBGL && !UNITY_EDITOR 
-//             //don't assign a SocketIO Simulator for WebGL build
-// #else
-//             SocketSim = SocketIOEditorSimulator.Instance;
-//             if (!SocketSim)
-//             {
-//                 Debug.LogWarning("No SocketIOEditorSimulator was found in the scene. In-editor behavior may not be as expected.");
-//             }
-// #endif
+            // #if UNITY_WEBGL && !UNITY_EDITOR 
+            //             //don't assign a SocketIO Simulator for WebGL build
+            // #else
+            //             SocketSim = SocketIOEditorSimulator.Instance;
+            //             if (!SocketSim)
+            //             {
+            //                 Debug.LogWarning("No SocketIOEditorSimulator was found in the scene. In-editor behavior may not be as expected.");
+            //             }
+            // #endif
         }
+        public void SetSessionID(int session_id)
+        {
+            this.session_id = session_id;
 
+        }
+        
         private void _GetParams ()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR 
@@ -174,63 +179,63 @@ namespace Komodo.Runtime
 
         private void _GetModelsAndSessionDetails ()
         {
-//             string SessionDetailsString;
-// #if UNITY_WEBGL && !UNITY_EDITOR 
+            string SessionDetailsString;
+#if UNITY_WEBGL && !UNITY_EDITOR
 
-//             if (useEditorModelsList) 
-//             {
-// #if DEVELOPMENT_BUILD
-//                 //in dev builds, don't clear models list
-//                 Debug.LogWarning("Using editor's model list. You should turn off 'Use Editor Models List' off in NetworkManager.");
-// #else
-//                 //in non-dev build, ignore the flag. 
-//                 modelData.models.Clear();
-// #endif
-//                 SessionDetailsString = SocketIOEditorSimulator.GetSessionDetails();
+             if (useEditorModelsList) 
+             {
+#if DEVELOPMENT_BUILD
+                 //in dev builds, don't clear models list
+                 Debug.LogWarning("Using editor's model list. You should turn off 'Use Editor Models List' off in NetworkManager.");
+#else
+                 //in non-dev build, ignore the flag. 
+                 modelData.models.Clear();
+#endif
+                 SessionDetailsString = SocketIOEditorSimulator.GetSessionDetails();
 
-//             }
-//             else 
-//             {
-//                 modelData.models.Clear();
+             }
+             else 
+             {
+                 modelData.models.Clear();
 
-//                 SessionDetailsString = SocketIOJSLib.GetSessionDetails();
-//             }
+                 SessionDetailsString = SocketIOJSLib.GetSessionDetails();
+             }
 
-//             if (System.String.IsNullOrEmpty(SessionDetailsString)) 
-//             {
-//                 Debug.Log("Error: Details are null or empty.");
-//             } 
-//             else 
-//             {
-//                 Debug.Log("SessionDetails: " + SessionDetailsString);
-//                 var details = JsonUtility.FromJson<SessionDetails>(SessionDetailsString);
+             if (System.String.IsNullOrEmpty(SessionDetailsString)) 
+             {
+                 Debug.Log("Error: Details are null or empty.");
+             } 
+             else 
+             {
+                 Debug.Log("SessionDetails: " + SessionDetailsString);
+                 var details = JsonUtility.FromJson<SessionDetails>(SessionDetailsString);
                 
-//                 if (useEditorModelsList) 
-//                 {
-// #if DEVELOPMENT_BUILD
-//                     //in dev builds, don't pass details to the models list if the flag is enabled.
-//                     Debug.LogWarning("Using editor's model list. You should turn off 'Use Editor Models List' off in NetworkManager.");
-// #else
-//                     //in non-dev build, ignore the flag. 
-//                     modelData.models = details.assets;
-// #endif
-//                 }
-//                 else 
-//                 {
-//                     modelData.models = details.assets;
-//                 }
+                 if (useEditorModelsList) 
+                 {
+#if DEVELOPMENT_BUILD
+                     //in dev builds, don't pass details to the models list if the flag is enabled.
+                     Debug.LogWarning("Using editor's model list. You should turn off 'Use Editor Models List' off in NetworkManager.");
+#else
+                     //in non-dev build, ignore the flag. 
+                     modelData.models = details.assets;
+#endif
+                 }
+                 else 
+                 {
+                     modelData.models = details.assets;
+                 }
 
-//                 if (sessionName != null)
-//                 {
-//                     sessionName = details.session_name;
-//                     buildName = details.build;
-//                 }
-//                 else
-//                 {
-//                     Debug.LogError("SessionName Ref in NetworkUpdateHandler's Text Component is missing from editor");
-//                 }
-//             }
-// #endif
+                 if (sessionName != null)
+                 {
+                     sessionName = details.session_name;
+                     buildName = details.build;
+                 }
+                 else
+                 {
+                     Debug.LogError("SessionName Ref in NetworkUpdateHandler's Text Component is missing from editor");
+                 }
+             }
+#endif
         }
 
         public void Awake()
@@ -259,59 +264,70 @@ namespace Komodo.Runtime
             //WebGLMemoryStats.LogMoreStats("NetworkUpdateHandler.Awake AFTER");
         }
 
-        // public void Start()
-        // {
-        //     if (socketIODisplay == null) {
-        //         throw new System.Exception("You must assign a socketIODisplay in NetworkUpdateHandler.");
-        //     }
+        //originally start
+        public void StartNetworkListeners()
+        {
+           // SocketIOJSLib.SetSocketIOAdapterName();
+            SocketIOJSLib.JoinSyncSession(session_id);
+            SocketIOJSLib.SetSyncEventListeners();
+            if (socketIODisplay == null)
+            {
+                throw new System.Exception("You must assign a socketIODisplay in NetworkUpdateHandler.");
+            }
 
-        //     GlobalMessageManager.Instance.Subscribe("sync", (data) => _DeserializeAndProcessSyncData(data));
+            GlobalMessageManager.Instance.Subscribe("sync", (data) => _DeserializeAndProcessSyncData(data));
 
-        //     GlobalMessageManager.Instance.Subscribe("interaction", (data) => _DeserializeAndProcessInteractionData(data));
+            GlobalMessageManager.Instance.Subscribe("interaction", (data) => _DeserializeAndProcessInteractionData(data));
 
-        //     #region ECS Funcionality: Set up our User Data
+            #region ECS Funcionality: Set up our User Data
 
-        //     //WebGLMemoryStats.LogMoreStats("NetworkUpdateHandler Start BEFORE");
+            //WebGLMemoryStats.LogMoreStats("NetworkUpdateHandler Start BEFORE");
 
-        //     //set up data for our player components
-        //     EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            //set up data for our player components
+            EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
-        //     var eqDesc = new EntityQueryDesc
-        //     {
-        //         All = new ComponentType[]
-        //         {
-        //             typeof(OurPlayerTag),
-        //             typeof(NetworkEntityIdentificationComponentData)
-        //         }
-        //     };
+            var eqDesc = new EntityQueryDesc
+            {
+                All = new ComponentType[]
+                {
+                     typeof(OurPlayerTag),
+                     typeof(NetworkEntityIdentificationComponentData)
+                }
+            };
 
-        //     var entities = entityManager.CreateEntityQuery(eqDesc).ToEntityArray(Unity.Collections.Allocator.Temp);
+            var entities = entityManager.CreateEntityQuery(eqDesc).ToEntityArray(Unity.Collections.Allocator.Temp);
 
-        //     foreach (var entity in entities)
-        //     {
-        //         var entityIDFromType = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(entity).current_Entity_Type;
+            foreach (var entity in entities)
+            {
+                var entityIDFromType = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(entity).current_Entity_Type;
 
-        //         entityManager.SetComponentData(
-        //             entity,
-        //             new NetworkEntityIdentificationComponentData {
-        //                 clientID = this.client_id,
-        //                 sessionID = this.session_id,
-        //                 entityID = (int)entityIDFromType,
-        //                 current_Entity_Type = entityIDFromType
-        //             }
-        //         );
+                entityManager.SetComponentData(
+                    entity,
+                    new NetworkEntityIdentificationComponentData
+                    {
+                        clientID = this.client_id,
+                        sessionID = this.session_id,
+                        entityID = (int)entityIDFromType,
+                        current_Entity_Type = entityIDFromType
+                    }
+                );
 
-        //         if (isTeacher != 0)
-        //         {
-        //             entityManager.AddComponent<TeacherTag>(entity);
-        //         }
-        //     }
+                if (isTeacher != 0)
+                {
+                    entityManager.AddComponent<TeacherTag>(entity);
+                }
+            }
 
-        //     entities.Dispose();
+            entities.Dispose();
 
-        //     //WebGLMemoryStats.LogMoreStats("NetworkUpdateHandler Start AFTER");
-        //     #endregion
-        // }
+
+            // _GetParams();
+
+            // _GetModelsAndSessionDetails();
+
+            //WebGLMemoryStats.LogMoreStats("NetworkUpdateHandler Start AFTER");
+            #endregion
+        }
 
         //TODO(Brandon): Suggestion: rename this to PositionUpdate
         public void SendSyncPoseMessage(Position pos)

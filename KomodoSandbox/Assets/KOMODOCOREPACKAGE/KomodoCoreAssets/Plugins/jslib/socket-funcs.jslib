@@ -17,12 +17,12 @@
 
     // Init sync connections
 
-    SetSocketIOAdapterName: function (nameBuffer) {
+    SetSocketIOAdapterName:  function (nameBuffer) {
         if (nameBuffer == null) {
             console.error("SetSocketIOAdapterName: nameBuffer was null");
         }
 
-        var _name = Pointer_stringify(nameBuffer);
+        var _name = UTF8ToString(nameBuffer);
 
         if (_name == null) {
             console.error("SetSocketIOAdapterName: name was null");
@@ -322,7 +322,7 @@
         });
     },
 
-    JoinSyncSession: function () {
+    JoinSyncSession: function (session_id) {
         if (window.sync == null ) {
             console.error("JoinSyncSession: window.sync was null");
             
@@ -341,7 +341,7 @@
             return 1;
         }
         
-        var joinIds = [window.session_id, window.client_id];
+        var joinIds = [session_id, window.client_id];// [window.session_id, window.client_id];
         
         console.log("Asking relay to join session:", joinIds);
         
@@ -350,7 +350,24 @@
         return 0;
     },
 
-    JoinChatSession: function () {
+//       GetSessionIdFromServer: async function() {
+
+
+//          const response = await window.sync.emitWithAck("sessionID", "world");
+//          console.log(response);
+//           return response;
+
+//   // with a specific timeout
+// //   try {
+// //     const response = await socket.timeout(1000).emitWithAck("hello", "world");
+// //   } catch (err) {
+// //     // the client did not acknowledge the event in the given delay
+// //   }
+
+//      //   return  window.sync.emit('draw', drawSendBuff);
+//     },
+
+    JoinChatSession: function (sessionID) {
         if (window.chat == null ) {
             console.error("JoinChatSession: window.chat was null");
             
@@ -369,7 +386,7 @@
             return 1;
         }
         
-        var joinIds = [window.session_id, window.client_id];
+        var joinIds = [session_id, window.client_id];//[window.session_id, window.client_id];
 
         console.log("Asking relay to join chat:", joinIds);
 
@@ -378,6 +395,7 @@
         return 0;
     },
 
+    
     LeaveSyncSession: function () {
         if (window.sync == null ) {
             console.error("LeaveSyncSession: window.sync was null");
@@ -553,6 +571,126 @@
         return 0;
     },
 
+//     SetSessionIdFromServer: async function() {
+
+
+//         // const response = await window.sync.emitWithAck("sessionID", "hello");
+
+//        //  window.session_id = session_id;
+
+//         // console.log(response);
+//          // return response;
+
+//   // with a specific timeout
+//         try {
+//             const response = await window.sync.timeout(1000).emitWithAck("sessionID", "world");
+//         } catch (err) {
+//             // the client did not acknowledge the event in the given delay
+//         }
+//           return response;
+
+//      //   return  window.sync.emit('draw', drawSendBuff);
+//     },
+
+//request session id from server
+    RequestSessionIdFromServer: function(sessionInfo) {
+
+        
+    //     var bufferSize = lengthBytesUTF8(sessionInfo) + 1;
+    // var buffer = _malloc(bufferSize);
+    // stringToUTF8(sessionInfo, buffer, bufferSize);
+
+      //  const info = UTF8ToString(sessionInfo);
+        // // console.log(info);
+
+        // //  //Return the socketIOAdapterName value so that Unity can check that it has the right value
+        // var bufferSize = lengthBytesUTF8(info) + 1;
+        // var buffer = _malloc(bufferSize);
+        // stringToUTF8(info, buffer, bufferSize);
+
+    //      var bufferSize = lengthBytesUTF8(sessionInfo) + 1;
+    //     var buffer = _malloc(bufferSize);
+    // stringToUTF8(sessionInfo, buffer, bufferSize);
+
+        // const info = JSON.parse(sessionInfo);
+        //  const sessionName = sessionInfo.name;
+
+        window.sync.emit('request_sessionID', Pointer_stringify(sessionInfo));//, info); //buffer
+      // _free(buffer);
+    },
+
+//listener for session id from server
+    ListenForSessionIdFromServer: function() {
+
+         sync.on('client_SocketID', function (session_id) {
+
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetSession_ID', session_id);
+        });
+      
+    },
+
+
+    RequestAllSessionIdsFromServer: function() {
+
+        window.sync.emit('get_all_sessionIDs');
+    },
+
+    ListenForSessionIdsFromServer : function(){
+
+
+        sync.on('all_sessionIDs', function (sessionInfos) {
+
+ //console.log(sessionInfos);
+        //      var sessionInfos =sessionInfos.values().map(function (session) {
+        //     return {
+        //         id: session.id,
+        //         name: session.name,
+        //         date: session.date,
+        //     };
+        // });
+
+//console.log(sessionInfos);
+       
+        console.log(sessionInfos);
+
+    //     var sessionInfosString = JSON.stringify(sessionInfos);
+    //     console.log(sessionInfosString);
+
+
+    //     console.log(UTF8ToString(sessionInfos));
+
+    //     var bufferSize = lengthBytesUTF8(sessionInfos) + 1;
+    // var buffer = _malloc(bufferSize);
+    // stringToUTF8(sessionInfos, buffer, bufferSize);
+
+    //  console.log(buffer);
+
+        // var intString = sessionIDS.join(',');
+
+        window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetAllSession_IDs', JSON.stringify(sessionInfos))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
+         });
+    },
+
+
+
+
+
+
+    //  GetSessionIdFromServer: function() {
+
+    //      sync.on('client_SocketID', function (session_id) {
+
+    //         window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetSession_ID', session_id);
+    //     });
+      
+    // },
+
+
+
+
+
+
+
     GetClientIdFromBrowser: function() {
         return window.client_id;
     },
@@ -727,9 +865,9 @@
             return 1;
         }
             
-        var type_str = Pointer_stringify(typePtr);
+        var type_str = UTF8ToString(typePtr);
             
-        var message_str = Pointer_stringify(messagePtr);
+        var message_str = UTF8ToString(messagePtr);
             
         window.sync.emit('message', {
             session_id: session_id,

@@ -35,12 +35,7 @@
         dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
         frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
         codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
-#if MEMORY_FILENAME
-        memoryUrl: buildUrl + "/{{{ MEMORY_FILENAME }}}",
-#endif
-#if SYMBOLS_FILENAME
-        symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
-#endif
+
         streamingAssetsUrl: "StreamingAssets",
         companyName: "{{{ COMPANY_NAME }}}",
         productName: "{{{ PRODUCT_NAME }}}",
@@ -53,11 +48,9 @@
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var unityInstance = null;
+      var gameInstance  = null;
 
-#if BACKGROUND_FILENAME
-      canvas.style.background = "url('" + buildUrl + "/{{{ BACKGROUND_FILENAME.replace(/'/g, '%27') }}}') center / cover";
-#endif
+
       loadingBar.style.display = "block";
 
       var script = document.createElement("script");
@@ -66,15 +59,15 @@
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
         }).then((instance) => {
-          unityInstance = instance;
+          gameInstance  = instance;
           
-          window.gameInstance = unityInstance;
+          window.gameInstance = gameInstance ;
 
           loadingBar.style.display = "none";
           if (fullscreenButton)
           {
             fullscreenButton.onclick = () => {
-              unityInstance.SetFullscreen(1);
+              gameInstance .SetFullscreen(1);
             };
           }
         }).catch((message) => {

@@ -53,7 +53,7 @@
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var unityInstance = null;
+      var gameInstance = null;
       {{{ WEBXR_POLYFILL_CONFIG }}}
 
 #if BACKGROUND_FILENAME
@@ -67,12 +67,12 @@
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
         }).then((instance) => {
-          unityInstance = instance;
+          gameInstance = instance;
           loadingBar.style.display = "none";
           if (fullscreenButton)
           {
             fullscreenButton.onclick = () => {
-              unityInstance.SetFullscreen(1);
+              gameInstance.SetFullscreen(1);
             };
           }
         }).catch((message) => {
@@ -92,11 +92,17 @@
       }, false);
 
       enterARButton.addEventListener('click', function (event) {
-        unityInstance.Module.WebXR.toggleAR();
+        gameInstance.Module.WebXR.toggleAR();
       }, false);
       enterVRButton.addEventListener('click', function (event) {
-        unityInstance.Module.WebXR.toggleVR();
+        gameInstance.Module.WebXR.toggleVR();
       }, false);
     </script>
+
+<script src="gl-matrix-min.js"></script>
+<script src="webxr.js"></script>
+<script src="socket.io.js"></script>
+<script src="relay.js"></script>
+
   </body>
 </html>

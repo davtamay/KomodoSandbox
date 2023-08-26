@@ -41,6 +41,7 @@ using Komodo.Utilities;
 
 namespace Komodo.Runtime
 {
+
     //Customized unityevent to allow it to accept particular funcions to send our network information to
     [System.Serializable] public class Coord_UnityEvent : UnityEvent<Position> { }
 
@@ -78,9 +79,9 @@ namespace Komodo.Runtime
 
         private Vector3 rightHandOriginalLocalPosition;
 
-        private Animator leftHandAnimator;
+        //private Animator leftHandAnimator;
 
-        private Animator rightHandAnimator;
+        //private Animator rightHandAnimator;
 
         private EntityManager entityManager;
 
@@ -90,10 +91,16 @@ namespace Komodo.Runtime
         {
             //used to set our managers alive state to true to detect if it exist within scene
             var initManager = Instance;
+
+
+
+
         }
 
         IEnumerator Start()
         {
+            GameStateManager.Instance.RegisterUpdatableObject(this);
+
             netUpdateHandler = NetworkUpdateHandler.Instance;
 
             if (netUpdateHandler == null)
@@ -116,12 +123,12 @@ namespace Komodo.Runtime
             (headEntityTransform, leftHandEntityTransform, rightHandEntityTransform) = (mainClientAvatarEntityGroup.avatarComponent_Head.transform, mainClientAvatarEntityGroup.avatarComponent_hand_L.transform, mainClientAvatarEntityGroup.avatarComponent_hand_R.transform);
 
             //get references to AnimControllers to send anim state info 
-            (leftHandAnimator, rightHandAnimator) = (leftHandEntityTransform.GetComponent<Animator>(), rightHandEntityTransform.GetComponent<Animator>());
+            //(leftHandAnimator, rightHandAnimator) = (leftHandEntityTransform.GetComponent<Animator>(), rightHandEntityTransform.GetComponent<Animator>());
 
-            if (!rightHandAnimator || !leftHandAnimator)
-            {
-                Debug.LogError("We are missing our Animator Controller from our hands in MainClientUpdater");
-            }
+            //if (!rightHandAnimator || !leftHandAnimator)
+            //{
+            //    Debug.LogError("We are missing our Animator Controller from our hands in MainClientUpdater");
+            //}
 
             //WebGLMemoryStats.LogMoreStats("MainClientUpdater Start IN_MIDDLE");
 
@@ -132,43 +139,66 @@ namespace Komodo.Runtime
             });
 
             //Register our OnUpdate funcion to start sending updates 
-            GameStateManager.Instance.RegisterUpdatableObject(this);
+            //GameStateManager.Instance.RegisterUpdatableObject(this);
 
             //Grab current position of hands to detect if they have moved to avoid rendering them when they havent;
-            leftHandOriginalLocalPosition = mainClientAvatarEntityGroup.avatarComponent_hand_L.transform.localPosition;
+            //leftHandOriginalLocalPosition = mainClientAvatarEntityGroup.avatarComponent_hand_L.transform.localPosition;
 
-            rightHandOriginalLocalPosition = mainClientAvatarEntityGroup.avatarComponent_hand_R.transform.localPosition;
+            //rightHandOriginalLocalPosition = mainClientAvatarEntityGroup.avatarComponent_hand_R.transform.localPosition;
+
+
+            previousPosition = headEntityTransform.position;
+            previousRotation = headEntityTransform.rotation;
         }
+
+        private Vector3 previousPosition;
+        private Quaternion previousRotation;
+        private float positionThreshold = 0.001f; // Adjust the threshold value as needed
+        private float rotationThreshold = 0.001f; // Adjust the threshold value as needed
 
         public void OnUpdate(float realTime)
         {
+            //  Debug.Log("on update running");
             //SENDS AVATAR HEAD REFERENCE TO FUNCION TO FIT STRUCTURE NEEDED FOR UNITYEVENT
-            // SendSyncPosition(Entity_Type.users_head, headEntityTransform.position, headEntityTransform.rotation);
+            //if (Mathf.Approximately(headEntityTransform.position, previousPosition) || headEntityTransform.rotation != previousRotation)
+            //{
 
-            // //CHECKS IF OUR L_HAND HAS MOVED TO SEND LHAND REFERENCE DATA TO FUNCION TO FIT STRUCTURE NEEDED FOR UNITYEVENT
-            // if (leftHandOriginalLocalPosition != leftHandEntityTransform.localPosition)
-            // {
-            //     SendSyncPosition(Entity_Type.users_Lhand, leftHandEntityTransform.position, leftHandEntityTransform.rotation);
+            if (Vector3.Distance(headEntityTransform.position, previousPosition) > positionThreshold ||
+                Quaternion.Angle(headEntityTransform.rotation, previousRotation) > rotationThreshold)
+            {
+                SendSyncPosition(Entity_Type.users_head, headEntityTransform.position, headEntityTransform.rotation);
 
-            //     leftHandOriginalLocalPosition = leftHandEntityTransform.localPosition;
-            // }
+                previousPosition = headEntityTransform.position;
+                previousRotation = headEntityTransform.rotation;
 
-            // //CHECKS IF OUR R_HAND HAS MOVED TO SENDS LHAND REFERENCE DATA TO FUNCION TO FIT STRUCTURE NEEDED FOR UNITYEVENT
-            // if (rightHandOriginalLocalPosition != rightHandEntityTransform.localPosition)
-            // {
-            //     SendSyncPosition(Entity_Type.users_Rhand, rightHandEntityTransform.position, rightHandEntityTransform.rotation);
+            }
 
-            //     rightHandOriginalLocalPosition = rightHandEntityTransform.localPosition;
-            // }
+            //CHECKS IF OUR L_HAND HAS MOVED TO SEND LHAND REFERENCE DATA TO FUNCION TO FIT STRUCTURE NEEDED FOR UNITYEVENT
+            //if (leftHandOriginalLocalPosition != leftHandEntityTransform.localPosition)
+            //{
+            //    SendSyncPosition(Entity_Type.users_Lhand, leftHandEntityTransform.position, leftHandEntityTransform.rotation);
 
-            // //ADJUST DATA AND SEND UPDATES FROM THOSE GAMEOBJECTS REGISTERED TO OUR LIST 
-            // foreach (var entityContainers in networkedEntities)
-            // {
-            //     SendSyncNetObject(entityContainers);
-            // }
+            //    leftHandOriginalLocalPosition = leftHandEntityTransform.localPosition;
+            //}
+
+            ////CHECKS IF OUR R_HAND HAS MOVED TO SENDS LHAND REFERENCE DATA TO FUNCION TO FIT STRUCTURE NEEDED FOR UNITYEVENT
+            //if (rightHandOriginalLocalPosition != rightHandEntityTransform.localPosition)
+            //{
+            //    SendSyncPosition(Entity_Type.users_Rhand, rightHandEntityTransform.position, rightHandEntityTransform.rotation);
+
+            //    rightHandOriginalLocalPosition = rightHandEntityTransform.localPosition;
+            //}
+
+            //ADJUST DATA AND SEND UPDATES FROM THOSE GAMEOBJECTS REGISTERED TO OUR LIST 
+            foreach (var entityContainers in networkedEntities)
+            {
+                SendSyncNetObject(entityContainers);
+            }
 
             // NetworkedPhysicsManager.Instance.OnUpdate();
         }
+
+
 
         //When the GameObject with this script attached is destroyed we take it out of the update loop
         public void OnDestroy()
@@ -205,19 +235,23 @@ namespace Komodo.Runtime
         }
         #endregion
 
-        public int ComputeClientID(MainClientUpdater who) {
+        public int ComputeClientID(MainClientUpdater who)
+        {
             return this.clientID;
         }
 
-        public int ComputeEntityID(int clientID, Entity_Type entityType) {
-            return (clientID * 10) + (int) entityType;
+        public int ComputeEntityID(int clientID, Entity_Type entityType)
+        {
+            return (clientID * 10) + (int)entityType;
         }
 
-        public int ComputeEntityType(Entity_Type entityType) {
-            return (int) entityType;
+        public int ComputeEntityType(Entity_Type entityType)
+        {
+            return (int)entityType;
         }
 
-        public float ComputeScaleFactor(Entity_Type entityType) {
+        public float ComputeScaleFactor(Entity_Type entityType)
+        {
             float scaleFactor = 0.123456789f;
 
             //setup animation parameter to update
@@ -227,22 +261,23 @@ namespace Komodo.Runtime
                     scaleFactor = headEntityTransform.parent.lossyScale.x;
                     break;
 
-                case Entity_Type.users_Lhand:
-                    scaleFactor = leftHandAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                    break;
+                //case Entity_Type.users_Lhand:
+                //    scaleFactor = leftHandAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                //    break;
 
-                case Entity_Type.users_Rhand:
-                    scaleFactor = rightHandAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime;
-                    break;
+                //case Entity_Type.users_Rhand:
+                //    scaleFactor = rightHandAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+                //    break;
 
-                default: 
+                default:
                     throw new System.Exception("Invalid entity type encountered.");
             }
 
             return scaleFactor;
         }
 
-        public Position GeneratePosition(MainClientUpdater who, Entity_Type entityType, Vector3 position, Quaternion rotation) {
+        public Position GeneratePosition(MainClientUpdater who, Entity_Type entityType, Vector3 position, Quaternion rotation)
+        {
             return new Position
             {
                 clientId = ComputeClientID(who),
@@ -261,6 +296,7 @@ namespace Komodo.Runtime
 
         public void SendSyncPosition(Entity_Type entityType, Vector3 position, Quaternion rotation)
         {
+
             Position coords = GeneratePosition(this, entityType, position, rotation);
 
             netUpdateHandler.SendSyncPoseMessage(coords);
@@ -268,6 +304,7 @@ namespace Komodo.Runtime
 
         public void SendSyncNetObject(NetworkedGameObject eContainer)
         {
+            Debug.Log("sending net sync");
             var entityData = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.entity);
 
             Position position = new Position
@@ -289,4 +326,6 @@ namespace Komodo.Runtime
             netUpdateHandler.SendSyncPoseMessage(position);
         }
     }
+
+
 }

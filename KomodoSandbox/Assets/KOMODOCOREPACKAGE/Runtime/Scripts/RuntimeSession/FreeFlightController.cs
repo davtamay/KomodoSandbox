@@ -78,7 +78,8 @@ namespace Komodo.Runtime
 #endif
             WebXRManager.OnXRCapabilitiesUpdate += onXRCapabilitiesUpdate;
 
-
+            desktopCamera = transform;
+            standaloneInputModule_Desktop = EventSystemManager.Instance.desktopStandaloneInput;
         }
 
         private void WebXRManager_OnXRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
@@ -93,7 +94,7 @@ namespace Komodo.Runtime
             }
         }
 
-        public IEnumerator Start()
+        public void Start()
         {
             //wait for our ui to be set up before we allow user to move around with camera
           //  GameStateManager.Instance.DeRegisterUpdatableObject(this);
@@ -105,12 +106,12 @@ namespace Komodo.Runtime
             originalRotation = desktopCamera.localRotation;
 
             playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
-            desktopCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;//transform;
+           // desktopCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;//transform;
 
             originalRotation = desktopCamera.localRotation;
 
             playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
-            desktopCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;//transform;
+          //  desktopCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;//transform;
 
             originalRotation = desktopCamera.localRotation;
 
@@ -121,20 +122,31 @@ namespace Komodo.Runtime
                     standaloneInputModule_Desktop = EventSystemManager.Instance.desktopStandaloneInput;
             }
 
-            yield return null;
+           // yield return null;
             //if (UIManager.IsAlive)
             //    yield return new WaitUntil(() => UIManager.Instance.IsReady());
-            teleportPlayer.OnSceneLoadedAndFirstTransport += OnSceneLoadedAndFirstTransportIsDone;
+           
+            
+            
+            
+          //  teleportPlayer.OnSceneLoadedAndFirstTransport += OnSceneLoadedAndFirstTransportIsDone;
+          
+            
+            
+            
             //start using our freflightcontroller after we finish loading UI
            // GameStateManager.Instance.RegisterUpdatableObject(this);
 
             //teleportPlayer.BeginPlayerHeightCalibration(left hand? right hand?); //TODO turn back on and ask for handedness 
         }
 
+        public void EnableFreeFlightCameraUpdates()
+        {
+            GameStateManager.Instance.RegisterUpdatableObject(this);
+        }
+
         public void OnSceneLoadedAndFirstTransportIsDone()
         {
-
-
             GameStateManager.Instance.RegisterUpdatableObject(this);
         }
 
