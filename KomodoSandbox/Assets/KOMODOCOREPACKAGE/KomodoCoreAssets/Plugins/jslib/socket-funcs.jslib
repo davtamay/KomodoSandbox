@@ -108,7 +108,8 @@
             var syncSocketId = (sync == null || sync.id === undefined || sync.id == null) ? "No ID" : sync.id; //do this so we can call sendMessage without it accidentally interpreting null as the end of the arguments
             
             console.log("[SocketIO " + syncSocketId + "] Disconnected: " + reason);
-            
+            //  if(this.sessions)
+            // this.sessions.get(session_id).removeClient(client_id);
             window.gameInstance.SendMessage(socketIOAdapter, 'OnDisconnect', reason);
         });
 
@@ -239,6 +240,7 @@
         sync.on('left', function(client_id) {
             console.log("[SocketIO " + syncSocketId + "] Left: Client" + client_id);
 
+       
             window.gameInstance.SendMessage(socketIOAdapter, 'OnOtherClientLeft', client_id);
         });
         
@@ -313,27 +315,96 @@
         });
         
         // Perform actions when the user closes the tab
-        window.addEventListener('beforeunload', function (e) {
-            // See https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+        // window.addEventListener('beforeunload', function (e) {
+        //     // See https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
 
-            window.gameInstance.SendMessage(socketIOAdapter, 'OnTabClosed');
+        // window.sync.emit('unityDisconnect', { client_id: 1, session_id: 1 });
+        //     window.gameInstance.SendMessage(socketIOAdapter, 'OnTabClosed');
 
-            delete e['returnValue'];
+        //     //delete e['returnValue'];
+        // });
+
+
+
+
+
+
+
+
+
+        window.sync.on('all_sessionIDs', function (sessionInfos) {
+
+        window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetAllSession_IDs', JSON.stringify(sessionInfos))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
+         });
+
+
+         window.sync.on('get_OtherClientInfo', function (data) {
+
+        window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetOtherClientInfo', JSON.stringify(data))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
+        
+         });
+         
+//          window.sync.on('get_clientID', function (client_id) {
+          
+//             window.client_id = client_id;
+
+//          window.addEventListener('beforeunload', function (e) {
+//             // See https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+
+//             window.gameInstance.SendMessage(socketIOAdapter, 'OnTabClosed');
+
+//             //delete e['returnValue'];
+//         });
+
+// //if closing, refreshing or going into a differe url invoke this
+//             window.onbeforeunload = () => {
+                
+
+//             window.sync.emit('unityDisconnect', { client_id: window.client_id, session_id: window.session_id });
+//             //window.sync.disconnect();
+//         //     return "Are you sure to leave this page?";
+//             }
+            
+
+//             window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetClient_ID',  window.client_id);
+
+
+        
+
+//         });
+
+
+
+        window.sync.on('get_sessionID', function (data) {
+
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetSession_ID', data);
         });
+
+
+        // window.sync.on('all_sessionIDs', function (sessionInfos) {
+
+        // window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetAllSession_IDs', JSON.stringify(sessionInfos))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
+        //  });
+
+
+
     },
 
     JoinSyncSession: function (session_id) {
+
+        window.session_id = session_id;
+
         if (window.sync == null ) {
             console.error("JoinSyncSession: window.sync was null");
             
             return 1;
         }
 
-        if (window.session_id == null ) {
-            console.error("JoinSyncSession: window.session_id was null");
+        // if (window.session_id == null ) {
+        //     console.error("JoinSyncSession: window.session_id was null");
             
-            return 1;
-        }
+        //     return 1;
+        // }
 
         if (window.client_id == null ) {
             console.error("JoinSyncSession: window.client_id was null");
@@ -571,63 +642,88 @@
         return 0;
     },
 
-//     SetSessionIdFromServer: async function() {
 
 
-//         // const response = await window.sync.emitWithAck("sessionID", "hello");
+    RequestClientIdFromServer: function() {
 
-//        //  window.session_id = session_id;
-
-//         // console.log(response);
-//          // return response;
-
-//   // with a specific timeout
-//         try {
-//             const response = await window.sync.timeout(1000).emitWithAck("sessionID", "world");
-//         } catch (err) {
-//             // the client did not acknowledge the event in the given delay
-//         }
-//           return response;
-
-//      //   return  window.sync.emit('draw', drawSendBuff);
-//     },
-
-//request session id from server
-    RequestSessionIdFromServer: function(sessionInfo) {
-
-        
-    //     var bufferSize = lengthBytesUTF8(sessionInfo) + 1;
-    // var buffer = _malloc(bufferSize);
-    // stringToUTF8(sessionInfo, buffer, bufferSize);
-
-      //  const info = UTF8ToString(sessionInfo);
-        // // console.log(info);
-
-        // //  //Return the socketIOAdapterName value so that Unity can check that it has the right value
-        // var bufferSize = lengthBytesUTF8(info) + 1;
-        // var buffer = _malloc(bufferSize);
-        // stringToUTF8(info, buffer, bufferSize);
-
-    //      var bufferSize = lengthBytesUTF8(sessionInfo) + 1;
-    //     var buffer = _malloc(bufferSize);
-    // stringToUTF8(sessionInfo, buffer, bufferSize);
-
-        // const info = JSON.parse(sessionInfo);
-        //  const sessionName = sessionInfo.name;
-
-        window.sync.emit('request_sessionID', Pointer_stringify(sessionInfo));//, info); //buffer
-      // _free(buffer);
+        window.sync.emit('request_clientID');//, info); //buffer
+  
     },
 
-//listener for session id from server
-    ListenForSessionIdFromServer: function() {
+//need to invoke this from unity for onbeforeunload to work
+     ListenForClientIdFromServer: function() {
 
-         sync.on('client_SocketID', function (session_id) {
+         window.sync.on('get_clientID', function (client_id) {
+          
+        console.log("GOT A NEW CLIENT ID");
+            window.client_id = client_id;
 
-            window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetSession_ID', session_id);
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetClient_ID',  window.client_id);
+
+
+        //if closing, refreshing or going into a differe url invoke this
+            window.onbeforeunload = () => {
+
+            window.sync.emit('unityDisconnect', { client_id: window.client_id, session_id: window.session_id });
+            
+           // window.sync.disconnect();
+            
+//     return "Are you sure to leave this page?";
+        }
+
         });
       
     },
+
+//     GetOtherClientInfo: function(data){
+
+//  window.sync.emit('GET', { client_id: window.client_id, session_id: window.session_id });
+
+//     }
+
+ProvideClientDataToServer: function(data){
+    
+        window.sync.emit('provide_clientData', UTF8ToString(data));
+    },
+
+
+
+ RequestLobbySessionFromServer: function() {
+        window.session_id = 1;
+        window.sync.emit('request_LobbySession');//, info); //buffer
+  
+    },
+//request session id from server
+    RequestSessionIdFromServer: function(sessionInfo) {
+
+        window.sync.emit('request_sessionID', UTF8ToString(sessionInfo));//, info); //buffer
+  
+    },
+
+    
+    
+
+//listener for session id from server
+    // ListenForSessionIdFromServer: function() {
+
+    //      window.sync.on('get_sessionID', function (session_id) {
+
+    //         window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetSession_ID', session_id);
+    //     });
+      
+    // },
+
+    SetSessionId: function(session_id) {
+
+        window.session_id = session_id;
+  
+    },
+    //  SetClientId: function(client_id) {
+
+    //     window.session_id = session_id;
+    //   //  window.sync.emit('request_sessionID', UTF8ToString(sessionInfo));//, info); //buffer
+  
+    // },
 
 
     RequestAllSessionIdsFromServer: function() {
@@ -635,44 +731,22 @@
         window.sync.emit('get_all_sessionIDs');
     },
 
-    ListenForSessionIdsFromServer : function(){
+    // ListenForSessionIdsFromServer : function(){
 
 
-        sync.on('all_sessionIDs', function (sessionInfos) {
+    //    window.sync.on('all_sessionIDs', function (sessionInfos) {
 
- //console.log(sessionInfos);
-        //      var sessionInfos =sessionInfos.values().map(function (session) {
-        //     return {
-        //         id: session.id,
-        //         name: session.name,
-        //         date: session.date,
-        //     };
-        // });
-
-//console.log(sessionInfos);
-       
-        console.log(sessionInfos);
-
-    //     var sessionInfosString = JSON.stringify(sessionInfos);
-    //     console.log(sessionInfosString);
+    //     window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetAllSession_IDs', JSON.stringify(sessionInfos))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
+    //      });
+    // },
 
 
-    //     console.log(UTF8ToString(sessionInfos));
+    RequestToEnteredNewSession :function(data){
+        // var sessionInfo = JSON.parse(UTF8ToString(data));
 
-    //     var bufferSize = lengthBytesUTF8(sessionInfos) + 1;
-    // var buffer = _malloc(bufferSize);
-    // stringToUTF8(sessionInfos, buffer, bufferSize);
-
-    //  console.log(buffer);
-
-        // var intString = sessionIDS.join(',');
-
-        window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetAllSession_IDs', JSON.stringify(sessionInfos))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
-         });
+        // var joinIds = [session_id, window.client_id];
+        window.sync.emit('request_to_join_session', UTF8ToString(data));
     },
-
-
-
 
 
 
@@ -691,13 +765,13 @@
 
 
 
-    GetClientIdFromBrowser: function() {
-        return window.client_id;
-    },
+    // GetClientIdFromBrowser: function() {
+    //     return window.client_id;
+    // },
 
-    GetSessionIdFromBrowser: function() {
-        return window.session_id;
-    },
+    // GetSessionIdFromBrowser: function() {
+    //     return window.session_id;
+    // },
 
     GetIsTeacherFlagFromBrowser: function() {
         return window.isTeacher;
@@ -859,8 +933,15 @@
 
     // general messaging system
     BrowserEmitMessage: function (typePtr, messagePtr) {
-        if (window.sync == null) {
-            console.warn("BrowserEmitMessage: window.sync was null");
+
+        if (window.session_id == undefined || window.session_id == null || !window.session_id) {
+         //   console.warn("BrowserEmitMessage: window.session_id was null");
+            return 1;
+        }
+        //temporary fix komodo message sends messages before client id is requested and sent(default is 0). Need a way to stop
+        //all KomodoMessge, if one ereceices a message before session id is sent. this happens: 
+        //tried to process message, but client_id was null --> Disconnecting. --> - session_id not found
+        if (window.client_id == undefined || window.client_id == null || !window.client_id) {
 
             return 1;
         }
@@ -887,7 +968,7 @@
             return 1;
         }
         
-        window.sync.disconnect();
+       // window.sync.disconnect();
 
         return 0;
     },

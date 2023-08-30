@@ -129,7 +129,17 @@ namespace Komodo.Runtime
         }
 
         #region Initiation process --> ClientAvatars --> URL Downloads --> UI Setup --> SyncState
-        public void Start()
+
+        //public void Start()
+        //{
+        //    Net_IntantinateClients();
+        //}
+        public void Net_IntantinateClients()
+        {
+
+            StartCoroutine(InstantiateClients());
+        }
+        public IEnumerator InstantiateClients()
         {
 #if TESTING_BEFORE_BUILDING
             Debug.LogWarning("Directive TESTING_BEFORE_BUILDING was enabled. Please disable it before production.");
@@ -150,11 +160,12 @@ namespace Komodo.Runtime
             }
 
             //wait until our avatars are setup in the scene
-          //  yield return StartCoroutine(InstantiateReservedClients());
+            //yield return StartCoroutine(InstantiateReservedClients());
+            StartCoroutine(InstantiateReservedClients());
 
             GameStateManager.Instance.isAvatarLoadingFinished = true;
 
-         //   AddOwnClient();
+              AddOwnClient();
 
             // if (UIManager.IsAlive)
             // {
@@ -172,9 +183,13 @@ namespace Komodo.Runtime
                 onClient_IsStudent.Invoke();
             }
 
+            yield return null;
+
             //SessionStateManager.Instance.ApplyCatchup(); TODO(Brandon) -- evaluate if we need to create an empty state object.
 
-  //          SocketIOAdapter.Instance.OpenConnectionAndJoin();
+            //SocketIOAdapter.Instance.OpenConnectionAndJoin();
+
+            //MainClientUpdater.Instance.Net_StartSendingPlayerUpdatesToServer();
 
             //WebGLMemoryStats.LogMoreStats("ClientSpawnManager Start AFTER");
         }
@@ -244,8 +259,16 @@ namespace Komodo.Runtime
 
         public void AddNewClients(int[] clientIDs)
         {
-            foreach (var clientID in clientIDs)
+            //foreach (var clientID in clientIDs)
+            //{
+            //    if (clientID != NetworkUpdateHandler.Instance.client_id)
+            //    {
+            //        AddNewClient(clientID);
+            //    }
+            //}
+            for (int i = 0; i < clientIDs.Length; i++)
             {
+                int clientID = clientIDs[i];
                 if (clientID != NetworkUpdateHandler.Instance.client_id)
                 {
                     AddNewClient(clientID);
@@ -262,6 +285,8 @@ namespace Komodo.Runtime
                 return;
             }
 
+            Debug.Log("CLIENT ID ADDED AS OWN : " + clientID);
+
             //setup newclient
             if (clientIDs.Contains(clientID))
             {
@@ -269,6 +294,8 @@ namespace Komodo.Runtime
             }
 
             clientIDs.Add(clientID);
+
+           
 
             mainClientName = NetworkUpdateHandler.Instance.GetPlayerNameFromClientID(clientID);
 
@@ -559,19 +586,20 @@ namespace Komodo.Runtime
         }
         public void RemoveClient (int clientID)
         {
-            if (!GameStateManager.IsAlive)
-            {
-                Debug.LogWarning("Tried to remove client, but there was no GameStateManager.");
+            Debug.Log("TRYING TO REMOVE CLIENT : " + clientID);
+            //if (!GameStateManager.IsAlive)
+            //{
+            //    Debug.LogWarning("Tried to remove client, but there was no GameStateManager.");
 
-                return;
-            }
+            //    return;
+            //}
 
-            if (!GameStateManager.Instance.isAssetImportFinished)
-            {
-                Debug.LogWarning("Tried to remove client, but asset import was not finished.");
+            //if (!GameStateManager.Instance.isAssetImportFinished)
+            //{
+            //    Debug.LogWarning("Tried to remove client, but asset import was not finished.");
 
-                return;
-            }
+            //    return;
+            //}
 
             DestroyClient2(clientID);
         }
@@ -809,13 +837,13 @@ namespace Komodo.Runtime
         }
         public void ProcessSpeechToTextSnippet(SpeechToTextSnippet newText)
         {
-            if (GameStateManager.IsAlive)
-                if (!GameStateManager.Instance.isAssetImportFinished)
-                    return;
+            //if (GameStateManager.IsAlive)
+            //    if (!GameStateManager.Instance.isAssetImportFinished)
+            //        return;
 
             if (!clientIDs.Contains(newText.target))
             {
-                Debug.LogWarning("No client Found, Can't render text");
+                Debug.LogWarning($"Client : {newText.target} not found, can't render text");
                 return;
             }
 

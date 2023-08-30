@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 using Komodo.Utilities;
+using System.Linq;
 
 namespace Komodo.Runtime
 {
@@ -26,10 +27,7 @@ namespace Komodo.Runtime
             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         }
 
-        void Start()
-        {
-
-        }
+   
 
         public void SetSessionState(SessionState state)
         {
@@ -50,8 +48,16 @@ namespace Komodo.Runtime
         {
             int desiredEntityId = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.entity).entityID;
 
-            foreach (var candidateEntityState in _state.entities)
+            //foreach (var candidateEntityState in _state.entities)
+            //{
+            //    if (candidateEntityState.id == desiredEntityId)
+            //    {
+            //        return candidateEntityState;
+            //    }
+            //}
+            for (int i = 0; i < _state.entities.Length; i++)
             {
+                EntityState candidateEntityState = _state.entities[i];
                 if (candidateEntityState.id == desiredEntityId)
                 {
                     return candidateEntityState;
@@ -118,19 +124,44 @@ namespace Komodo.Runtime
 
                 return;
             }
-
+            //at times gives argument index error
             SceneManagerExtensions.Instance.SelectScene(_state.scene);
 
             ClientSpawnManager.Instance.AddNewClients(_state.clients);
 
-            foreach (EntityState entityState in _state.entities)
+            //foreach (EntityState entityState in _state.entities)
+            //{
+            //    NetworkedGameObject netObject = GetNetObjectFromEntityState(entityState);
+
+            //    if (netObject == null)
+            //    {
+            //        Debug.LogWarning($"Could not catch up state for entity with ID {entityState.id}. Skipping.");
+
+            //        continue;
+            //    }
+
+            //    UIManager.Instance.ProcessNetworkToggleVisibility(netObject.thisEntityID, entityState.render);
+
+            //    int interactionType = entityState.locked ? (int)INTERACTIONS.LOCK : (int)INTERACTIONS.UNLOCK;
+
+            //    ApplyInteraction(new Interaction(
+            //        sourceEntity_id: -1,
+            //        targetEntity_id: entityState.id,
+            //        interactionType: interactionType
+            //    ));
+
+            //    ApplyPosition(entityState.latest);
+            //}
+
+
+            for (int i = 0; i < _state.entities.Length; i++)
             {
+                EntityState entityState = _state.entities[i];
                 NetworkedGameObject netObject = GetNetObjectFromEntityState(entityState);
 
                 if (netObject == null)
                 {
                     Debug.LogWarning($"Could not catch up state for entity with ID {entityState.id}. Skipping.");
-
                     continue;
                 }
 
@@ -150,10 +181,10 @@ namespace Komodo.Runtime
 
         public void ApplyPosition(Position positionData)
         {
-            if (GameStateManager.IsAlive && !GameStateManager.Instance.isAssetImportFinished)
-            {
-                return;
-            }
+            //if (GameStateManager.IsAlive && !GameStateManager.Instance.isAssetImportFinished)
+            //{
+            //    return;
+            //}
 
             if (positionData.entityType != (int)Entity_Type.objects && positionData.entityType != (int)Entity_Type.physicsObject)
             {

@@ -63,7 +63,14 @@ namespace Komodo.Runtime
 #endif
 
         // session id from JS
-        [HideInInspector] public int session_id;
+        [HideInInspector] public int session_id = 1;
+    //        {
+    //    get { return session_id;
+    //}
+    //set {
+    //            Debug.Log("SESSION ID WAS CHNGED!! FROM " + session_id + "TO :"  + value);
+    //            session_id = value; }
+    //}
         [HideInInspector] public string sessionName;
         [HideInInspector] public string buildName;
 
@@ -158,17 +165,17 @@ namespace Komodo.Runtime
             //             }
             // #endif
         }
-        public void SetSessionID(int session_id)
-        {
-            this.session_id = session_id;
+        //public void SetSessionID(int session_id)
+        //{
+        //    this.session_id = session_id;
 
-        }
+        //}
         
         private void _GetParams ()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR 
-            client_id = SocketIOJSLib.GetClientIdFromBrowser();
-            session_id = SocketIOJSLib.GetSessionIdFromBrowser();
+            //client_id = SocketIOJSLib.GetClientIdFromBrowser();
+            //session_id = SocketIOJSLib.GetSessionIdFromBrowser();
             isTeacher  = SocketIOJSLib.GetIsTeacherFlagFromBrowser();
 #else
             // client_id = SocketSim.GetClientIdFromBrowser();
@@ -240,6 +247,38 @@ namespace Komodo.Runtime
 
         public void Awake()
         {
+            //var initManager = Instance;
+
+            //sessionStateManager = SessionStateManager.Instance;
+
+            ////optimization - register our update calls
+            //// procesing all update loops from one main update loop is optimal to avoid  
+            //// crossing native to manage code 
+            //GameStateManager.Instance.RegisterUpdatableObject(this);
+
+            ////WebGLMemoryStats.LogMoreStats("NetworkUpdateHandler.Awake BEFORE");
+
+            //if (modelData == null) {
+            //    Debug.LogWarning("No model data template was found for NetworkManager. Imported models may use editor template.");
+            //}
+
+            // _CreateSocketSimulator();
+
+            // _GetParams();
+
+            // _GetModelsAndSessionDetails();
+
+            //WebGLMemoryStats.LogMoreStats("NetworkUpdateHandler.Awake AFTER");
+        }
+
+        //public void Start()
+        //{
+        //    Net_InitSyncLiteners();
+        //}
+
+        //originally start
+        public void Net_InitSyncLiteners()
+        {
             var initManager = Instance;
 
             sessionStateManager = SessionStateManager.Instance;
@@ -251,30 +290,20 @@ namespace Komodo.Runtime
 
             //WebGLMemoryStats.LogMoreStats("NetworkUpdateHandler.Awake BEFORE");
 
-            if (modelData == null) {
+            if (modelData == null)
+            {
                 Debug.LogWarning("No model data template was found for NetworkManager. Imported models may use editor template.");
             }
 
-            // _CreateSocketSimulator();
-
-            // _GetParams();
-
-            // _GetModelsAndSessionDetails();
-
-            //WebGLMemoryStats.LogMoreStats("NetworkUpdateHandler.Awake AFTER");
-        }
-
-        //originally start
-        public void StartNetworkListeners()
-        {
-           // SocketIOJSLib.SetSocketIOAdapterName();
-            SocketIOJSLib.JoinSyncSession(session_id);
-            SocketIOJSLib.SetSyncEventListeners();
+            // SocketIOJSLib.SetSocketIOAdapterName();
+            //SocketIOJSLib.JoinSyncSession(session_id);
+            //SocketIOJSLib.SetSyncEventListeners();
             if (socketIODisplay == null)
             {
                 throw new System.Exception("You must assign a socketIODisplay in NetworkUpdateHandler.");
             }
 
+            Debug.Log("Attempting to subscribe to sync");
             GlobalMessageManager.Instance.Subscribe("sync", (data) => _DeserializeAndProcessSyncData(data));
 
             GlobalMessageManager.Instance.Subscribe("interaction", (data) => _DeserializeAndProcessInteractionData(data));
@@ -332,6 +361,7 @@ namespace Komodo.Runtime
         //TODO(Brandon): Suggestion: rename this to PositionUpdate
         public void SendSyncPoseMessage(Position pos)
         {
+            Debug.Log("Sending Dat : " + "to session : " + session_id  + "  from: " + client_id + "  : "+ pos);
             var posString = JsonUtility.ToJson(pos);
 
             var message = new KomodoMessage("sync", posString);
@@ -360,6 +390,7 @@ namespace Komodo.Runtime
         public void _DeserializeAndProcessSyncData(string data)
         {
             var pos = JsonUtility.FromJson<Position>(data);
+            Debug.Log("GOT Data : " + "session : " + session_id + "  from: " + client_id + "  : " + pos);
 
             if (!SessionStateManager.IsAlive)
             {
@@ -376,6 +407,7 @@ namespace Komodo.Runtime
         private void DeserializeAndProcessSyncDataAlternateVersion (string data)
         {
             var pos = JsonUtility.FromJson<Position>(data);
+           
 
             if (ClientSpawnManager.IsAlive && ClientSpawnManager.Instance.TryToApplyPosition(pos))
             {

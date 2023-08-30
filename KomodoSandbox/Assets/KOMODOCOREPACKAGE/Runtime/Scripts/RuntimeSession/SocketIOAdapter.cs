@@ -4,6 +4,7 @@ using UnityEngine;
 using Komodo.Utilities;
 using Newtonsoft.Json;
 using NUnit.Framework.Internal;
+using System.Xml.Linq;
 
 namespace Komodo.Runtime
 {
@@ -25,8 +26,7 @@ namespace Komodo.Runtime
 
         public CreateJoinAndStartSession createJoinAndStart;
 
-
-        void Start()
+        void Awake()
         {
             connectionAdapter = (ConnectionAdapter)FindObjectOfType(typeof(ConnectionAdapter));
 
@@ -49,7 +49,51 @@ namespace Komodo.Runtime
                 Debug.LogError("SocketIOAdapter: No netUpdateHandler was found in the scene.");
             }
 
-           // SetName();
+            SetName();
+            //OpenConnectionAndJoin();
+            OpenSyncConnection();
+            OpenChatConnection();
+        }
+
+        public IEnumerator Start()
+        {
+            SetSyncEventListeners();
+            SetChatEventListeners();
+
+            yield return null;
+
+           
+           // SendStateCatchUpRequest();
+            createJoinAndStart.RequestClientID();
+
+        }
+        public void GetClient_ID(int clientID)
+        {
+
+            NetworkUpdateHandler.Instance.client_id = clientID;
+            NetworkUpdateHandler.Instance.session_id = 1;
+
+            //     createJoinAndStart.ShowSessionPanel();
+
+
+            ClientSpawnManager.Instance.Net_IntantinateClients();
+
+
+            JoinSyncSession();
+            JoinChatSession();
+
+            SendStateCatchUpRequest();
+
+            MainClientUpdater.Instance.Net_StartSendingPlayerUpdatesToServer();
+
+            SocketIOJSLib.RequestLobbySessionFromServer();
+
+
+
+            SocketIOJSLib.RequestAllSessionIdsFromServer();
+
+            NetworkUpdateHandler.Instance.Net_InitSyncLiteners();
+            // SocketIOJSLib.ListenForPageUnload(clientID);
         }
 
         // Set the window.socketIOAdapterName variable in JS so that SendMessage calls in jslib are guaranteed to talk to the gameObject that has this script on it.
@@ -73,21 +117,21 @@ namespace Komodo.Runtime
 
         public void OpenConnectionAndJoin()
         {
-            OpenSyncConnection();
+            //OpenSyncConnection();
 
-            OpenChatConnection();
+            //OpenChatConnection();
 
-            SetSyncEventListeners();
+            //SetSyncEventListeners();
 
-            SetChatEventListeners();
+            //SetChatEventListeners();
 
-            JoinSyncSession();
+            //JoinSyncSession();
 
-            JoinChatSession();
+            //JoinChatSession();
 
-            SendStateCatchUpRequest();
+            //SendStateCatchUpRequest();
 
-            EnableVRButton();
+            //EnableVRButton();
         }
 
         public void Leave()
@@ -349,9 +393,17 @@ namespace Komodo.Runtime
             connectionAdapter.DisplayConnected();
         }
 
-        public void OnDisconnect(string reason)
+        public struct DisconectData
         {
-            connectionAdapter.DisplayDisconnect(reason);
+            public string reason;
+            public int clientID;
+        }
+        public void OnDisconnect(string data)//reason)
+        {
+            //var disconnecteddata = JsonUtility.FromJson<DisconectData>(data);
+
+            //ClientSpawnManager.Instance.RemoveClient(disconnecteddata.clientID);
+            connectionAdapter.DisplayDisconnect(data);
         }
 
         public void OnError(string error)
@@ -416,7 +468,7 @@ namespace Komodo.Runtime
 
             SessionStateManager.Instance.SetSessionState(state);
 
-            SessionStateManager.Instance.ApplyCatchup();
+         //   SessionStateManager.Instance.ApplyCatchup();
         }
 
         public void OnClientJoined(int client_id)
@@ -444,6 +496,7 @@ namespace Komodo.Runtime
 
         public void OnOtherClientLeft(int client_id)
         {
+            Debug.Log($"OTHER CLIENT LEFT({client_id})");
             ClientSpawnManager.Instance.RemoveClient(client_id);
         }
 
@@ -458,6 +511,7 @@ namespace Komodo.Runtime
 
         public void OnFailedToLeave(int session_id)
         {
+            Debug.Log($"OnFaildToLeave{session_id}");
             connectionAdapter.DisplayFailedToLeave(session_id);
 
             ClientSpawnManager.Instance.DisplayOwnClientIsConnected();
@@ -471,6 +525,7 @@ namespace Komodo.Runtime
 
         public void OnOtherClientDisconnected(int client_id)
         {
+            Debug.Log($"OTHER DISCONECTED({client_id})");
             connectionAdapter.DisplayOtherClientDisconnected(client_id);
 
             ClientSpawnManager.Instance.RemoveClient(client_id);
@@ -478,6 +533,7 @@ namespace Komodo.Runtime
 
         public void OnMessage(string typeAndMessage)
         {
+           // Debug.Log("Receiving Messages");
             netUpdateHandler.ProcessMessage(typeAndMessage);
         }
 
@@ -489,10 +545,15 @@ namespace Komodo.Runtime
 
 
 
-        public void GetSession_ID(int sessionID)
+        public void GetSession_ID(string sessionInfo)
         {
-            createJoinAndStart.ServerCreate(sessionID);
+            Debug.Log(sessionInfo);
+
+            SessionInfo sInfo =  JsonUtility.FromJson<SessionInfo>(sessionInfo);
+           // NetworkUpdateHandler.Instance.session_id = sessionID;
+            createJoinAndStart.ServerCreate(sInfo.id,sInfo.name,sInfo.date, true);
         }
+      
         public void GetAllSession_IDs(string sessionInfosString)
         {
 
@@ -513,6 +574,23 @@ namespace Komodo.Runtime
             {
                 createJoinAndStart.ServerCreate(info.id, info.name, info.date, true);
             }
+        }
+
+
+        public void GetOtherClientInfo(string otherClientInfoString)
+        {
+            Debug.Log(otherClientInfoString);
+
+            var data = JsonUtility.FromJson<OtherClientInfo>(otherClientInfoString);
+
+       //     var deserializedData = JsonUtility.FromJson<SpeechToText>(data);
+            SpeechToTextSnippet snippet;
+            snippet.target = data.id;
+            snippet.text = data.name;
+            snippet.stringType = (int)STRINGTYPE.CLIENT_NAME;
+
+
+            ClientSpawnManager.Instance.ProcessSpeechToTextSnippet(snippet);
         }
 
 

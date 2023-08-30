@@ -135,13 +135,14 @@ namespace Komodo.Runtime
             
             
             //start using our freflightcontroller after we finish loading UI
-           // GameStateManager.Instance.RegisterUpdatableObject(this);
+           GameStateManager.Instance.RegisterUpdatableObject(this);
 
             //teleportPlayer.BeginPlayerHeightCalibration(left hand? right hand?); //TODO turn back on and ask for handedness 
         }
 
         public void EnableFreeFlightCameraUpdates()
         {
+            enabled = true;
             GameStateManager.Instance.RegisterUpdatableObject(this);
         }
 

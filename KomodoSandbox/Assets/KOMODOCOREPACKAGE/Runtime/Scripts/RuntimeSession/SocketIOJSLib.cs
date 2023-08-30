@@ -36,14 +36,39 @@ namespace Komodo.Runtime
         [DllImport("__Internal")]
         public static extern int SetChatEventListeners();
 
-        [DllImport("__Internal")]
-        public static extern int GetClientIdFromBrowser();
+        //[DllImport("__Internal")]
+        //public static extern int GetClientIdFromBrowser();
 
-        [DllImport("__Internal")]
-        public static extern int GetSessionIdFromBrowser();
+        //[DllImport("__Internal")]
+        //public static extern int GetSessionIdFromBrowser();
 
         [DllImport("__Internal")]
         public static extern int GetIsTeacherFlagFromBrowser();
+
+
+
+
+
+        //[DllImport("__Internal")]
+        //public static extern void ListenForPageUnload(int client_id);
+
+
+        [DllImport("__Internal")]
+        public static extern void SetSessionId(int session_id);
+
+
+
+        [DllImport("__Internal")]
+        public static extern void RequestClientIdFromServer();
+
+
+        [DllImport("__Internal")]
+        public static extern void ProvideClientDataToServer(string clientData);
+        //ProvideClientDataToServer
+
+        //set listener to get the request info
+        [DllImport("__Internal")]
+        public static extern void ListenForClientIdFromServer();
 
 
 
@@ -53,21 +78,23 @@ namespace Komodo.Runtime
         [DllImport("__Internal")]
         public static extern void RequestSessionIdFromServer(string sessionInfo);
 
-
         //set listener to get the request info
-        [DllImport("__Internal")]
-        public static extern void ListenForSessionIdFromServer();
-
+        //[DllImport("__Internal")]
+        //public static extern void ListenForSessionIdFromServer();
 
 
         [DllImport("__Internal")]
         public static extern void RequestAllSessionIdsFromServer();
 
+        //[DllImport("__Internal")]
+        //public static extern void ListenForSessionIdsFromServer();
+
         [DllImport("__Internal")]
-        public static extern void ListenForSessionIdsFromServer();
+        public static extern void RequestLobbySessionFromServer();
 
 
-
+        [DllImport("__Internal")]
+        public static extern void RequestToEnteredNewSession(string sessionInfo);
 
         // [DllImport("__Internal")]
         // private static extern void InitSocketIOReceivePosition(float[] array, int size);

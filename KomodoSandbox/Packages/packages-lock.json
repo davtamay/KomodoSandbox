@@ -40,7 +40,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
-      "version": "1.8.2",
+      "version": "1.8.3",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -49,11 +49,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.collections": {
-      "version": "2.1.0-pre.11",
+      "version": "2.1.0-pre.18",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.burst": "1.8.2",
+        "com.unity.burst": "1.8.3",
         "com.unity.modules.unityanalytics": "1.0.0",
         "com.unity.nuget.mono-cecil": "1.11.4",
         "com.unity.test-framework": "1.3.2"
@@ -68,13 +68,13 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.entities": {
-      "version": "1.0.0-pre.44",
+      "version": "1.0.0-pre.65",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.burst": "1.8.2",
+        "com.unity.burst": "1.8.3",
         "com.unity.serialization": "3.0.0-pre.1",
-        "com.unity.collections": "2.1.0-pre.11",
+        "com.unity.collections": "2.1.0-pre.18",
         "com.unity.mathematics": "1.2.6",
         "com.unity.modules.assetbundle": "1.0.0",
         "com.unity.modules.audio": "1.0.0",

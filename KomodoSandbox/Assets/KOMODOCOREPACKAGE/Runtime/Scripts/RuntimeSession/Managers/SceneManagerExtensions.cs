@@ -90,9 +90,9 @@ namespace Komodo.Runtime
         public IEnumerator CoroutineForSelectingScene(int sceneID)
         {
             //check if we are currently loading any scenes. If so, wait for them to be finished to start loading a new one
-            foreach (var item in asyncOperations)
+            for (int i = 0; i < asyncOperations.Count; i++)
             {
-                yield return new WaitUntil(() => item.isDone);
+                yield return new WaitUntil(() => asyncOperations[i].isDone);
             }
 
             //clear our loading list
@@ -112,8 +112,8 @@ namespace Komodo.Runtime
             //clear the list
             loadedAdditiveScenes.Clear();
 
-            if (sceneID >= sceneList.references.Count) {
-                Debug.LogError("sceneID was out of bounds. Make sure your sceneList object is initialized properly");
+            if (sceneID < 0 || sceneID >= sceneList.references.Count) { 
+                Debug.LogWarning("sceneID was out of bounds. Make sure your sceneList object is initialized properly");
 
                 yield break;
             }
@@ -128,10 +128,14 @@ namespace Komodo.Runtime
             UpdateSceneButtons(sceneID);
 
             //wait for our loading process to finish on our new loading scene
-            foreach (var item in asyncOperations)
+            for (int i = 0; i < asyncOperations.Count; i++)
             {
-                yield return new WaitUntil(() => item.isDone);
+                yield return new WaitUntil(() => asyncOperations[i].isDone);
             }
+            //foreach (var item in asyncOperations)
+            //{
+            //    yield return new WaitUntil(() => item.isDone);
+            //}
 
             //////make our new scene as the active scene to use its light settings
             SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
@@ -150,10 +154,23 @@ namespace Komodo.Runtime
 
         private bool IsSceneAlreadyLoaded (int sceneID) {
             //Go through our list of scene references and check if we are not loading a scene already loaded. If so, break
-            foreach (string loadedScene in loadedAdditiveScenes)
+            //foreach (string loadedScene in loadedAdditiveScenes)
+            //{
+            //    foreach (SceneReference sceneInList in sceneList.references)
+            //    {
+            //        if (sceneInList.name == loadedScene && sceneInList.sceneIndex == sceneID)
+            //        {
+            //            return true;
+            //        }
+            //    }
+            //}
+
+            for (int i = 0; i < loadedAdditiveScenes.Count; i++)
             {
-                foreach (SceneReference sceneInList in sceneList.references)
+                string loadedScene = loadedAdditiveScenes[i];
+                for (int j = 0; j < sceneList.references.Count; j++)
                 {
+                    SceneReference sceneInList = sceneList.references[j];
                     if (sceneInList.name == loadedScene && sceneInList.sceneIndex == sceneID)
                     {
                         return true;

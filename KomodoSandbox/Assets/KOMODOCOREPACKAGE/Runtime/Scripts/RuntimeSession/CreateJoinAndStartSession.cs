@@ -15,11 +15,26 @@ namespace Komodo.Runtime
         public string name;
         public string date;
     }
-    public struct SessionInfoArray
+    public struct SessionChangeInfo
     {
-        public List<SessionInfo> sessionInfos;
+        public int id;
+        public int oldSession_Id;
+        public int session_id;
+    }
+    public struct ClientInfo
+    {
+        public int id;
+        public int session_id;
+        public string name;
 
     }
+    public struct OtherClientInfo
+    {
+        public int id;
+        public int session_id;
+        public string name;
+    }
+
 
     public class CreateJoinAndStartSession : MonoBehaviour
     {
@@ -29,50 +44,107 @@ namespace Komodo.Runtime
 
         public Button startSessionButton;
 
+        public GameObject loginPanel;
+        public GameObject sessionPanel;
+
+        public TMP_InputField clientName;
+        public TMP_InputField clientPassword;
+
 
         public void Awake()
         {
-
+           // NetworkUpdateHandler.Instance.client_id = 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            SocketIOJSLib.OpenSyncConnection();
-            SocketIOJSLib.OpenChatConnection();
+            //SocketIOJSLib.OpenSyncConnection();
+            //SocketIOJSLib.OpenChatConnection();
 
-            SocketIOAdapter.Instance.SetName();
+            //SocketIOAdapter.Instance.SetName();
           
             
-            SocketIOJSLib.ListenForSessionIdFromServer();
-            SocketIOJSLib.ListenForSessionIdsFromServer();
-
+          //  SocketIOJSLib.ListenForClientIdFromServer();
+            
+            //SocketIOJSLib.ListenForSessionIdFromServer();
+            //SocketIOJSLib.ListenForSessionIdsFromServer();
+           
 #endif
         }
         public void Start()
         {
+
 #if UNITY_WEBGL && !UNITY_EDITOR
-        SocketIOJSLib.RequestAllSessionIdsFromServer();
+            SocketIOJSLib.ListenForClientIdFromServer();
+
+             //SocketIOJSLib.RequestAllSessionIdsFromServer();
+#endif
+            //  SocketIOJSLib.RequestLobbySessionFromServer();
+
+
+            //  RequestClientID();
+
+
+            //SocketIOJSLib.ListenForClientIdFromServer();
+            //SocketIOJSLib.ListenForSessionIdFromServer();
+            //SocketIOJSLib.ListenForSessionIdsFromServer();
 
 
 
+        }
 
-      //  SocketIOJSLib.ListenForSessionIdFromServer();
+        public void ExitAuthentication()
+        {
+            gameObject.SetActive(false);
+        }
+
+        public void ShowSessionPanel()
+        {
+            loginPanel.SetActive(false);
+            sessionPanel.SetActive(true);
+//#if UNITY_WEBGL && !UNITY_EDITOR
+//        SocketIOJSLib.RequestAllSessionIdsFromServer();
+//#endif
+        }
+        public void RequestClientID()
+        {
+            ClientInfo clientInfo = new ClientInfo();
+            clientInfo.name = clientName.text;
+            clientInfo.session_id = NetworkUpdateHandler.Instance.session_id;
+
+            string info = JsonUtility.ToJson(clientInfo);
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+
+            SocketIOJSLib.RequestClientIdFromServer();
+#endif
+
+        }
+
+        public void ProvideServerWithClientInfo()
+        {
+            ClientInfo clientInfo = new ClientInfo();
+            clientInfo.name = clientName.text;
+            clientInfo.id = NetworkUpdateHandler.Instance.client_id;
+            clientInfo.session_id = NetworkUpdateHandler.Instance.session_id;
+
+            string info = JsonUtility.ToJson(clientInfo);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SocketIOJSLib.ProvideClientDataToServer(info);
 #endif
         }
-      
+
+
         public List<int> allSessions = new List<int>();
 
+        public int selectedSession = 1;
         public void SelectSession(int session)
         {
 
-            NetworkUpdateHandler.Instance.session_id = session;
-            // Debug.Log(session);
-           // Debug.Log("SESSION NUMBER SET : " + session);
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SocketIOJSLib.SetSessionId(session);
+#endif
+            selectedSession = session;
+          ///  NetworkUpdateHandler.Instance.session_id = session;
         }
-        //public int currentSelectedSession;
-
-        //public void CreateNewSession()
-        //{
-        //    CreateNewSession();
-        //    //StartCoroutine();
-        //}
+      
         TMP_Text[] textList;
         public void ServerCreate(int sessiontestID, string name = "", string date = "", bool fromServer = false) {
 
@@ -109,7 +181,7 @@ namespace Komodo.Runtime
            
 
             var toggle = sessionButton.GetComponent<Toggle>();
-            toggle.isOn = true;
+           
 
             toggle.onValueChanged.AddListener((isON) =>
             {
@@ -117,17 +189,19 @@ namespace Komodo.Runtime
                 if (toggle.isOn)
                 {
                     SelectSession(sessiontestID);
+                    Debug.Log("session selected : " + sessiontestID);
                 }
 
             }); ;
 
-            SelectSession(sessiontestID);
+           // toggle.isOn = true;
+            //  SelectSession(sessiontestID);
 
 
 
             toggle.group = sessionButtonContentPanel.GetComponent<ToggleGroup>();
 
-
+         //   toggle.group.allowSwitchOff = true
 
 
 
@@ -153,5 +227,26 @@ namespace Komodo.Runtime
 #endif
 
         }
+
+        public void GoToNewSession()
+        {
+            SessionChangeInfo schangeInfo;
+            schangeInfo.id = NetworkUpdateHandler.Instance.client_id;
+            schangeInfo.oldSession_Id = NetworkUpdateHandler.Instance.session_id;
+            schangeInfo.session_id = selectedSession;
+            string data = JsonUtility.ToJson(schangeInfo);
+
+
+            NetworkUpdateHandler.Instance.session_id = selectedSession;
+
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SocketIOJSLib.RequestToEnteredNewSession(data);
+#endif
+            ClientSpawnManager.Instance.RemoveAllClients();
+        }
+
+
+
     }
 }

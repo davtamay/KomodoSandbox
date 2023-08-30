@@ -21,11 +21,11 @@
         </div>
       </div>
       <div id="unity-footer">
-        <div id="unity-webgl-logo"></div>
+        <!-- <div id="unity-webgl-logo"></div> -->
         <button id="entervr" value="Enter VR" disabled>VR</button>
         <button id="enterar" value="Enter AR" disabled>AR</button>
-        <div id="unity-webxr-link">Using <a href="https://github.com/De-Panther/unity-webxr-export" target="_blank" title="WebXR Export">WebXR Export</a></div>
-        <div id="unity-build-title">{{{ PRODUCT_NAME }}}</div>
+        <!-- <div id="unity-webxr-link">Using <a href="https://github.com/De-Panther/unity-webxr-export" target="_blank" title="WebXR Export">WebXR Export</a></div>
+        <div id="unity-build-title">{{{ PRODUCT_NAME }}}</div> -->
       </div>
     </div>
     <script>
@@ -67,18 +67,29 @@
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
         }).then((instance) => {
-          gameInstance = instance;
+          window.gameInstance = instance;
           loadingBar.style.display = "none";
           if (fullscreenButton)
           {
             fullscreenButton.onclick = () => {
-              gameInstance.SetFullscreen(1);
+              window.gameInstance.SetFullscreen(1);
             };
           }
         }).catch((message) => {
           alert(message);
         });
       };
+
+
+
+//       window.onbeforeunload = () => {
+//     unityInstance.SendMessage("CloseEvent", "CloseCallback");
+//     return "Are you sure to leave this page?";
+// }
+
+
+
+
       document.body.appendChild(script);
 
       let enterARButton = document.getElementById('enterar');

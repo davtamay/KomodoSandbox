@@ -117,8 +117,8 @@ var runtimeAppAndBuild = removeVRBaseUrl(removeQuery(window.location.href));
 // ...then pass it in in request.onload below.
 
 // Client and session params supplied by portal iframe src
-var session_id = Number(params.session);
-var client_id = Number(params.client);
+// var session_id = Number(params.session);
+// var client_id = Number(params.client);
 var isTeacher = Number(params.teacher) || 0;
 var playback_id = Number(params.playback);
 

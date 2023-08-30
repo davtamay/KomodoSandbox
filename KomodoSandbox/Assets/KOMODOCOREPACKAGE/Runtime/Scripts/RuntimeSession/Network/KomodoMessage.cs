@@ -28,18 +28,19 @@ namespace Komodo.Runtime
 
         public void Send()
         {
-// #if UNITY_WEBGL && !UNITY_EDITOR
-//             SocketIOJSLib.BrowserEmitMessage(this.type, this.data);
-// #else
-//             var socketSim = SocketIOEditorSimulator.Instance;
+            
+#if UNITY_WEBGL && !UNITY_EDITOR
+             SocketIOJSLib.BrowserEmitMessage(this.type, this.data);
+#else
+            var socketSim = SocketIOEditorSimulator.Instance;
 
-//             if (!socketSim)
-//             {
-//                 Debug.LogWarning("No SocketIOEditorSimulator found");
-//             }
+            if (!socketSim)
+            {
+                Debug.LogWarning("No SocketIOEditorSimulator found");
+            }
 
-//             socketSim.BrowserEmitMessage(this.type, this.data);
-// #endif
+            socketSim.BrowserEmitMessage(this.type, this.data);
+#endif
         }
     }
 }
