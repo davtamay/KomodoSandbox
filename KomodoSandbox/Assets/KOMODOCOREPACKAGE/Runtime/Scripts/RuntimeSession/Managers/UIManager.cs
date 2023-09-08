@@ -5,6 +5,7 @@ using Unity.Entities;
 using UnityEngine;
 using UnityEngine.UI;
 using Komodo.Utilities;
+using TMPro;
 
 namespace Komodo.Runtime
 {
@@ -102,7 +103,7 @@ namespace Komodo.Runtime
         public List<LockToggle> modelLockToggleList = new List<LockToggle>();
 
         [HideInInspector]
-        public Text sessionAndBuildName;
+        public TMP_Text sessionAndBuildName;
 
         private ToggleExpandability menuExpandability;
 
@@ -234,9 +235,9 @@ namespace Komodo.Runtime
 
         private void DisplaySessionDetails ()
         {
-            sessionAndBuildName.text = NetworkUpdateHandler.Instance.sessionName;
+            sessionAndBuildName.text = "In Session: " + NetworkUpdateHandler.Instance.sessionName;
 
-            sessionAndBuildName.text += Environment.NewLine +  NetworkUpdateHandler.Instance.buildName;
+         //   sessionAndBuildName.text += Environment.NewLine +  NetworkUpdateHandler.Instance.buildName;
         }
 
         public bool GetCursorActiveState() 
@@ -367,17 +368,23 @@ namespace Komodo.Runtime
                 return;
             }
 
+
+
             var index = entityManager.GetSharedComponentManaged<ButtonIDSharedComponentData>(netObject.entity).buttonID;
 
-            GameObject currentObj = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index).gameObject;
-
-            if (!currentObj)
+            NetworkedGameObject net_go = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index);
+          
+            if (!net_go)
             {
                 Debug.LogError($"Could not get networked game object at {index}");
 
                 return;
             }
 
+
+          //  GameObject currentObj = net_go.gameObject;
+
+           
             if (index > modelVisibilityToggleList.Count || !modelVisibilityToggleList[index])
             {
                 Debug.LogError($"Tried to change state of model lock button, but there was none with index {index}");

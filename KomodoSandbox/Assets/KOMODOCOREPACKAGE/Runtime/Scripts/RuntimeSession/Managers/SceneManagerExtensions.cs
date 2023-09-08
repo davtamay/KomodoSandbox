@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Komodo.Utilities;
 using UnityEngine.Events;
+using System.Linq;
 
 namespace Komodo.Runtime
 {
@@ -92,7 +93,15 @@ namespace Komodo.Runtime
             //check if we are currently loading any scenes. If so, wait for them to be finished to start loading a new one
             for (int i = 0; i < asyncOperations.Count; i++)
             {
-                yield return new WaitUntil(() => asyncOperations[i].isDone);
+                yield return new WaitUntil(() =>
+                {
+
+                if (asyncOperations.Count == 0 || asyncOperations[i].isDone)
+                    return true;
+                else
+                    return false;
+                }
+                );
             }
 
             //clear our loading list
@@ -118,24 +127,37 @@ namespace Komodo.Runtime
                 yield break;
             }
 
+
+            // no index error
             string sceneName = sceneList.references[sceneID].name;
 
             //add the scene that is being loaded to our list keeping track of our loaded scenes and its async process
             loadedAdditiveScenes.Add(sceneName);
 
+            //culprit
+
             asyncOperations.Add(SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive));
 
-            UpdateSceneButtons(sceneID);
+             UpdateSceneButtons(sceneID);
+
+            //   yield break; // index error
 
             //wait for our loading process to finish on our new loading scene
             for (int i = 0; i < asyncOperations.Count; i++)
             {
-                yield return new WaitUntil(() => asyncOperations[i].isDone);
+               
+                yield return new WaitUntil(() => {
+
+                    //check if this function is called again clearing operations,to avoid Index not found error
+                    if (asyncOperations.Count == 0 || asyncOperations[i].isDone)
+                        return true;
+                    else
+                        return false;
+
+
+                    });
             }
-            //foreach (var item in asyncOperations)
-            //{
-            //    yield return new WaitUntil(() => item.isDone);
-            //}
+
 
             //////make our new scene as the active scene to use its light settings
             SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
@@ -143,7 +165,7 @@ namespace Komodo.Runtime
             //Get a reference to our added scene
             additiveScene = SceneManager.GetActiveScene();
 
-            onNewSceneLoaded.Invoke();
+           onNewSceneLoaded.Invoke();
 
             if (isFirstScene)
             {

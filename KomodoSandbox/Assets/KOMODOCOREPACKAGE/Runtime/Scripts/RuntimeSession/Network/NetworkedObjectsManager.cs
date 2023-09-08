@@ -50,14 +50,26 @@ namespace Komodo.Runtime
         // }
 
         public NetworkedGameObject GetNetworkedGameObject(int buttonId)
-        { 
-            //return null;
-            if (buttonId < 0 || buttonId >= ModelImportInitializer.Instance.networkedGameObjects.Count)
+        {
+            if (buttonId >= 0 && buttonId < ModelImportInitializer.Instance.networkedGameObjects.Count)
             {
-                throw new System.Exception("Index is out-of-bounds for the client's networked game objects list.");
+                // Access the networkedGameObject at the specified index
+                // ...
+                return ModelImportInitializer.Instance.networkedGameObjects[buttonId];
             }
+            else
+            {
+                Debug.LogWarning($"buttonId {buttonId} is out of range for networkedGameObjects array.");
+                return null;
+            }
+            //  if(ModelImportInitializer.Instance.networkedGameObjects.)
+            //return null;
+            //if (buttonId < 0 || buttonId >= ModelImportInitializer.Instance.networkedGameObjects.Count)
+            //{
+            //    throw new System.Exception("Index is out-of-bounds for the client's networked game objects list.");
+            //}
 
-            return ModelImportInitializer.Instance.networkedGameObjects[buttonId];
+            
         }
 
         public List<NetworkedGameObject> GetNetworkedSubObjectList(int index)

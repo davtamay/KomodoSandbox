@@ -343,6 +343,17 @@
         window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetOtherClientInfo', JSON.stringify(data))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
         
          });
+
+        
+        
+         
+
+        window.sync.on('request_client_names_response', function (data) {
+
+console.log("GOT CLIENT NAMES" + JSON.stringify(data) );
+        window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientInSessionNames', JSON.stringify(data))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
+        
+         });
          
 //          window.sync.on('get_clientID', function (client_id) {
           
@@ -381,12 +392,27 @@
         });
 
 
-        // window.sync.on('all_sessionIDs', function (sessionInfos) {
+        window.sync.on('entered_new_session', function (sessionState) {
+            window.session_id = JSON.parse(sessionState).session_id;
 
-        // window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetAllSession_IDs', JSON.stringify(sessionInfos))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
-        //  });
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'EnteredNewSession', sessionState)//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
+         });
+
+         window.sync.on('other_join', function (client_id) {
+        //    window.session_id = JSON.parse(sessionState).session_id;
+
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'OnOtherClientJoined', client_id)//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
+         });
 
 
+
+          window.sync.on('send_session_update', function (data) {
+
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'UpdateClientCountInSessionText', data);
+        });
+
+
+        
 
     },
 
@@ -666,7 +692,7 @@
 
             window.sync.emit('unityDisconnect', { client_id: window.client_id, session_id: window.session_id });
             
-           // window.sync.disconnect();
+          //  window.sync.disconnect();
             
 //     return "Are you sure to leave this page?";
         }
@@ -715,7 +741,7 @@ ProvideClientDataToServer: function(data){
 
     SetSessionId: function(session_id) {
 
-        window.session_id = session_id;
+      //  window.session_id = session_id;
   
     },
     //  SetClientId: function(client_id) {
@@ -742,13 +768,22 @@ ProvideClientDataToServer: function(data){
 
 
     RequestToEnteredNewSession :function(data){
-        // var sessionInfo = JSON.parse(UTF8ToString(data));
-
-        // var joinIds = [session_id, window.client_id];
+        
         window.sync.emit('request_to_join_session', UTF8ToString(data));
+
     },
 
 
+     RequestClientNames :function(session_id){
+        
+        window.sync.emit('request_client_names', session_id);
+        
+    },
+
+
+
+
+  
 
     //  GetSessionIdFromServer: function() {
 
@@ -950,8 +985,10 @@ ProvideClientDataToServer: function(data){
             
         var message_str = UTF8ToString(messagePtr);
             
+
+      //     console.log("BrowserEmitMessage SESSION ID: " + window.session_id);
         window.sync.emit('message', {
-            session_id: session_id,
+            session_id: window.session_id,
             client_id: client_id,
             type: type_str,
             message: message_str,
@@ -968,7 +1005,7 @@ ProvideClientDataToServer: function(data){
             return 1;
         }
         
-       // window.sync.disconnect();
+        window.sync.disconnect();
 
         return 0;
     },

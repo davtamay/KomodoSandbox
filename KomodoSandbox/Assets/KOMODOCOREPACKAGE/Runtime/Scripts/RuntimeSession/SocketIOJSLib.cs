@@ -52,9 +52,12 @@ namespace Komodo.Runtime
         //[DllImport("__Internal")]
         //public static extern void ListenForPageUnload(int client_id);
 
-
         [DllImport("__Internal")]
-        public static extern void SetSessionId(int session_id);
+        public static extern void RequestClientNames(int session_id);
+
+
+        //[DllImport("__Internal")]
+        //public static extern void SetSessionId(int session_id);
 
 
 
@@ -95,6 +98,9 @@ namespace Komodo.Runtime
 
         [DllImport("__Internal")]
         public static extern void RequestToEnteredNewSession(string sessionInfo);
+
+        //[DllImport("__Internal")]
+        //public static extern void ReceiveClientInSessionNames(string names);
 
         // [DllImport("__Internal")]
         // private static extern void InitSocketIOReceivePosition(float[] array, int size);

@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Entities;
 using Komodo.Utilities;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Komodo.Runtime
 {
@@ -25,6 +26,15 @@ namespace Komodo.Runtime
             var forceAlive = Instance;
 
             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+
+            //string jsonData = "{\"1\":\"Alice\",\"2\":\"Bob\",\"3\":\"Charlie\"}";
+            //Dictionary<string, string> clientDataDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonData);
+
+            //foreach (var item in clientDataDict)
+            //{
+            //    Debug.Log(item.Value);
+
+            //}
         }
 
    
@@ -103,10 +113,11 @@ namespace Komodo.Runtime
 
         public void ApplyCatchup()
         {
-            if (!UIManager.IsAlive)
-            {
-                Debug.LogWarning("Tried to process session state for lock and visibility, but there was no UIManager.");
-            }
+
+            //if (!UIManager.IsAlive)
+            //{
+            //    Debug.LogWarning("Tried to process session state for lock and visibility, but there was no UIManager.");
+            //}
 
             if (!SceneManagerExtensions.IsAlive)
             {
@@ -127,31 +138,8 @@ namespace Komodo.Runtime
             //at times gives argument index error
             SceneManagerExtensions.Instance.SelectScene(_state.scene);
 
-            ClientSpawnManager.Instance.AddNewClients(_state.clients);
 
-            //foreach (EntityState entityState in _state.entities)
-            //{
-            //    NetworkedGameObject netObject = GetNetObjectFromEntityState(entityState);
-
-            //    if (netObject == null)
-            //    {
-            //        Debug.LogWarning($"Could not catch up state for entity with ID {entityState.id}. Skipping.");
-
-            //        continue;
-            //    }
-
-            //    UIManager.Instance.ProcessNetworkToggleVisibility(netObject.thisEntityID, entityState.render);
-
-            //    int interactionType = entityState.locked ? (int)INTERACTIONS.LOCK : (int)INTERACTIONS.UNLOCK;
-
-            //    ApplyInteraction(new Interaction(
-            //        sourceEntity_id: -1,
-            //        targetEntity_id: entityState.id,
-            //        interactionType: interactionType
-            //    ));
-
-            //    ApplyPosition(entityState.latest);
-            //}
+            ClientSpawnManager.Instance.AddNewClients(_state.clients, _state.latestClientPositions, _state.latestClientRotations);
 
 
             for (int i = 0; i < _state.entities.Length; i++)
@@ -231,9 +219,33 @@ namespace Komodo.Runtime
             }
         }
 
+        public void ApplyNamesForClientsInSession(string data)
+        {
+            //Dictionary<int, string> clientDataDict = JsonUtility.FromJson<Dictionary<int, string>>(data);
+            Dictionary<int, string> clientDataDict = JsonConvert.DeserializeObject<Dictionary<int, string>>(data);
+
+            Debug.Log($"Received COUNT: {clientDataDict.Count} ");
+            foreach (var item in clientDataDict)
+            {
+                SpeechToTextSnippet snippet;
+                snippet.target = item.Key;
+                snippet.text = item.Value;
+                snippet.stringType = (int)STRINGTYPE.CLIENT_NAME;
+
+                Debug.Log($"Received INFO: {item.Key} ");
+
+                ClientSpawnManager.Instance.ProcessSpeechToTextSnippet(snippet);
+            }
+            //var data = JsonUtility.FromJson<OtherClientInfo>(clientNames);
+
+            //     var deserializedData = JsonUtility.FromJson<SpeechToText>(data);
+           
+
+        }
+
         public void ApplyInteraction(Interaction interactionData)
         {
-            NetworkedObjectsManager.Instance.ApplyInteraction(interactionData);
+           NetworkedObjectsManager.Instance.ApplyInteraction(interactionData);
         }
     }
 }

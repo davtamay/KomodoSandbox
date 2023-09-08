@@ -41,6 +41,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using Komodo.AssetImport;
 using Komodo.Utilities;
+using TMPro;
 
 namespace Komodo.Runtime
 {
@@ -73,6 +74,8 @@ namespace Komodo.Runtime
     //}
         [HideInInspector] public string sessionName;
         [HideInInspector] public string buildName;
+
+        public bool wasSessionChanged;
 
         // client_id from JS
         [HideInInspector] public int client_id;
@@ -153,6 +156,19 @@ namespace Komodo.Runtime
             return pos;
         }
 
+      //  public Dictionary<int, int> clientsInSessions = new Dictionary<int, int>();
+        public Dictionary<int, TMP_Text> sessionsToCountTextDictionary = new Dictionary<int, TMP_Text>();
+
+        public void UpdateClientSize(int session_id, int clientCount)
+        {
+            if (sessionsToCountTextDictionary.ContainsKey(session_id))
+            {
+               TMP_Text txt = sessionsToCountTextDictionary[session_id];
+
+                txt.text = clientCount.ToString();
+            }
+
+        }
         private void _CreateSocketSimulator()
         {
             // #if UNITY_WEBGL && !UNITY_EDITOR 
@@ -362,7 +378,13 @@ namespace Komodo.Runtime
         public void SendSyncPoseMessage(Position pos)
         {
             Debug.Log("Sending Dat : " + "to session : " + session_id  + "  from: " + client_id + "  : "+ pos);
+         //   pos.pos += MainClientUpdater.Instance.posOffset;
+           // pos.rot *= 
+
+
             var posString = JsonUtility.ToJson(pos);
+
+
 
             var message = new KomodoMessage("sync", posString);
 

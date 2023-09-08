@@ -161,6 +161,20 @@ namespace Komodo.Runtime
         private float positionThreshold = 0.001f; // Adjust the threshold value as needed
         private float rotationThreshold = 0.001f; // Adjust the threshold value as needed
 
+        public Vector3 posOffset;
+        public Vector3 GetPosOffset() =>  posOffset;
+
+
+        public Quaternion rotationOffset;
+        public Quaternion GetRotOffset() =>  rotationOffset;
+
+        public void SetTransformOffset(Vector3 pOffset, Quaternion rOffset)
+        {
+            posOffset= pOffset;
+            rotationOffset= rOffset;
+
+            Debug.Log("POSOFFSET : " + posOffset);
+        }
         public void OnUpdate(float realTime)
         {
             //  Debug.Log("on update running");
@@ -171,7 +185,10 @@ namespace Komodo.Runtime
             if (Vector3.Distance(headEntityTransform.position, previousPosition) > positionThreshold ||
                 Quaternion.Angle(headEntityTransform.rotation, previousRotation) > rotationThreshold)
             {
+                //SendSyncPosition(Entity_Type.users_head, headEntityTransform.position + posOffset, headEntityTransform.rotation); 
                 SendSyncPosition(Entity_Type.users_head, headEntityTransform.position, headEntityTransform.rotation);
+
+
 
                 previousPosition = headEntityTransform.position;
                 previousRotation = headEntityTransform.rotation;

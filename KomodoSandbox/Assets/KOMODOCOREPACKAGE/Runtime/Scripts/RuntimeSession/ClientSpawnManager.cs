@@ -46,6 +46,8 @@ using Unity.Transforms;
 using Komodo.Utilities;
 
 using Unity.Collections;
+using TMPro;
+using System.Linq;
 //using Komodo.AssetImport;
 
 namespace Komodo.Runtime
@@ -87,6 +89,15 @@ namespace Komodo.Runtime
 
         //References for displaying user name tags and speechtotext text
         private List<Text> clientUsernameDisplays = new List<Text>();
+        private Dictionary<int, TMP_Text> clientUsernameMenuDisplay = new Dictionary<int, TMP_Text>();
+        public Dictionary<int, TMP_Text> GetUsernameMenuDisplayDictionary() =>  clientUsernameMenuDisplay;
+
+        public void AddToUsernameMenuLabelDictionary(int client_id, TMP_Text text)
+        {
+            clientUsernameMenuDisplay.Add(client_id,text);
+        }
+
+
         private List<Text> clientSpeechToTextDisplays = new List<Text>();
 
         #region Lists And Dictionaries to store references in scene
@@ -126,14 +137,21 @@ namespace Komodo.Runtime
             var initManager = Instance;
 
             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+
+            StartCoroutine(InstantiateReservedAvatars());
         }
 
         #region Initiation process --> ClientAvatars --> URL Downloads --> UI Setup --> SyncState
 
-        //public void Start()
-        //{
-        //    Net_IntantinateClients();
-        //}
+   
+        public IEnumerator InstantiateReservedAvatars() {
+
+            yield return StartCoroutine(InstantiateReservedClients());
+
+            GameStateManager.Instance.isAvatarLoadingFinished = true;
+
+        }
+
         public void Net_IntantinateClients()
         {
 
@@ -161,11 +179,11 @@ namespace Komodo.Runtime
 
             //wait until our avatars are setup in the scene
             //yield return StartCoroutine(InstantiateReservedClients());
-            StartCoroutine(InstantiateReservedClients());
+            //StartCoroutine(InstantiateReservedClients());
 
-            GameStateManager.Instance.isAvatarLoadingFinished = true;
+            //GameStateManager.Instance.isAvatarLoadingFinished = true;
 
-              AddOwnClient();
+            //  AddOwnClient();
 
             // if (UIManager.IsAlive)
             // {
@@ -257,7 +275,7 @@ namespace Komodo.Runtime
         //to indicate where our client should be placed considering early initiation calls
         private int mainClientIndex = -1;
 
-        public void AddNewClients(int[] clientIDs)
+        public void AddNewClients(int[] clientIDs, float[] clientLatestPos, float[] clientLatestRot)
         {
             //foreach (var clientID in clientIDs)
             //{
@@ -266,12 +284,28 @@ namespace Komodo.Runtime
             //        AddNewClient(clientID);
             //    }
             //}
+           // var list = clientIDs.ToList<int>();
+
+            Debug.Log("RECEIVED UPDATED STATE FOR NEW SESSION CLIENT PRESENT: " + clientIDs);
             for (int i = 0; i < clientIDs.Length; i++)
             {
                 int clientID = clientIDs[i];
+
+                int index = i * 3;
+
+                int indexRot = i * 4;
+                // int index = list.IndexOf(clientID);
+
+                // Debug.Log(new Vector3(clientLatestPos[  index ], clientLatestPos[index + 1], clientLatestPos[index + 2]));
+            //    Debug.Log(new Quaternion(clientLatestRot[indexRot], clientLatestRot[indexRot + 1], clientLatestRot[indexRot + 3], clientLatestRot[indexRot + 4]));
+
                 if (clientID != NetworkUpdateHandler.Instance.client_id)
                 {
-                    AddNewClient(clientID);
+                    AddNewClient(clientID, false,
+                        new Vector3(clientLatestPos[index], clientLatestPos[index + 1], clientLatestPos[index + 2]),
+                        new Quaternion(clientLatestRot[indexRot], clientLatestRot[indexRot + 1], clientLatestRot[indexRot + 2], clientLatestRot[indexRot + 3])
+
+                        ); 
                 }
             }
         }
@@ -295,9 +329,12 @@ namespace Komodo.Runtime
 
             clientIDs.Add(clientID);
 
-           
 
-            mainClientName = NetworkUpdateHandler.Instance.GetPlayerNameFromClientID(clientID);
+            //mainClientName = NetworkUpdateHandler.Instance.GetPlayerNameFromClientID(clientID);
+
+            //UIManager.Instance.clientTagSetup.CreateTextFromString(mainClientName, clientID, true);
+            Debug.Log("nextAvailableSlot : " + nextAvailableSlot);
+
 
             gameObjects[nextAvailableSlot].SetActive(false);
 
@@ -320,6 +357,8 @@ namespace Komodo.Runtime
 
                 handsParent.transform.rotation = new Quaternion(ROT.x, ROT.y, ROT.z, ROT.w);
 #endif
+            MainClientUpdater.Instance.SetTransformOffset(temp.position, Quaternion.identity);
+
             //Turn Off Dummy 
             var parObject = temp.parent.parent.gameObject;
 
@@ -441,7 +480,7 @@ namespace Komodo.Runtime
             nextAvailableSlot += 1;
         }
 
-        public void AddNewClient(int clientID, bool isMainPlayer = false)
+        public void AddNewClient(int clientID, bool isMainPlayer = false, Vector3 latestClientPosition = default, Quaternion latestClientRotation = default)
         {
             if (clientID == NetworkUpdateHandler.Instance.client_id && !isMainPlayer)
             {
@@ -523,6 +562,20 @@ namespace Komodo.Runtime
                     UIManager.Instance.clientTagSetup.CreateTextFromString(nameLabel, clientID);
                 }
 
+                nextAvailableSlot += 1;
+
+                var temp = avatarEntityGroupFromClientId[clientID].transform;
+                if(latestClientPosition != default(Vector3))
+                {
+                    temp.position = latestClientPosition;
+                }
+
+                if (latestClientRotation != default(Quaternion))
+                {
+                    temp.rotation = latestClientRotation;
+                }
+                
+
                 //select how to handle avatars
                 if (isMainPlayer)
                 {
@@ -530,7 +583,7 @@ namespace Komodo.Runtime
 
                     mainClientIndex = i;
 
-                    var temp = avatarEntityGroupFromClientId[clientID].transform;
+                 //   var temp = avatarEntityGroupFromClientId[clientID].transform;
 
                     var ROT = entityManager.GetComponentData<LocalTransform>(avatarEntityGroupFromClientId[clientID].rootEntity).Rotation.value;//.entity_data.rot;
 
@@ -583,6 +636,8 @@ namespace Komodo.Runtime
                 }
                 break;
             }
+
+           
         }
         public void RemoveClient (int clientID)
         {
@@ -613,7 +668,8 @@ namespace Komodo.Runtime
         {
             if (UIManager.IsAlive)
             {
-                UIManager.Instance.clientTagSetup.DeleteTextFromString(usernameFromClientId[clientID]);
+                //UIManager.Instance.clientTagSetup.DeleteTextFromString(usernameFromClientId[clientID]);
+                UIManager.Instance.clientTagSetup.DeleteTextFromString(clientID);
             }
             else
             {
@@ -632,9 +688,11 @@ namespace Komodo.Runtime
                     Debug.LogError($"Couldn't destroy client {clientID} because avatarEntityGroupFromClientId didn't contain an entry for it.");
 
                     return;
+
                 }
 
-                avatarEntityGroupFromClientId[clientID].transform.parent.gameObject.SetActive(false);
+                if (avatarEntityGroupFromClientId.ContainsKey(clientID))
+                    avatarEntityGroupFromClientId[clientID].transform.parent.gameObject.SetActive(false);
 
                 return;
             }
@@ -684,7 +742,8 @@ namespace Komodo.Runtime
                     await Task.Delay(1);
 
                 if (UIManager.IsAlive)
-                    UIManager.Instance.clientTagSetup.DeleteTextFromString(usernameFromClientId[clientID]);
+                    UIManager.Instance.clientTagSetup.DeleteTextFromString(clientID);
+                //  UIManager.Instance.clientTagSetup.DeleteTextFromString(usernameFromClientId[clientID]);
 
                 avatarEntityGroupFromClientId[clientID].transform.parent.gameObject.SetActive(false);
                 //   _availableClientIDToGODict.Remove(clientID);
@@ -854,15 +913,28 @@ namespace Komodo.Runtime
 
                 case (int)STRINGTYPE.SPEECH_TO_TEXT:
                     //Get client index for text look up to use for displaying
-                    var clientIndex = avatarIndexFromClientId[newText.target];
+                    var clientAvatarIndex = avatarIndexFromClientId[newText.target];
                     string foo = SplitWordsByLength(newText.text, maxWordsPerBubble);
-                    StartCoroutine(SetTextTimer(clientIndex, foo, secondsPerWord * Mathf.Log(newText.text.Length)));
+                    StartCoroutine(SetTextTimer(clientAvatarIndex, foo, secondsPerWord * Mathf.Log(newText.text.Length)));
                     break;
 
                 case (int)STRINGTYPE.CLIENT_NAME:
 
-                    clientIndex = avatarIndexFromClientId[newText.target];
-                    clientUsernameDisplays[clientIndex].text = newText.text;
+                    clientAvatarIndex = avatarIndexFromClientId[newText.target];
+                    clientUsernameDisplays[clientAvatarIndex].text = newText.text;
+
+
+                    if (clientUsernameMenuDisplay.ContainsKey(newText.target))
+                    {
+                        if (newText.target != NetworkUpdateHandler.Instance.client_id)
+                            clientUsernameMenuDisplay[newText.target].text = newText.text;
+                        else
+                            UIManager.Instance.clientTagSetup.CreateTextFromString(newText.text, newText.target, true);
+                          //  clientUsernameMenuDisplay[newText.target].text = "Logged in as: " + newText.text;
+                    }
+                    else
+                        Debug.Log("Client " + newText.target + "not found");
+
                     break;
             }
         }

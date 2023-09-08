@@ -109,6 +109,8 @@ public class ImpressMainClientUpdater : SingletonComponent<ImpressMainClientUpda
         {
             clientId = entityData.clientID,
 
+
+
             entityId = entityData.entityID,
 
             entityType = (int)entityData.current_Entity_Type,

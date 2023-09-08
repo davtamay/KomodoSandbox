@@ -57,13 +57,17 @@ namespace Komodo.Runtime
 
         public IEnumerator Start()
         {
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            SocketIOJSLib.ListenForClientIdFromServer();
+#endif
             SetSyncEventListeners();
             SetChatEventListeners();
 
             yield return null;
 
-           
-           // SendStateCatchUpRequest();
+
+            // SendStateCatchUpRequest();
             createJoinAndStart.RequestClientID();
 
         }
@@ -73,28 +77,67 @@ namespace Komodo.Runtime
             NetworkUpdateHandler.Instance.client_id = clientID;
             NetworkUpdateHandler.Instance.session_id = 1;
 
-            //     createJoinAndStart.ShowSessionPanel();
-
-
             ClientSpawnManager.Instance.Net_IntantinateClients();
 
 
             JoinSyncSession();
             JoinChatSession();
 
-            SendStateCatchUpRequest();
+            // SendStateCatchUpRequest();
+
+
+            //ui name label
+            string nameLabel = NetworkUpdateHandler.Instance.GetPlayerNameFromClientID(clientID);
+            UIManager.Instance.clientTagSetup.CreateTextFromString(nameLabel, clientID, true);
+
+
 
             MainClientUpdater.Instance.Net_StartSendingPlayerUpdatesToServer();
 
             SocketIOJSLib.RequestLobbySessionFromServer();
 
 
-
             SocketIOJSLib.RequestAllSessionIdsFromServer();
 
             NetworkUpdateHandler.Instance.Net_InitSyncLiteners();
+
+
+            //maybe we didnt receive catch up yet so will fail to get that info
+            //SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
             // SocketIOJSLib.ListenForPageUnload(clientID);
         }
+
+        public void EnteredNewSession(string sessionState)
+        {
+
+
+            var state = JsonUtility.FromJson<SessionState>(sessionState);
+
+            //LeaveSyncSession();
+
+            //LeaveChatSession();
+
+
+            NetworkUpdateHandler.Instance.session_id = CreateJoinAndStartSession.selectedSession;
+            //ClientSpawnManager.Instance.RemoveAllClients();
+
+            JoinSyncSession();
+
+            JoinChatSession();
+
+
+            //   SessionStateManager.Instance.SetSessionState(state);
+
+            //ClientSpawnManager.Instance.RemoveAllClients();
+
+            // SessionStateManager.Instance.ApplyCatchup();
+            SendStateCatchUpRequest();
+
+
+            //SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
+
+        }
+
 
         // Set the window.socketIOAdapterName variable in JS so that SendMessage calls in jslib are guaranteed to talk to the gameObject that has this script on it.
         public void SetName()
@@ -113,6 +156,23 @@ namespace Komodo.Runtime
 
                 connectionAdapter.DisplaySocketIOAdapterError($"window.socketIOAdapterName: Expected: {gameObject.name}, Actual: {nameOnWindow}");
             }
+        }
+
+
+        [System.Serializable]
+        public struct SessionDetails
+        {
+            public int session_id;
+            public int clientCount;
+        }
+
+        public void UpdateClientCountInSessionText(string sessionText)
+        {
+            Debug.Log(sessionText);
+            var data = JsonUtility.FromJson<SessionDetails>(sessionText);
+
+            NetworkUpdateHandler.Instance.UpdateClientSize(data.session_id, data.clientCount);
+
         }
 
         public void OpenConnectionAndJoin()
@@ -462,13 +522,27 @@ namespace Komodo.Runtime
             connectionAdapter.DisplaySessionInfo(info);
         }
 
+        public bool isFirstCatchup;
         public void OnReceiveStateCatchup(string packedData)
         {
+            ClientSpawnManager.Instance.RemoveAllClients();
+
+
+
             var state = JsonUtility.FromJson<SessionState>(packedData);
 
             SessionStateManager.Instance.SetSessionState(state);
 
-         //   SessionStateManager.Instance.ApplyCatchup();
+            SessionStateManager.Instance.ApplyCatchup();
+
+            SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
+
+
+            if (!isFirstCatchup)
+            {
+                ClientSpawnManager.Instance.AddOwnClient();
+                isFirstCatchup = true;
+            }
         }
 
         public void OnClientJoined(int client_id)
@@ -492,6 +566,13 @@ namespace Komodo.Runtime
             connectionAdapter.DisplayFailedToJoin(session_id);
 
             ClientSpawnManager.Instance.DisplayOwnClientIsDisconnected();
+        }
+
+        public void OnOtherClientJoined(int client_id)
+        {
+            SendStateCatchUpRequest();
+            //   Debug.Log($"OTHER CLIENT JOIN({client_id})");
+            //  ClientSpawnManager.Instance.AddNewClient(client_id);
         }
 
         public void OnOtherClientLeft(int client_id)
@@ -533,7 +614,7 @@ namespace Komodo.Runtime
 
         public void OnMessage(string typeAndMessage)
         {
-           // Debug.Log("Receiving Messages");
+            // Debug.Log("Receiving Messages");
             netUpdateHandler.ProcessMessage(typeAndMessage);
         }
 
@@ -543,17 +624,35 @@ namespace Komodo.Runtime
         }
 
 
+        [System.Serializable]
+        public struct ClientData
+        {
+            public int id;
+            public string name;
+        }
+
+        public void ReceiveClientInSessionNames(string clientNames)
+        {
+            //    Debug.Log(clientNames);
+            SessionStateManager.Instance.ApplyNamesForClientsInSession(clientNames);
+
+
+        }
 
 
         public void GetSession_ID(string sessionInfo)
         {
             Debug.Log(sessionInfo);
 
-            SessionInfo sInfo =  JsonUtility.FromJson<SessionInfo>(sessionInfo);
-           // NetworkUpdateHandler.Instance.session_id = sessionID;
-            createJoinAndStart.ServerCreate(sInfo.id,sInfo.name,sInfo.date, true);
+            SessionInfo sInfo = JsonUtility.FromJson<SessionInfo>(sessionInfo);
+
+            //set custom lobby info
+            if (sInfo.id != 1)
+                createJoinAndStart.ServerCreate(sInfo.id, sInfo.name, sInfo.date, true);
+            else
+                createJoinAndStart.ServerCreate(sInfo.id, "LOBBY ROOM", sInfo.date, true);
         }
-      
+
         public void GetAllSession_IDs(string sessionInfosString)
         {
 
@@ -561,15 +660,7 @@ namespace Komodo.Runtime
 
 
             List<SessionInfo> sessionInfos = JsonConvert.DeserializeObject<List<SessionInfo>>(sessionInfosString);
-            // List<SessionInfo> sessionInfos = JsonConvert.DeserializeObject<List<SessionInfo>>(sessionInfosString);
-            // SessionInfo[] sessionInfos = JsonUtility.FromJson<SessionInfo[]>(sessionInfosString);
-            //SessionInfoArray sessionInfos = JsonUtility.FromJson<SessionInfoArray>(sessionInfosString);
 
-
-            //for (int i = 0; i < sessionInfos.sessionInfos.Length; i++)
-            //{
-            //    createJoinAndStart.ServerCreate(sessionInfos.sessionInfos[i].id, sessionInfos.sessionInfos[i].name, sessionInfos.sessionInfos[i].date, true);
-            //}
             foreach (var info in sessionInfos)
             {
                 createJoinAndStart.ServerCreate(info.id, info.name, info.date, true);
@@ -583,7 +674,7 @@ namespace Komodo.Runtime
 
             var data = JsonUtility.FromJson<OtherClientInfo>(otherClientInfoString);
 
-       //     var deserializedData = JsonUtility.FromJson<SpeechToText>(data);
+            //     var deserializedData = JsonUtility.FromJson<SpeechToText>(data);
             SpeechToTextSnippet snippet;
             snippet.target = data.id;
             snippet.text = data.name;
@@ -593,6 +684,8 @@ namespace Komodo.Runtime
             ClientSpawnManager.Instance.ProcessSpeechToTextSnippet(snippet);
         }
 
+
+       
 
 
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,40 +12,112 @@ namespace Komodo.Runtime
         public Transform transformToAddTextUnder;
         public GameObject textProfile;
 
-        Dictionary<string, GameObject> clientIDsToLabelGO = new Dictionary<string, GameObject>();
+        Dictionary<int, TMP_Text> clientIDsToLabelGO = new Dictionary<int, TMP_Text>();
+      
+        public TMP_Text mainClientName;
 
-        public void CreateTextFromString(string clientTextLabel, int clientID)
+        public ShareMediaConnection shareMediaConnection;
+
+        public void Start()
         {
-            if (!clientIDsToLabelGO.ContainsKey(clientTextLabel))
+            clientIDsToLabelGO = ClientSpawnManager.Instance.GetUsernameMenuDisplayDictionary();
+        }
+        //Dictionary<string, GameObject> clientIDsToLabelGO = new Dictionary<string, GameObject>();
+
+
+        public void CreateTextFromString(string clientTextLabel, int clientID, bool isLocalClient = false)
+        {
+            if (isLocalClient)
+            {
+                if (!clientIDsToLabelGO.ContainsKey(clientID))
+                    clientIDsToLabelGO.Add(clientID, mainClientName);
+
+
+                mainClientName.text = "Logged in as: <color=blue>" + clientTextLabel + "</color>";
+               // mainClientName.color = Color.blue;
+
+                return;
+            }
+
+
+            if (!clientIDsToLabelGO.ContainsKey(clientID))
             {
                 //wait to create text until position is situated
                 var newObj = Instantiate(textProfile);
-                clientIDsToLabelGO.Add(clientTextLabel, newObj);
 
-                var newText = newObj.GetComponentInChildren<Text>(true);
 
-                clientIDsToLabelGO[clientTextLabel] = newObj;
+                var newButton = newObj.GetComponent<Button>();
+                newButton.onClick.AddListener(() =>
+                {
+
+                    shareMediaConnection.SetClientForMediaShare(clientID);
+
+
+                });
+
+
+                var newText = newObj.GetComponentInChildren<TMP_Text>(true);
+
+              
+
+                clientIDsToLabelGO.Add(clientID, newText);
+
+
+              //  clientIDsToLabelGO[clientID] = newText;
 
                 newText.text = clientTextLabel;
                 newObj.transform.SetParent(transformToAddTextUnder, false);
+
+
+                
+
+
+                //ClientSpawnManager.Instance.AddToUsernameMenuLabelDictionary(clientID, newText);
             }
             else
                 Debug.Log("CLIENT LABEL + " + clientTextLabel + " Already exist");
         }
 
-        public void DeleteTextFromString(string clientID)
+        //public void CreateTextFromString(string clientTextLabel, int clientID)
+        //{
+        //    var clientIDsToLabelGO = ClientSpawnManager.Instance.GetUsernameMenuDisplayDictionary(); 
+
+        //    if (!clientIDsToLabelGO.ContainsKey(clientTextLabel))
+        //    {
+        //        //wait to create text until position is situated
+        //        var newObj = Instantiate(textProfile);
+
+        //        clientIDsToLabelGO.Add(clientTextLabel, newObj);
+
+        //        var newText = newObj.GetComponentInChildren<Text>(true);
+
+
+        //        clientIDsToLabelGO[clientTextLabel] = newObj;
+
+        //        newText.text = clientTextLabel;
+        //        newObj.transform.SetParent(transformToAddTextUnder, false);
+
+
+        //        ClientSpawnManager.Instance.AddToUsernameMenuLabelDictionary(clientID, newText);
+        //    }
+        //    else
+        //        Debug.Log("CLIENT LABEL + " + clientTextLabel + " Already exist");
+        //}
+
+        public void DeleteTextFromString(int clientID)
         {
             DeleteClientID_Await(clientID);
         }
 
-        public async void DeleteClientID_Await(string clientID)
+        public async void DeleteClientID_Await(int clientID)
         {
             if (clientIDsToLabelGO.ContainsKey(clientID))
             {
-                while (clientIDsToLabelGO[clientID] == null)
+                while (!clientIDsToLabelGO.ContainsKey(clientID)) //clientIDsToLabelGO[clientID] == null)
                     await Task.Delay(1);
 
-                Destroy(clientIDsToLabelGO[clientID]);
+                //DELETE Button Parent not only test
+                Destroy(clientIDsToLabelGO[clientID].transform.parent.gameObject);
                 clientIDsToLabelGO.Remove(clientID);
 
             }
@@ -52,6 +125,22 @@ namespace Komodo.Runtime
                 Debug.Log("Client Does not exist");
 
         }
+
+        //public async void DeleteClientID_Await(string clientID)
+        //{
+        //    if (clientIDsToLabelGO.ContainsKey(clientID))
+        //    {
+        //        while (clientIDsToLabelGO[clientID] == null)
+        //            await Task.Delay(1);
+
+        //        Destroy(clientIDsToLabelGO[clientID]);
+        //        clientIDsToLabelGO.Remove(clientID);
+
+        //    }
+        //    else
+        //        Debug.Log("Client Does not exist");
+
+        //}
 
     }
 }

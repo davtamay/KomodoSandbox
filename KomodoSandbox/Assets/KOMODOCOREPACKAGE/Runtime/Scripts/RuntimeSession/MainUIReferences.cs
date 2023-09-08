@@ -1,4 +1,5 @@
 using Komodo.Utilities;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,7 +24,7 @@ namespace Komodo.Runtime
 
         public Button drawButton;
 
-        public Text sessionAndBuildText;
+        public TMP_Text sessionAndBuildText;
 
         private Canvas mainUICanvas;
 
