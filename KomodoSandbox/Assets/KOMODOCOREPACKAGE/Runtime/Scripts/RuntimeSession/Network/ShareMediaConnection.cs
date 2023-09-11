@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Komodo.Runtime
 {
@@ -10,8 +12,10 @@ namespace Komodo.Runtime
         public GameObject shareMediaUI;
         public int currentClientIDSelected;
         public MediaType currentMediaType = MediaType.TEXT;
-        
 
+
+
+        public TMP_Text localInputChat;
 
         public void SetClientForMediaShare(int clientID)
         {
@@ -25,6 +29,29 @@ namespace Komodo.Runtime
 
 
         }
+
+        public void SendTextToClient()
+        {
+           
+         //   localInputChat.text;
+
+
+
+        }
+
+        public void SendTextToSession()
+        {
+
+
+
+        }
+        public void SendTextToWorld()
+        {
+
+
+
+        }
+
 
         public void InvokeMediaShare()
         {

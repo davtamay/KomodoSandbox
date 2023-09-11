@@ -33,7 +33,7 @@ namespace Komodo.Runtime
                     clientIDsToLabelGO.Add(clientID, mainClientName);
 
 
-                mainClientName.text = "Logged in as: <color=blue>" + clientTextLabel + "</color>";
+                mainClientName.text = "Logged in as: <b><color=white>" + clientTextLabel + "</color></b>";
                // mainClientName.color = Color.blue;
 
                 return;

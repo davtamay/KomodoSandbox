@@ -9,6 +9,15 @@ using UnityEngine.UI;
 namespace Komodo.Runtime
 {
     [Serializable]
+    public struct ServerSessions
+    {
+        public int id;
+        public List<int> clients;
+        public string name;
+        public string date;
+    }
+
+    [Serializable]
     public struct SessionInfo
     {
         public int id;

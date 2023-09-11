@@ -187,6 +187,12 @@ namespace Komodo.Runtime
             DebugLog("OnMicText");
             _ClientSpawnManager.OnReceiveSpeechToTextSnippet(jsonStringifiedData);
         }
+        //public void OnChatText(string jsonStringifiedData)
+        //{
+        //    DebugLog("OnChatText");
+        //    _ClientSpawnManager.OnReceiveSpeechToTextSnippet(jsonStringifiedData);
+        //}
+
 
         public int SetChatEventListeners()
         {
