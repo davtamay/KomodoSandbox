@@ -659,12 +659,19 @@ namespace Komodo.Runtime
             Debug.Log(sessionInfosString);
 
 
-            List<SessionInfo> sessionInfos = JsonConvert.DeserializeObject<List<SessionInfo>>(sessionInfosString);
+            List<ServerSessions> sessionInfos = JsonConvert.DeserializeObject<List<ServerSessions>>(sessionInfosString);
 
             foreach (var info in sessionInfos)
             {
                 createJoinAndStart.ServerCreate(info.id, info.name, info.date, true);
+
+                NetworkUpdateHandler.Instance.UpdateClientSize(info.id, info.clients.Count);
+          
+            
             }
+
+    
+
         }
 
 
