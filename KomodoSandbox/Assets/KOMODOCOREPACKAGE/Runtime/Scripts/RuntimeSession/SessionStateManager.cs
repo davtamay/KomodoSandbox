@@ -224,6 +224,9 @@ namespace Komodo.Runtime
             //Dictionary<int, string> clientDataDict = JsonUtility.FromJson<Dictionary<int, string>>(data);
             Dictionary<int, string> clientDataDict = JsonConvert.DeserializeObject<Dictionary<int, string>>(data);
 
+
+          
+
             Debug.Log($"Received COUNT: {clientDataDict.Count} ");
             foreach (var item in clientDataDict)
             {
@@ -233,6 +236,19 @@ namespace Komodo.Runtime
                 snippet.stringType = (int)STRINGTYPE.CLIENT_NAME;
 
                 Debug.Log($"Received INFO: {item.Key} ");
+
+
+
+                //update main list for client;
+               if(NetworkUpdateHandler.Instance.clientIDToName.ContainsKey(item.Key))
+                    NetworkUpdateHandler.Instance.clientIDToName[item.Key] = item.Value;
+               else
+                    NetworkUpdateHandler.Instance.clientIDToName.Add(item.Key, item.Value);
+
+
+
+
+
 
                 ClientSpawnManager.Instance.ProcessSpeechToTextSnippet(snippet);
             }

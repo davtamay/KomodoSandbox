@@ -20,17 +20,20 @@ namespace Komodo.Runtime
 
         public string data;
 
-        public KomodoMessage(string type, string messageData)
+        public int sendTo;
+
+        public KomodoMessage(string type, string messageData, int sendTo = 0)
         {
             this.type = type;
             this.data = messageData;
+            this.sendTo = sendTo;
         }
 
         public void Send()
         {
-            
+
 #if UNITY_WEBGL && !UNITY_EDITOR
-             SocketIOJSLib.BrowserEmitMessage(this.type, this.data);
+             SocketIOJSLib.BrowserEmitMessage(this.type, this.data, this.sendTo);
 #else
             var socketSim = SocketIOEditorSimulator.Instance;
 

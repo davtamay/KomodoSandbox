@@ -27,4 +27,14 @@ namespace Komodo.Runtime
         public string type;
         public int ts;
     }
+
+    public struct SendText
+    {
+        public int session_id;
+        public int client_id;
+        public string text;
+        public int type;
+    }
+
+
 }

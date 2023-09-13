@@ -127,8 +127,9 @@ namespace Komodo.Runtime
         public static extern string GetSessionDetails();
 
         // TODO(rob): move this to GlobalMessageManager.cs
+        //sendTo = -1 (To all), 0 (To all Except sender), clientID (to target clientID)
         [DllImport("__Internal")]
-        public static extern void BrowserEmitMessage(string type, string message);
+        public static extern void BrowserEmitMessage(string type, string message, int sendTo = 0);
 
         [DllImport("__Internal")]
         public static extern int LeaveSyncSession();

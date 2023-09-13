@@ -729,21 +729,12 @@ ProvideClientDataToServer: function(data){
     
     
 
-//listener for session id from server
-    // ListenForSessionIdFromServer: function() {
 
-    //      window.sync.on('get_sessionID', function (session_id) {
+    // SetSessionId: function(session_id) {
 
-    //         window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetSession_ID', session_id);
-    //     });
-      
-    // },
-
-    SetSessionId: function(session_id) {
-
-      //  window.session_id = session_id;
+    //   //  window.session_id = session_id;
   
-    },
+    // },
     //  SetClientId: function(client_id) {
 
     //     window.session_id = session_id;
@@ -966,8 +957,11 @@ ProvideClientDataToServer: function(data){
         return 0;
     },
 
+
     // general messaging system
-    BrowserEmitMessage: function (typePtr, messagePtr) {
+     //sendTo = -1 (To all), 0 (To all Except sender), clientID (to target clientID)
+    BrowserEmitMessage: function (typePtr, messagePtr, sendTo) {
+
 
         if (window.session_id == undefined || window.session_id == null || !window.session_id) {
          //   console.warn("BrowserEmitMessage: window.session_id was null");
@@ -985,6 +979,7 @@ ProvideClientDataToServer: function(data){
             
         var message_str = UTF8ToString(messagePtr);
             
+       //     var sendTo = 0;
 
       //     console.log("BrowserEmitMessage SESSION ID: " + window.session_id);
         window.sync.emit('message', {
@@ -992,6 +987,7 @@ ProvideClientDataToServer: function(data){
             client_id: client_id,
             type: type_str,
             message: message_str,
+            sendTo,
             ts: Date.now()
         });
         

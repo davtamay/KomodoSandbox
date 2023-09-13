@@ -462,26 +462,32 @@ namespace Komodo.Runtime
             _Tick();
         }
 
+        public Dictionary<int, string> clientIDToName = new Dictionary<int, string>();
         public string GetPlayerNameFromClientID(int clientID)
         {
-// #if UNITY_WEBGL && !UNITY_EDITOR 
-//             string SessionDetailsString = SocketIOJSLib.GetSessionDetails();
-// #else
-//             string SessionDetailsString = SocketIOEditorSimulator.GetSessionDetails();
-// #endif
-//             var Details = JsonUtility.FromJson<SessionDetails>(SessionDetailsString);
+            if(clientIDToName.ContainsKey(clientID))
+                return clientIDToName[clientID];
+            else
+                return "Client " + clientID;
 
-//             foreach (User user in Details.users)
-//             {
-//                 if (clientID != user.student_id)
-//                 {
-//                     continue;
-//                 }
+            // #if UNITY_WEBGL && !UNITY_EDITOR 
+            //             string SessionDetailsString = SocketIOJSLib.GetSessionDetails();
+            // #else
+            //             string SessionDetailsString = SocketIOEditorSimulator.GetSessionDetails();
+            // #endif
+            //             var Details = JsonUtility.FromJson<SessionDetails>(SessionDetailsString);
 
-//                 return user.first_name + "  " + user.last_name;
-//             }
+            //             foreach (User user in Details.users)
+            //             {
+            //                 if (clientID != user.student_id)
+            //                 {
+            //                     continue;
+            //                 }
 
-            return "Client " + clientID;
+            //                 return user.first_name + "  " + user.last_name;
+            //             }
+
+        //    return "Client " + clientID;
         }
 
         // Use the inspector to call this method.
