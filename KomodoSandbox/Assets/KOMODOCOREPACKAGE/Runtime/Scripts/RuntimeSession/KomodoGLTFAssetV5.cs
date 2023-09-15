@@ -36,13 +36,18 @@ public class KomodoGLTFAssetV5 : GltfAssetBase
     /// URL to load the glTF from
     /// Loading local file paths works by prefixing them with "file://"
     /// </summary>
+    /// 
+  // public ModelData assetModelData;
     public string Url
     {
         get => url;
         set => url = value;
     }
 
-    /// <summary>
+    public bool isNetCall;
+    //public Vector3 pos;
+    //public Quaternion rot;
+    ///// <summary>
     /// Automatically load at start
     /// </summary>
     public bool LoadOnStartup
@@ -153,12 +158,10 @@ public class KomodoGLTFAssetV5 : GltfAssetBase
        // if (TiltBrushAndGLTFastLoader.isTiltBrushFile(tryUrl))
        //     TiltBrushAndGLTFastLoader.LoadFileWithTiltBrushToolkit(tryUrl);
        //else
+    //   assetModelData.modelURL = tryUrl;
+
         await Load(tryUrl, logger: thisModelInfo);
-       // }
-        //else
-        //{
-        //    thisModelInfo?.onImportAttempted("No Input Provided");
-        //}
+
     }
     
     /// <inheritdoc />
@@ -210,7 +213,7 @@ public class KomodoGLTFAssetV5 : GltfAssetBase
 #endif
         Debug.Log("IMPORT WAS A : " + success);
         if(success)
-        thisModelInfo.Setup(success);
+        thisModelInfo.Setup(success, url, isNetCall);
 
         base.PostInstantiation(instantiator, success);
     }

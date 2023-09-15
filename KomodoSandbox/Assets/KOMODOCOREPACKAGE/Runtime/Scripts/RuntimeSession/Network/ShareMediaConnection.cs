@@ -23,7 +23,7 @@ namespace Komodo.Runtime
 
         public int lastMessageid;
 
-         public Canvas canvas;
+        public Scrollbar scrollbar;
 
       //  GameObject vlg;
         public void Start()
@@ -105,14 +105,17 @@ namespace Komodo.Runtime
         public void CreateNewText(string clientName, string text)
         {
             lastInstantiated = Instantiate(chatContainer, chatContentParent).transform;
-            lastInstantiated.SetAsFirstSibling();
+          //  lastInstantiated.SetAsFirstSibling();
 
             TMP_Text chatText = lastInstantiated.GetComponentInChildren<TMP_Text>();
 
-            chatText.text = $"Client {clientName} :" + text;
+            chatText.text = $"<b><color=blue>{clientName} : </color></b>" + text;
 
             lastInstantiated.GetComponent<VerticalLayoutGroup>().enabled = false;
-            Invoke("TurnOn", 0.1f);
+
+           // scrollbar.value = 1;
+
+            Invoke("TurnOn", 0.25f);
 
         }
 

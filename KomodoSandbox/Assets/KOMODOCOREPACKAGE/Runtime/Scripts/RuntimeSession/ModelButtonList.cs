@@ -61,11 +61,11 @@ namespace Komodo.Runtime
 
 
         //}
-        public void Start()
-        {
-            if (isInitiateOnStart)
-                Instantiate(null,null);
-        }
+        //public void Start()
+        //{
+        //    if (isInitiateOnStart)
+        //        Instantiate(null,null);
+        //}
 
         public void Instantiate(UnityAction onModelClick, UnityAction onModelLoaded)
         {
@@ -89,36 +89,56 @@ namespace Komodo.Runtime
                 gameObject.SetActive(true);
             }
 
+            //create input box for importing custom imports
+            onPlaceholderModelItemChanged?.Invoke(InstantiatePlaceHolderButton(new ModelData(), -1, true, true, onModelClick, onModelLoaded));
 
-            onPlaceholderModelItemChanged?.Invoke(InstantiatePlaceHolderButton("", -1, true, 1.0f, true, onModelClick, onModelLoaded));
+            //yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
 
-            yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
+            //InitializeButtons();
 
-            InitializeButtons();
-
-            NotifyIsReady();
+            //NotifyIsReady();
 
 
 
         }
 
-        public ModelItem InstantiateNewAssetToList(string url, string name, float scale, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary)
+        //public struct ModelDetails
+        //{
+        //   public string url;
+        //   public string name;
+        //    public float scale;
+        //    public bool isWhole,
+
+
+        //    public UnityAction onAssetClicked;
+        //    public UnityAction onAssetLoadedCallback, 
+
+        //    bool isFromModelLibrary, bool net_call = true, Vector3 pos = default, Quaternion rot = default
+
+        //}
+        public void InstantiateNewAssetToList(ModelData modelData, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true)
+        // public void InstantiateNewAssetToList(string url, string name, float scale, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true, Vector3 pos = default, Quaternion rot = default)
         {
-          ModelItem modelItem =   InstantiatePlaceHolderButton("", ModelImportInitializer.Instance.GetRoot().transform.childCount, false, scale, isWhole, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary);
 
+            //   ModelItem modelItem = InstantiatePlaceHolderButton(url, ModelImportInitializer.Instance.GetRoot().transform.childCount, false, modelData.scale, isWhole, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, net_call, pos, rot);
+            ModelItem modelItem = InstantiatePlaceHolderButton(modelData, ModelImportInitializer.Instance.GetRoot().transform.childCount, false, isWhole, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, net_call);
 
-            modelItem.inputURL.text = url;
+            modelItem.inputURL.text = modelData.modelURL;
 
             modelItem.nameDisplay.Set(name);
 
             modelItem.downloadButton.onClick.Invoke();
 
-            return modelItem;
-    }
+
+        }
+
+
+
+
 
         protected override void InitializeButtons()
         {
-         //   Debug.Log("initializing buttons");
+            //   Debug.Log("initializing buttons");
             if (!transformToPlaceButtonUnder)
             {
                 transformToPlaceButtonUnder = transform;
@@ -153,7 +173,7 @@ namespace Komodo.Runtime
                             name = "null";
                         }
 
-                        modelItem.Initialize(i, modelData.models[i].name);
+                        //    modelItem.Initialize(i, modelData.models[i].name);
                     }
                     else
                     {
@@ -162,41 +182,28 @@ namespace Komodo.Runtime
                 }
             }
         }
+        //  public void InstantiateNewAssetToList(ModelData modelData, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true)
+        // public void InstantiateNewAssetToList(string url, string name, float scale, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true, Vector3 pos = default, Quaternion rot = default)
 
 
-        public ModelItem InstantiatePlaceHolderButton(string name, int buttonIndex, bool addNewPlaceHolderAfterClick, float scale, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary = false)
+        public ModelItem InstantiatePlaceHolderButton(ModelData modelData, int buttonIndex, bool addNewPlaceHolderAfterClick, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary = false, bool netCall = true)
         {
-          //  int Index = ModelImportInitializer.Instance.GetRoot().transform.childCount;
-            //Debug.Log("button as : :" + isWhole);
-            //  yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished );
-            // yield return null;
-            // if (UIManager.IsAlive)
-            // {
             GameObject item = Instantiate(placeHolderInputTemplate, transformToPlaceButtonUnder);
 
             if (item.TryGetComponent(out ModelItem modelItem))
             {
-
-                //   Debug.Log("initializing buttons :" + modelItem);
-                // if (name == null)
-                // {
-                //     Debug.LogError($"modelData.models[{buttonIndex}].name was null. Proceeding anyways.");
-
-                //     name = "null";
-                // }
-                System.Action<string, int> addPlaceHolderAfterUsed = (s, i) => { if (addNewPlaceHolderAfterClick)
-
-                        onPlaceholderModelItemChanged?.Invoke(InstantiatePlaceHolderButton("", -1, true,scale, true, onAssetClicked, onAssetLoadedCallback));
-
-                    //InstantiatePlaceHolderButton("", -1, true, scale, isWhole, null
-                    //  );
-
-
+                //create new custom import box after inputing and adding custom asset
+                Action<string, int> addPlaceHolderAfterUsed = (s, i) =>
+                {
+                    if (addNewPlaceHolderAfterClick)
+                        onPlaceholderModelItemChanged?.Invoke(InstantiatePlaceHolderButton(modelData, -1, true, true, onAssetClicked, onAssetLoadedCallback, false, netCall));
                 };
 
 
-                modelItem.Initialize(buttonIndex, modelItem.inputURL.text, scale, isWhole, true, addPlaceHolderAfterUsed, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary);
 
+                modelItem.Initialize(modelData.modelURL, buttonIndex, isWhole, true, addPlaceHolderAfterUsed, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, netCall);
+
+                // modelItem.Initialize(buttonIndex, modelItem.inputURL.text, scale, isWhole, true, addPlaceHolderAfterUsed, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, netCall, pos, rot);
                 return modelItem;
             }
             else
@@ -204,35 +211,6 @@ namespace Komodo.Runtime
                 throw new MissingComponentException("modelItem on GameObject (from ModelButtonTemplate)");
             }
 
-            //}
-        }
-        public void InstantiateButton(string name, int buttonIndex)
-        {
-
-
-            if (UIManager.IsAlive)
-            {
-                GameObject item = Instantiate(buttonTemplate, transformToPlaceButtonUnder);
-
-                if (item.TryGetComponent(out ModelItem modelItem))
-                {
-
-                    //   Debug.Log("initializing buttons :" + modelItem);
-                    // if (name == null)
-                    // {
-                    //     Debug.LogError($"modelData.models[{buttonIndex}].name was null. Proceeding anyways.");
-
-                    //     name = "null";
-                    // }
-
-                    modelItem.Initialize(buttonIndex, name);
-                }
-                else
-                {
-                    throw new MissingComponentException("modelItem on GameObject (from ModelButtonTemplate)");
-                }
-
-            }
         }
 
 

@@ -47,7 +47,6 @@ using Komodo.Utilities;
 
 using Unity.Collections;
 using TMPro;
-using System.Linq;
 //using Komodo.AssetImport;
 
 namespace Komodo.Runtime
@@ -922,6 +921,12 @@ namespace Komodo.Runtime
 
                     clientAvatarIndex = avatarIndexFromClientId[newText.target];
                     clientUsernameDisplays[clientAvatarIndex].text = newText.text;
+
+                    //new 9-13-23
+                    if (NetworkUpdateHandler.Instance.clientIDToName.ContainsKey(newText.target))
+                        NetworkUpdateHandler.Instance.clientIDToName[newText.target] = newText.text;
+                    else
+                        NetworkUpdateHandler.Instance.clientIDToName.Add(newText.target, newText.text);
 
 
                     if (clientUsernameMenuDisplay.ContainsKey(newText.target))

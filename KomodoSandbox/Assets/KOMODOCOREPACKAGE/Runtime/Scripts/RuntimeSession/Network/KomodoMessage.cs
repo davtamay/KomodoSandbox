@@ -21,7 +21,7 @@ namespace Komodo.Runtime
         public string data;
 
         public int sendTo;
-
+        //sendTo = -1 (To all), 0 (To all Except sender), clientID (to target clientID)
         public KomodoMessage(string type, string messageData, int sendTo = 0)
         {
             this.type = type;

@@ -7,13 +7,14 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using UnityEngine.Events;
+using Komodo.AssetImport;
 
 public class ModelAssetCard : MonoBehaviour
 {
     
-    public string name;
-    public string url;
-    public float scale;
+    //public string name;
+    //public string url;
+    //public float scale;
     public Sprite sprite;
     public Image image;
     public TextMeshProUGUI nameTextComponent;
@@ -24,28 +25,40 @@ public class ModelAssetCard : MonoBehaviour
     public UnityAction onAssetLoaded;
     public Toggle wholeObjectToggle;
 
+    //public Vector3 pos;
+    //public Quaternion rot;
+
+    public ModelData modelData;
+
+
+    //public void SetPosRot(Vector3 pos, Quaternion rot)
+    //{
+    //    this.modelData.pos = pos;
+    //    this.modelData.rot = rot;
+    //}
 
     // public List<ModelData> modelLibrary;
     public void Instantiate()
     {
-        nameTextComponent.text = name;
+        nameTextComponent.text = modelData.modelName;
         image = GetComponentInChildren<Image>(true);
         image.sprite = sprite;
 
-        nameTextComponent.text = name;
-        urlTextComponent.text = url;
+        nameTextComponent.text = modelData.modelName;
+        urlTextComponent.text = modelData.modelURL;
 
-       
+
+
     }
-    public void CardIsClicked()
+
+
+    public void CardIsClicked(bool net_call = true)
     {
-     //   onAssetCardClicked.Invoke();
-
-
-      
-
-        mbl.InstantiateNewAssetToList(url, name, scale, !wholeObjectToggle.isOn, onAssetCardClicked, onAssetLoaded, true);
-
+        
+        mbl.InstantiateNewAssetToList(modelData, !wholeObjectToggle.isOn, onAssetCardClicked, onAssetLoaded, true, net_call);
+    
+    
     }
 
+    
 }

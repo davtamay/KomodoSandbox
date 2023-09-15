@@ -31,10 +31,27 @@ namespace Komodo.Runtime
 
         GameObject newInstance;
 
+       // bool net_call = true;
+    
+      //  public ModelData itemModelData;
 
 
-        public void Initialize(int index, String name, float scale = 1, bool isWhole = true, bool isDownloadPlaceHolder = false, Action<string, int> onPlaceHolderUsed = null, UnityAction onAssetClicked = null, UnityAction onAssetLoaded = null, bool isFromModelLibrary = false)
+        //public void SetupKomodoGLTFAssetV5(bool net_call = true, Vector3 pos = default, Quaternion rot = default, string url = default)
+        //{
+
+
+
+        //}
+
+        public async void Initialize(string url, int index, bool isWhole = true, bool isDownloadPlaceHolder = false, Action<string, int> onPlaceHolderUsed = null, UnityAction onAssetClicked = null, UnityAction onAssetLoaded = null, bool isFromModelLibrary = false, bool net_call = true)
         {
+            // itemModelData= modelData;
+
+        
+
+       
+
+
             nameDisplay.Initialize("");
 
 
@@ -43,9 +60,6 @@ namespace Komodo.Runtime
 
             if (index != -1)
                 this.index = index;
-            //else
-            //    this.index = ModelImportInitializer.Instance.GetRoot().transform.childCount;
-
 
 
             if (isDownloadPlaceHolder)
@@ -69,7 +83,6 @@ namespace Komodo.Runtime
                     if (newInstance == null)
                     {
                         newInstance = new GameObject("placeholder");
-
                     }
 
 
@@ -79,6 +92,17 @@ namespace Komodo.Runtime
                         //model.isWholeObject = isWhole;
                         importInstance = currentModel.GetComponent<KomodoGLTFAssetV5>();
 
+                        Debug.Log("debg: " + currentModel.thisUrl);
+
+                      //  importInstance.assetModelData = data;
+
+                        // SetupKomodoGLTFAssetV5(importInstance);
+                        importInstance.Url = url;
+
+                        importInstance.isNetCall = net_call;
+                        //importInstance.pos = this.pos;
+                        //importInstance.rot = this.rot;
+                       // Debug.Log("second :" + modelData.modelURL);
 
                     }
                     else
@@ -87,15 +111,27 @@ namespace Komodo.Runtime
                         model = newInstance.AddComponent<AddToModelList>();
                         model.isWholeObject = isWhole;
                         model.SetIndex(index);
-                        model.scale = scale;
+                      //  model.scale = modelData.scale;//scale;
+                   //     Debug.Log("second :" + modelData.modelURL);
 
                         importInstance = newInstance.AddComponent<KomodoGLTFAssetV5>();
 
-                        model.onImportAttempted += (Message) =>
+                         importInstance.Url = url;
+                        //importInstance.isNetCall = net_call;
+                        //importInstance.pos = pos;
+                        //importInstance.rot = rot;
+                      //  importInstance.assetModelData = data;//InstantiateAssetCards.Instance.urlToModelAssetCardDictionary//itemModelData;
+                      //  importInstance.Url = this.url;
+                        importInstance.isNetCall = net_call;
+                        
+                        //importInstance.pos = this.pos;
+                        //importInstance.rot = this.rot;
+
+
+                        model.onImportAttempted += async (Message) =>
                         {
                           
-                           StartCoroutine(ReturnToFunctionalInputUseAfterSeconds(2, Message, onAssetLoaded));
-
+                           await ReturnToFunctionalInputUseAfterSeconds(2, Message, onAssetLoaded);
 
                         };
 
@@ -152,9 +188,7 @@ namespace Komodo.Runtime
 
                             lockToggle.transform.parent.gameObject.SetActive(true);
 
-                         //  if (!isFromModelLibrary)
-                                nameDisplay.Set(Path.GetFileName(inputURL.text.TrimEnd('\\')));
-                            //  Path.GetFileName( model.url.TrimEnd('\\'))
+                            nameDisplay.Set(Path.GetFileName(inputURL.text.TrimEnd('\\')));
 
                             onPlaceHolderUsed?.Invoke(nameDisplay.GetName(), ModelImportInitializer.Instance.GetRoot().transform.childCount);
 
@@ -175,7 +209,7 @@ namespace Komodo.Runtime
                     if (!isFromModelLibrary)
                     {
                         model.isWholeObject = isWhole;//!isWholeObject.isOn;
-                        model.url = inputURL.text;
+                        model.thisUrl = inputURL.text;
 
                     }
 
@@ -219,7 +253,7 @@ namespace Komodo.Runtime
             downloadButton.transform.parent.parent.gameObject.SetActive(true);
         }
 
-        public IEnumerator ReturnToFunctionalInputUseAfterSeconds(int seconds, string message, UnityAction onAssetLoadingFinished)
+        public async Task ReturnToFunctionalInputUseAfterSeconds(int seconds, string message, UnityAction onAssetLoadingFinished)
         {
 
 
@@ -230,7 +264,8 @@ namespace Komodo.Runtime
             nameDisplay.Set(message);
             // isWholeObject.gameObject.SetActive(false);
 
-            yield return new WaitForSeconds(seconds);
+            await Task.Delay(seconds * 1000);
+          //  yield return new WaitForSeconds(seconds);
             // await System.Threading.Tasks.Task.Delay(seconds * 1000);
 
 

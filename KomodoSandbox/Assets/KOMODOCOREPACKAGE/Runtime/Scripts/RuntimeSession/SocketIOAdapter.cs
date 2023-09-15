@@ -96,14 +96,13 @@ namespace Komodo.Runtime
 
             SocketIOJSLib.RequestLobbySessionFromServer();
 
-
             SocketIOJSLib.RequestAllSessionIdsFromServer();
 
             NetworkUpdateHandler.Instance.Net_InitSyncLiteners();
 
 
             //maybe we didnt receive catch up yet so will fail to get that info
-            //SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
+            SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
             // SocketIOJSLib.ListenForPageUnload(clientID);
         }
 
@@ -134,7 +133,7 @@ namespace Komodo.Runtime
             SendStateCatchUpRequest();
 
 
-            //SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
+            SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
 
         }
 

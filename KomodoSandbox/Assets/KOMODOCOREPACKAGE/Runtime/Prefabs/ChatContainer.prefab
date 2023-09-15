@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 7990167224202711893}
   - component: {fileID: 7474405161057206444}
   - component: {fileID: 7252327616327099809}
-  - component: {fileID: 5560768599362223453}
+  - component: {fileID: 7208555735808043151}
   m_Layer: 5
   m_Name: ChatContainer
   m_TagString: Untagged
@@ -174,7 +174,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 144.16, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1604937859240507958
@@ -228,7 +228,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
+    m_Left: 3
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
@@ -254,8 +254,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
-  m_VerticalFit: 2
---- !u!114 &5560768599362223453
+  m_VerticalFit: 1
+--- !u!114 &7208555735808043151
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
