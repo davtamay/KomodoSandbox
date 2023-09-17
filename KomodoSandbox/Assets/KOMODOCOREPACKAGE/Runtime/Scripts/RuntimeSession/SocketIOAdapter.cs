@@ -94,7 +94,7 @@ namespace Komodo.Runtime
 
             MainClientUpdater.Instance.Net_StartSendingPlayerUpdatesToServer();
 
-            SocketIOJSLib.RequestLobbySessionFromServer();
+          //  SocketIOJSLib.RequestLobbySessionFromServer();
 
             SocketIOJSLib.RequestAllSessionIdsFromServer();
 
@@ -532,7 +532,7 @@ namespace Komodo.Runtime
 
             SessionStateManager.Instance.SetSessionState(state);
 
-            SessionStateManager.Instance.ApplyCatchup();
+           StartCoroutine(  SessionStateManager.Instance.ApplyCatchup());
 
             SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
 
@@ -622,6 +622,15 @@ namespace Komodo.Runtime
             connectionAdapter.DisplaySendMessageFailed(reason);
         }
 
+        public void Get_UUID(int uuid)
+        {
+
+
+           var net_Obj =  NetworkedObjectsManager.Instance.net_GO_pendingRegistrationList.Dequeue();
+            net_Obj.Register(uuid);
+            Debug.Log(uuid);
+
+        }
 
         [System.Serializable]
         public struct ClientData

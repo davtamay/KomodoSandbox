@@ -40,6 +40,7 @@ using UnityEngine.UI;
 using Komodo.AssetImport;
 using System;
 using UnityEngine.Events;
+using System.Threading.Tasks;
 
 namespace Komodo.Runtime
 {
@@ -70,10 +71,10 @@ namespace Komodo.Runtime
         public void Instantiate(UnityAction onModelClick, UnityAction onModelLoaded)
         {
 
-            StartCoroutine(InstantiateList(onModelClick, onModelLoaded));
+            InstantiateList(onModelClick, onModelLoaded);
 
         }
-        public IEnumerator InstantiateList(UnityAction onModelClick, UnityAction onModelLoaded)
+        public async void InstantiateList(UnityAction onModelClick, UnityAction onModelLoaded)
         {
             //entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
@@ -82,7 +83,7 @@ namespace Komodo.Runtime
             {
                 gameObject.SetActive(false);
 
-                yield break;
+                return;
             }
             else
             {
@@ -90,7 +91,10 @@ namespace Komodo.Runtime
             }
 
             //create input box for importing custom imports
-            onPlaceholderModelItemChanged?.Invoke(InstantiatePlaceHolderButton(new ModelData(), -1, true, true, onModelClick, onModelLoaded));
+
+            //onPlaceholderModelItemChanged?.Invoke(await InstantiatePlaceHolderButton( new ModelData(), -1, true, true, onModelClick, onModelLoaded));
+            ModelItem modelItem = await InstantiatePlaceHolderButton(new ModelData(), -1, true, true, onModelClick, onModelLoaded);
+            onPlaceholderModelItemChanged?.Invoke(modelItem);
 
             //yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
 
@@ -116,12 +120,11 @@ namespace Komodo.Runtime
         //    bool isFromModelLibrary, bool net_call = true, Vector3 pos = default, Quaternion rot = default
 
         //}
-        public void InstantiateNewAssetToList(ModelData modelData, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true)
-        // public void InstantiateNewAssetToList(string url, string name, float scale, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true, Vector3 pos = default, Quaternion rot = default)
+        public async Task<ModelItem> InstantiateNewAssetToList(ModelData modelData, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true)
         {
 
             //   ModelItem modelItem = InstantiatePlaceHolderButton(url, ModelImportInitializer.Instance.GetRoot().transform.childCount, false, modelData.scale, isWhole, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, net_call, pos, rot);
-            ModelItem modelItem = InstantiatePlaceHolderButton(modelData, ModelImportInitializer.Instance.GetRoot().transform.childCount, false, isWhole, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, net_call);
+            ModelItem modelItem = await InstantiatePlaceHolderButton(modelData, ModelImportInitializer.Instance.GetRoot().transform.childCount, false, isWhole, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, net_call);
 
             modelItem.inputURL.text = modelData.modelURL;
 
@@ -129,6 +132,7 @@ namespace Komodo.Runtime
 
             modelItem.downloadButton.onClick.Invoke();
 
+            return modelItem;
 
         }
 
@@ -186,30 +190,37 @@ namespace Komodo.Runtime
         // public void InstantiateNewAssetToList(string url, string name, float scale, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true, Vector3 pos = default, Quaternion rot = default)
 
 
-        public ModelItem InstantiatePlaceHolderButton(ModelData modelData, int buttonIndex, bool addNewPlaceHolderAfterClick, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary = false, bool netCall = true)
+        public async Task<ModelItem> InstantiatePlaceHolderButton(ModelData modelData, int buttonIndex, bool addNewPlaceHolderAfterClick, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary = false, bool netCall = true)
         {
+            var tcs = new TaskCompletionSource<ModelItem>();
+
             GameObject item = Instantiate(placeHolderInputTemplate, transformToPlaceButtonUnder);
 
             if (item.TryGetComponent(out ModelItem modelItem))
             {
                 //create new custom import box after inputing and adding custom asset
-                Action<string, int> addPlaceHolderAfterUsed = (s, i) =>
+                Action<string, int> addPlaceHolderAfterUsed = async (s, i) =>
                 {
                     if (addNewPlaceHolderAfterClick)
-                        onPlaceholderModelItemChanged?.Invoke(InstantiatePlaceHolderButton(modelData, -1, true, true, onAssetClicked, onAssetLoadedCallback, false, netCall));
+                        onPlaceholderModelItemChanged?.Invoke(await InstantiatePlaceHolderButton(modelData, -1, true, true, onAssetClicked, onAssetLoadedCallback, false, netCall));
                 };
 
 
 
-                modelItem.Initialize(modelData.modelURL, buttonIndex, isWhole, true, addPlaceHolderAfterUsed, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, netCall);
+               await modelItem.Initialize(modelData.modelURL, buttonIndex, isWhole, true, addPlaceHolderAfterUsed, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, netCall);
 
                 // modelItem.Initialize(buttonIndex, modelItem.inputURL.text, scale, isWhole, true, addPlaceHolderAfterUsed, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, netCall, pos, rot);
-                return modelItem;
+                tcs.SetResult(modelItem);
+               
+                return tcs.Task.Result;
             }
             else
             {
                 throw new MissingComponentException("modelItem on GameObject (from ModelButtonTemplate)");
             }
+
+        
+
 
         }
 

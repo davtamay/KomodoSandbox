@@ -8,6 +8,7 @@ using TMPro;
 using System;
 using UnityEngine.Events;
 using Komodo.AssetImport;
+using System.Threading.Tasks;
 
 public class ModelAssetCard : MonoBehaviour
 {
@@ -51,12 +52,24 @@ public class ModelAssetCard : MonoBehaviour
 
     }
 
-
-    public void CardIsClicked(bool net_call = true)
+    public async Task ClickCardFromSender()
     {
-        
-        mbl.InstantiateNewAssetToList(modelData, !wholeObjectToggle.isOn, onAssetCardClicked, onAssetLoaded, true, net_call);
-    
+        await mbl.InstantiateNewAssetToList(modelData, !wholeObjectToggle.isOn, onAssetCardClicked, onAssetLoaded, true, false);
+    }
+
+    public async void CardIsClicked(bool net_call = true)
+    {
+        if (net_call)
+        {
+            System.Guid myGUID = System.Guid.NewGuid();
+            modelData.guid = myGUID.GetHashCode();
+            Debug.Log(modelData.guid);
+      
+        }
+
+        await mbl.InstantiateNewAssetToList(modelData, !wholeObjectToggle.isOn, onAssetCardClicked, onAssetLoaded, true, net_call);
+
+      //  return Task.CompletedTask;
     
     }
 

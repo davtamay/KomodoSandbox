@@ -80,8 +80,11 @@ namespace Komodo.Runtime
             NetworkedGameObject nRGO = default;
             if (setupFlags.isNetworked)
             {
+                Debug.Log("CREATE INDEX  " + menuButtonIndex);
                 //set up reference to use with network
-                nRGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(newParent.gameObject, menuButtonIndex, modelData.id);
+
+
+                nRGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(newParent.gameObject, menuButtonIndex, modelData.guid);
 
             }
 

@@ -27,7 +27,8 @@ namespace Komodo.Runtime
 
             UpdateUI(doLock);
 
-        //    SendNetworkUpdate(doLock);
+          //  UIManager.Instance.SendLockUpdate(this.index, doLock);
+         //   SendNetworkUpdate(doLock);
         }
 
         public void UpdateUI (bool doLock)
@@ -80,29 +81,29 @@ namespace Komodo.Runtime
             Toggle(this.toggle.isOn); // The value of toggle should be changed by the time this event handler fires, so we should be able to use its updated value here.
         }
 
-        public void SendNetworkUpdate (bool doLock)
-        {
-            // int lockState = 0;
+        //public void SendNetworkUpdate (bool doLock)
+        //{
+        //    // int lockState = 0;
 
-            // //SETUP and send network lockstate
-            // if (doLock)
-            // {
-            //     lockState = (int)INTERACTIONS.LOCK;
-            // }
-            // else
-            // {
-            //     lockState = (int)INTERACTIONS.UNLOCK;
-            // }
+        //    // //SETUP and send network lockstate
+        //    // if (doLock)
+        //    // {
+        //    //     lockState = (int)INTERACTIONS.LOCK;
+        //    // }
+        //    // else
+        //    // {
+        //    //     lockState = (int)INTERACTIONS.UNLOCK;
+        //    // }
 
-            // int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(NetworkedObjectsManager.Instance.GetNetworkedSubObjectList(this.index)[0].Entity).entityID;
+        //    // int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(NetworkedObjectsManager.Instance.GetNetworkedSubObjectList(this.index)[0].Entity).entityID;
 
-            // NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
-            // {
-            //     sourceEntity_id = NetworkUpdateHandler.Instance.client_id,
-            //     targetEntity_id = entityID,
-            //     interactionType = lockState,
-            // });
-        }
+        //    // NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
+        //    // {
+        //    //     sourceEntity_id = NetworkUpdateHandler.Instance.client_id,
+        //    //     targetEntity_id = entityID,
+        //    //     interactionType = lockState,
+        //    // });
+        //}
 
         public void UpdateComponentData (bool doLock)
         {

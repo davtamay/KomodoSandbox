@@ -41,14 +41,14 @@ namespace Komodo.Runtime
         }
         public bool GetTransformLockedState() => isTransformLocked;
 
-        public IEnumerator Start()
+        public void Start()
         {
             //if we consider it a physics element we either get its rigidbody component, if it does not have one we add a new one
             InitializePhysicsComponentsIfNeeded();
 
-            yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
+           // yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
 
-            InstantiateIfNeeded();
+            //InstantiateIfNeeded();
         }
 
         private void InstantiateIfNeeded()
@@ -58,6 +58,8 @@ namespace Komodo.Runtime
             {
                 return;
             }
+
+           // Debug.Log("INS IF NEEDED: ");
 
             Instantiate();
         }
@@ -82,62 +84,89 @@ namespace Komodo.Runtime
         /// <param name="uniqueEntityID">if we give this paramater, we set it as the entity ID instead of giving it a default id</param>
         public void Instantiate(int importIndex = -1, int uniqueEntityID = -1)
         {
-            // get our entitymanager to get access to the entity world
-             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+           // Debug.Log("ss: " + uniqueEntityID);
+          
+            
+            //// get our entitymanager to get access to the entity world
+            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            if (buttonIndex == -1)
+                buttonIndex = importIndex;
 
-            //set custom id if we are not given a specified id when instantiating this network associated object
+
+
+
+            //if(uniqueEntityID == -1)
+            //{
+            //    NetworkedObjectsManager.Instance.net_GO_pendingRegistrationList.Enqueue(this);
+            //    SocketIOJSLib.RequestUUIDFromServer();
+            //}
+            //else
+            //{
+            //    Register(uniqueEntityID);
+            //}
+
+
+
+
+//            //set custom id if we are not given a specified id when instantiating this network associated object
             int EntityID = (uniqueEntityID == -1) ? NetworkedObjectsManager.Instance.GenerateUniqueEntityID() : uniqueEntityID;
 
 
-            // if (entityManager == null)
-            //  entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            // entityManager.get
-            //create our entity reference
-            //if (entity == Entity.Null)
-            //{
-              //  entity = entityManager.CreateEntity();
-            //}
+            Register(EntityID);
 
-            thisEntityID = EntityID;
+            //            thisEntityID = EntityID;
+
+            //#if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
+            ////do nothing
+            //#else
+            //            //entityManager.SetName(Entity, gameObject.name);
+            //#endif
+            //            if (buttonIndex == -1)
+            //            buttonIndex = importIndex;
+
+
+            //            NetworkedObjectsManager.Instance.Register(EntityID, this);
+
+            //                //TODO: evaluate how good this solution is.
+            //            //check to see if the gameObject is the main object or a subobject. If it's a main object, link it to the button.
+            //            if (this.name == buttonIndex.ToString())
+            //            {
+            //                NetworkedObjectsManager.Instance.LinkNetObjectToButton(EntityID, this);
+            //            }
+
+            //            isRegistered = true;
+        }
+
+        public void Register(int uniqueEntityID)
+        {
+            //set custom id if we are not given a specified id when instantiating this network associated object
+         //   int EntityID = uniqueEntityID;//(uniqueEntityID == -1) ? NetworkedObjectsManager.Instance.GenerateUniqueEntityID() : uniqueEntityID;
+
+          //  thisEntityID = uniqueEntityID;
 
 #if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
 //do nothing
 #else
             //entityManager.SetName(Entity, gameObject.name);
 #endif
-            if (buttonIndex == -1)
-            buttonIndex = importIndex;
-
-            //  set the data that our entity will be storing
-            // if (buttonIndex != -1)
-            //{
-            //    entityManager.AddSharedComponentManaged(entity, new ButtonIDSharedComponentData { buttonID = buttonIndex });
-            //}
+            //if (buttonIndex == -1)
+            //    buttonIndex = importIndex;
 
 
+            NetworkedObjectsManager.Instance.Register(uniqueEntityID, this);
 
-            //entityManager.AddComponentData(entity, new NetworkEntityIdentificationComponentData
-            //{
-            //    entityID = EntityID,
-
-            //    clientID = NetworkUpdateHandler.Instance.client_id,
-
-            //    sessionID = NetworkUpdateHandler.Instance.session_id,
-
-            //    current_Entity_Type = !usePhysics ? Entity_Type.objects : Entity_Type.physicsObject,
-            //});
-
-            NetworkedObjectsManager.Instance.Register(EntityID, this);
-
-                //TODO: evaluate how good this solution is.
+            //TODO: evaluate how good this solution is.
             //check to see if the gameObject is the main object or a subobject. If it's a main object, link it to the button.
             if (this.name == buttonIndex.ToString())
             {
-                NetworkedObjectsManager.Instance.LinkNetObjectToButton(EntityID, this);
+                NetworkedObjectsManager.Instance.LinkNetObjectToButton(uniqueEntityID, this);
             }
 
             isRegistered = true;
+
+
         }
+
 
         #region Physics Interaction Events (Add to network on collision)
         //if this object is a physics object detect when it collides to mark it to send its position information

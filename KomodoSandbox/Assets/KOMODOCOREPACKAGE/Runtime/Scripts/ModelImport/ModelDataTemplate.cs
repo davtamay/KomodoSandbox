@@ -50,6 +50,8 @@ namespace Komodo.AssetImport{
             public Vector3 euler_rotation;
 
             public bool isWholeObject;
+
+             public int guid;
         }
 
     /// <summary>

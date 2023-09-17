@@ -27,6 +27,7 @@ namespace Komodo.Runtime
         //this is used to keep tabs on a unique identifier for our decomposed objeccts that are instantiated
         private static int uniqueDefaultID;
 
+        public Queue<NetworkedGameObject> net_GO_pendingRegistrationList = new Queue<NetworkedGameObject>();
         public void Awake ()
         {
             var forceAlive = Instance;
@@ -51,14 +52,17 @@ namespace Komodo.Runtime
 
         public NetworkedGameObject GetNetworkedGameObject(int buttonId)
         {
+            Debug.LogWarning($"buttonId {buttonId} -- count: " +  ModelImportInitializer.Instance.networkedGameObjects.Count );
+
             if (buttonId >= 0 && buttonId < ModelImportInitializer.Instance.networkedGameObjects.Count)
             {
                 // Access the networkedGameObject at the specified index
                 // ...
-                return ModelImportInitializer.Instance.networkedGameObjects[buttonId];
+                return  ModelImportInitializer.Instance.networkedGameObjects[buttonId];
             }
             else
             {
+
                 Debug.LogWarning($"buttonId {buttonId} is out of range for networkedGameObjects array.");
                 return null;
             }
@@ -155,23 +159,23 @@ namespace Komodo.Runtime
 
             switch (interactionData.interactionType)
             {
-                case (int) INTERACTIONS.SHOW:
+                //case (int) INTERACTIONS.SHOW:
 
-                    if (UIManager.IsAlive)
-                    {
-                        UIManager.Instance.ProcessNetworkToggleVisibility(interactionData.targetEntity_id, true);
-                    }
+                //    if (UIManager.IsAlive)
+                //    {
+                //        UIManager.Instance.ProcessNetworkToggleVisibility(interactionData.targetEntity_id, true);
+                //    }
 
-                    break;
+                //    break;
 
-                case (int) INTERACTIONS.HIDE:
+                //case (int) INTERACTIONS.HIDE:
 
-                    if (UIManager.IsAlive)
-                    {
-                        UIManager.Instance.ProcessNetworkToggleVisibility(interactionData.targetEntity_id, false);
-                    }
+                //    if (UIManager.IsAlive)
+                //    {
+                //        UIManager.Instance.ProcessNetworkToggleVisibility(interactionData.targetEntity_id, false);
+                //    }
 
-                    break;
+                  //  break;
 
                 case (int) INTERACTIONS.GRAB:
 
@@ -195,17 +199,17 @@ namespace Komodo.Runtime
 
                     break;
 
-                case (int) INTERACTIONS.LOCK:
+                //case (int) INTERACTIONS.LOCK:
 
-                    Instance.ApplyLockInteraction(interactionData);
+                //    Instance.ApplyLockInteraction(interactionData);
 
-                    break;
+                //    break;
 
-                case (int) INTERACTIONS.UNLOCK:
+                //case (int) INTERACTIONS.UNLOCK:
 
-                    Instance.ApplyUnlockInteraction(interactionData);
+                //    Instance.ApplyUnlockInteraction(interactionData);
 
-                    break;
+                //    break;
 
                 case (int) INTERACTIONS.LOOK:
 
@@ -316,6 +320,19 @@ namespace Komodo.Runtime
         /// <param name="customEntityID"></param>
         public NetworkedGameObject CreateNetworkedGameObject(GameObject gObject, int modelListIndex = -1, int customEntityID = 0, bool doNotLinkWithButtonID = false)
         {
+
+            //if(uniqueEntityID == -1)
+            //{
+            //    NetworkedObjectsManager.Instance.net_GO_pendingRegistrationList.Enqueue(this);
+            //    SocketIOJSLib.RequestUUIDFromServer();
+            //}
+            //else
+            //{
+            //    Register(uniqueEntityID);
+            //}
+
+
+
             //add a Net component to the object
             NetworkedGameObject netObject = gObject.AddComponent<NetworkedGameObject>();
             netObject.buttonIndex = modelListIndex;
@@ -324,15 +341,15 @@ namespace Komodo.Runtime
             //to look a decomposed set of objects we need to keep track of what Index we are iterating over regarding or importing models to create sets
             //we keep a list reference for each index and keep on adding to it if we find a model with the same id
             //make sure we are using it as a button reference
-            if (doNotLinkWithButtonID)
+            if (doNotLinkWithButtonID || modelListIndex == -1)
             {
                 return InstantiateNetworkedGameObject(netObject, customEntityID, modelListIndex);
             }
 
-            if (modelListIndex == -1)
-            {
-                return InstantiateNetworkedGameObject(netObject, customEntityID, modelListIndex);
-            }
+            //if (modelListIndex == -1)
+            //{
+            //    return InstantiateNetworkedGameObject(netObject, customEntityID, modelListIndex);
+            //}
 
             List<NetworkedGameObject> subObjects;
 
@@ -360,6 +377,7 @@ namespace Komodo.Runtime
 
         protected NetworkedGameObject InstantiateNetworkedGameObject(NetworkedGameObject netObject, int entityId, int modelListIndex)
         {
+         
             //to enable only imported objects to be grabbed
             //TODO: change for drawings
             netObject.tag = TagList.interactable;
@@ -367,11 +385,13 @@ namespace Komodo.Runtime
             //We then set up the data to be used through networking
             if (entityId == 0)
             {
+                Debug.Log("1 net obj: ");
                 netObject.Instantiate(modelListIndex);
 
                 return netObject;
             }
 
+            Debug.Log("2 net obj: ");
             netObject.Instantiate(modelListIndex, entityId);
 
             return netObject;

@@ -5,6 +5,7 @@ using Unity.Entities;
 using Komodo.Utilities;
 using System.Linq;
 using Newtonsoft.Json;
+using System.Runtime.CompilerServices;
 
 namespace Komodo.Runtime
 {
@@ -56,7 +57,7 @@ namespace Komodo.Runtime
 
         private EntityState GetEntityStateFromNetObject(NetworkedGameObject netObject)
         {
-            int desiredEntityId = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.entity).entityID;
+           // int desiredEntityId = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.entity).entityID;
 
             //foreach (var candidateEntityState in _state.entities)
             //{
@@ -67,14 +68,16 @@ namespace Komodo.Runtime
             //}
             for (int i = 0; i < _state.entities.Length; i++)
             {
+
+
                 EntityState candidateEntityState = _state.entities[i];
-                if (candidateEntityState.id == desiredEntityId)
+                if (candidateEntityState.id == netObject.thisEntityID)//desiredEntityId)
                 {
                     return candidateEntityState;
                 }
             }
 
-            Debug.LogError($"SessionStateManager: Could not find EntityState that matched netObject with entity ID {desiredEntityId}");
+            Debug.LogError($"SessionStateManager: Could not find EntityState that matched netObject with entity ID {netObject.thisEntityID}");
 
             return new EntityState();
         }
@@ -83,11 +86,12 @@ namespace Komodo.Runtime
         {
             try
             {
-                return NetworkedObjectsManager.Instance.networkedObjectFromEntityId[entityState.id];
+               // return NetworkedObjectsManager.Instance.networkedObjectFromEntityId[entityState.id];
+                return NetworkedObjectsManager.Instance.networkedObjectFromEntityId[entityState.guid];
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"SessionStateManager: Could not find NetObject that matched EntityState's ID {entityState.id}. {e.Message}");
+                Debug.LogError($"SessionStateManager: Could not find NetObject that matched EntityState's ID {entityState.guid}. {e.Message}");
             }
 
             return null;
@@ -111,8 +115,11 @@ namespace Komodo.Runtime
             }
         }
 
-        public void ApplyCatchup()
+        public IEnumerator ApplyCatchup()
         {
+            yield return new WaitUntil(() => !GameStateManager.Instance.isApplyingCatchup);
+           
+            GameStateManager.Instance.isApplyingCatchup = true;
 
             //if (!UIManager.IsAlive)
             //{
@@ -133,7 +140,7 @@ namespace Komodo.Runtime
             {
                 Debug.LogWarning("SessionStateManager: state was null. State catch-up will not be applied.");
 
-                return;
+                yield break;
             }
             //at times gives argument index error
             SceneManagerExtensions.Instance.SelectScene(_state.scene);
@@ -145,6 +152,18 @@ namespace Komodo.Runtime
             for (int i = 0; i < _state.entities.Length; i++)
             {
                 EntityState entityState = _state.entities[i];
+
+                if (!NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(_state.entities[i].guid))
+                {
+                    var newModel = new ModelData { id = entityState.id, modelURL = entityState.url , pos  = entityState.latest.pos, rot = entityState.latest.rot, guid = entityState.guid };
+                    InstantiateAssetCards.Instance.InstantiateAssetFromData(JsonUtility.ToJson(newModel));
+                    GameStateManager.Instance.isAssetImportFinished = false;
+                }
+
+                yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
+                    //it is not waiting
+
+                
                 NetworkedGameObject netObject = GetNetObjectFromEntityState(entityState);
 
                 if (netObject == null)
@@ -155,16 +174,17 @@ namespace Komodo.Runtime
 
                 UIManager.Instance.ProcessNetworkToggleVisibility(netObject.thisEntityID, entityState.render);
 
-                int interactionType = entityState.locked ? (int)INTERACTIONS.LOCK : (int)INTERACTIONS.UNLOCK;
+                //int interactionType = entityState.locked ? (int)INTERACTIONS.LOCK : (int)INTERACTIONS.UNLOCK;
 
-                ApplyInteraction(new Interaction(
-                    sourceEntity_id: -1,
-                    targetEntity_id: entityState.id,
-                    interactionType: interactionType
-                ));
+                //ApplyInteraction(new Interaction(
+                //    sourceEntity_id: -1,
+                //    targetEntity_id: entityState.id,
+                //    interactionType: interactionType
+                //));
 
                 ApplyPosition(entityState.latest);
             }
+            GameStateManager.Instance.isApplyingCatchup = false;
         }
 
         public void ApplyPosition(Position positionData)
@@ -244,10 +264,6 @@ namespace Komodo.Runtime
                     NetworkUpdateHandler.Instance.clientIDToName[item.Key] = item.Value;
                else
                     NetworkUpdateHandler.Instance.clientIDToName.Add(item.Key, item.Value);
-
-
-
-
 
 
                 ClientSpawnManager.Instance.ProcessSpeechToTextSnippet(snippet);

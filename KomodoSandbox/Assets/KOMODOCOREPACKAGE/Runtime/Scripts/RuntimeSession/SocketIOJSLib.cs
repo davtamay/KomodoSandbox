@@ -65,6 +65,15 @@ namespace Komodo.Runtime
         public static extern void RequestClientIdFromServer();
 
 
+
+
+        [DllImport("__Internal")]
+        public static extern void RequestUUIDFromServer();
+
+
+
+
+
         [DllImport("__Internal")]
         public static extern void ProvideClientDataToServer(string clientData);
         //ProvideClientDataToServer

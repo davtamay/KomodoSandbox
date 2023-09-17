@@ -16357,7 +16357,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1657683740}
   m_HandleRect: {fileID: 1657683739}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -24415,8 +24415,6 @@ MonoBehaviour:
     defaultMagFilterMode: 9729
     anisotropicFilterLevel: 1
   isNetCall: 0
-  pos: {x: 0, y: 0, z: 0}
-  rot: {x: 0, y: 0, z: 0, w: 0}
   url: 
   loadOnStartup: 1
   sceneId: -1
@@ -24442,12 +24440,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   name: 
-  url: 
+  thisUrl: 
   scale: 0
   position: {x: 0, y: 0, z: 0}
   euler_rotation: {x: 0, y: 0, z: 0}
   isWholeObject: 0
-  index: 0
+  indexInList: 0
 --- !u!1001 &1797116280
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27394,8 +27392,6 @@ MonoBehaviour:
   isModelButtonListReady: 0
   isSceneButtonListReady: 0
   clientTagSetup: {fileID: 0}
-  modelVisibilityToggleList: []
-  modelLockToggleList: []
   sessionAndBuildName: {fileID: 0}
   cursor: {fileID: 0}
   cursorGraphic: {fileID: 0}

@@ -38,6 +38,8 @@ namespace Komodo.Runtime
 
         [ShowOnly] public bool isSceneLoadingFinished;
 
+        [ShowOnly] public bool isApplyingCatchup;
+
         private EntityManager entityManager;
 
         public void Awake()
@@ -63,7 +65,7 @@ namespace Komodo.Runtime
                 if (ModelImportInitializer.IsAlive)
                 {
                     UIManager.Instance.initialLoadingCanvasProgressText.text = "Loading Assets";
-                    yield return new WaitUntil(() => isAssetImportFinished);
+                   // yield return new WaitUntil(() => isAssetImportFinished);
                 }
 
                 // UIManager.Instance.initialLoadingCanvasProgressText.text = "Setting Up Menu";

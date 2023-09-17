@@ -27,10 +27,10 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
     public bool isWholeObject = true;
 
     [ShowOnly]
-    public int index;
+    public int indexInList;
 
 
-    public Action<string> onFinishLoading;
+    public Action<string, int> onFinishLoading;
     public Action<string> onImportAttempted;
 
 
@@ -47,7 +47,7 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
     //}
     public void SetIndex(int index)
     {
-        this.index = index;
+        this.indexInList = index;
 
     }
 
@@ -80,7 +80,7 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
 
         }
     }
-    public void Setup(bool wasSuccesful, string url, bool isNetCall = true)
+    public  void Setup(bool wasSuccesful, string url, bool isNetCall = true)
     {
         thisUrl = url;
        // if(InstantiateAssetCards.Instance.urlToModelAssetCardDictionary.ContainsKey(url))
@@ -96,18 +96,21 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
         }
 
             //take care of the initual input box for import -- we have to set the index later incase other assets are setup through model library
-        if (index == -1)
+        if (indexInList == -1)
         {
-            index = ModelImportInitializer.Instance.GetRoot().transform.childCount;
+            indexInList = ModelImportInitializer.Instance.GetRoot().transform.childCount;
         }
 
         // await TaskUtils.WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
 
         mID = new ModelImportData();
         mID.name = modelData.modelName;//name;
-        modelData.id = index;
-        mID.id = index;
+        modelData.id = indexInList;
+        mID.id = indexInList;
         mID.url = modelData.modelURL;//url;
+
+        mID.guid = modelData.guid;
+
         //thisUrl = url;
         mID.scale = modelData.scale;
         mID.position = modelData.pos;
@@ -121,8 +124,8 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
 
 
         //we initiate this in the post process of our gltfimport;
-        Debug.Log("SETUP GO, " + index  + "   " + "with whole object" + mID.isWholeObject);
-        GameObject komodoImportedModel = ModelImportPostProcessor.SetUpGameObject(index, mID, gameObject);
+        Debug.Log("SETUP GO, " + indexInList  + "   " + "with whole object" + mID.isWholeObject);
+        GameObject komodoImportedModel = ModelImportPostProcessor.SetUpGameObject(indexInList, mID, gameObject);
         //ModelImportInitializer.Instance.modelButtonList.InstantiateButton(mID.name, index);  
 
         komodoImportedModel.transform.SetParent(root.transform, false);
@@ -158,8 +161,9 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
             komodoImportedModel.transform.rotation = modelData.rot;
 
         }
-     
-        onFinishLoading?.Invoke("");
+
+        GameStateManager.Instance.isAssetImportFinished = true;
+        onFinishLoading?.Invoke("", indexInList);
        
     }
 
@@ -171,12 +175,14 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
         Debug.Log("SEND URL: " + data.modelURL);
         data.pos= pos;
         data.rot= rot;
-    //    ModelData data = new ModelData { modelName = name, modelURL = thisUrl, scale = scale, pos =pos, rot = rot};
+
+        Debug.Log("Sending: " + data.guid);
+        //    ModelData data = new ModelData { modelName = name, modelURL = thisUrl, scale = scale, pos =pos, rot = rot};
 
         KomodoMessage ms = new KomodoMessage("asset", JsonUtility.ToJson(data));
         ms.Send();
 
-        Debug.Log("sending");
+       // Debug.Log("sending");
         
 
 

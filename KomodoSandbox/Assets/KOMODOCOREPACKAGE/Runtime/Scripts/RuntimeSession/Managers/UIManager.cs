@@ -6,9 +6,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using Komodo.Utilities;
 using TMPro;
+using System.Reflection;
+
+public struct ToggleState
+{
+    public int clientID;
+    public int entityID;
+    public bool state;
+}
 
 namespace Komodo.Runtime
 {
+   
     public class UIManager : SingletonComponent<UIManager>
     {
         public static UIManager Instance
@@ -97,10 +106,10 @@ namespace Komodo.Runtime
         private List<Text> clientUser_SpeechToText_UITextReference_list = new List<Text>();
 
         [HideInInspector]
-        public List<VisibilityToggle> modelVisibilityToggleList;
+        public Dictionary<int, VisibilityToggle> modelVisibilityToggleList = new Dictionary<int, VisibilityToggle>();
 
         [HideInInspector]
-        public List<LockToggle> modelLockToggleList = new List<LockToggle>();
+        public Dictionary<int, LockToggle> modelLockToggleList = new Dictionary<int, LockToggle>();
 
         [HideInInspector]
         public TMP_Text sessionAndBuildName;
@@ -136,6 +145,25 @@ namespace Komodo.Runtime
 
         public void Start () {
 
+
+            GlobalMessageManager.Instance.Subscribe("render", (s) => {
+
+                var data = JsonUtility.FromJson<ToggleState>(s);
+
+                ProcessNetworkToggleVisibility(data.entityID, data.state);
+                
+            });
+
+            GlobalMessageManager.Instance.Subscribe("lock", (s) => {
+
+                var data = JsonUtility.FromJson<ToggleState>(s);
+
+                ProcessNetworkToggleLock(data.entityID, data.state);
+
+            });
+
+
+            //  GlobalMessageManager.Instance.Subscribe("visibility")
             menu = GameObject.FindWithTag(TagList.menuUI);
 
             // create a menu if there isn't one already
@@ -263,12 +291,16 @@ namespace Komodo.Runtime
 
             if(gObject != null) 
             gObject.SetActive(doShow);
+
+         
         }
 
         public void SendMenuVisibilityUpdate(bool visibility)
         {
+           
             if (visibility) 
             {
+
                 NetworkUpdateHandler.Instance.SendSyncInteractionMessage (new Interaction 
                 {
 
@@ -293,49 +325,118 @@ namespace Komodo.Runtime
 
         public void SendVisibilityUpdate (int index, bool doShow)
         {
-            GameObject gObject = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index).gameObject;
 
-            if(gObject== null) return;
+            var nObject = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index);
+            if (!nObject)
+            {
+                Debug.LogError("no NetworkedGameObject found on index in ClientSpawnManager.cs");
+                return;
+            }
+
+            //GameObject gObject = nObject.gameObject;
+           
+
+            NetworkedGameObject netObject = nObject.gameObject.GetComponent<NetworkedGameObject>();
+
+            if (!netObject)
+            {
+                Debug.LogError("no NetworkedGameObject component found on currentObj in ClientSpawnManager.cs");
+                return;
+            }
+
+            //  int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.entity).entityID;
+
+            ToggleState ts = new ToggleState
+            {
+                clientID = NetworkUpdateHandler.Instance.client_id,
+                entityID = netObject.buttonIndex,//netObject.thisEntityID,//entityID,
+                state = doShow,
+
+            };
+
+           new KomodoMessage("render",JsonUtility.ToJson(ts)).Send();
+
+            //if (doShow)
+            //{
+            //    NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
+            //    {
+            //        sourceEntity_id = NetworkUpdateHandler.Instance.client_id,
+            //        targetEntity_id = entityID,
+            //        interactionType = (int) INTERACTIONS.SHOW,
+            //    });
+            //}
+            //else
+            //{
+            //    NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
+            //    {
+            //        sourceEntity_id = NetworkUpdateHandler.Instance.client_id,
+            //        targetEntity_id = entityID,
+            //        interactionType = (int) INTERACTIONS.HIDE,
+            //    });
+            //}
+
+        }
+        public void SendLockUpdate(int index,  bool doLock)
+        {
+            Debug.Log("TOGGLEING + " + index);
+            var nObject = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index);
+
+           
+
+            if (!nObject)
+            {
+                Debug.LogError("no NetworkedGameObject found on index in ClientSpawnManager.cs");
+                return;
+            }
+
+            GameObject gObject = nObject.gameObject;
 
             NetworkedGameObject netObject = gObject.GetComponent<NetworkedGameObject>();
 
             if (!netObject)
             {
-                Debug.LogError("no NetworkedGameObject found on currentObj in ClientSpawnManager.cs");
-
+                Debug.LogError("no NetworkedGameObject component found on currentObj in ClientSpawnManager.cs");
                 return;
             }
+            Debug.Log("LOCKING" + nObject.name);
+            //netObject.thisEntityID
+            //return;
+            // int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.entity).entityID;
 
-            int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.entity).entityID;
-
-            if (doShow)
+            ToggleState ts = new ToggleState
             {
-                NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
-                {
-                    sourceEntity_id = NetworkUpdateHandler.Instance.client_id,
-                    targetEntity_id = entityID,
-                    interactionType = (int) INTERACTIONS.SHOW,
-                });
-            }
-            else
-            {
-                NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
-                {
-                    sourceEntity_id = NetworkUpdateHandler.Instance.client_id,
-                    targetEntity_id = entityID,
-                    interactionType = (int) INTERACTIONS.HIDE,
-                });
-            }
+                clientID = NetworkUpdateHandler.Instance.client_id,
+                entityID = netObject.buttonIndex,//netObject.thisEntityID,//entityID,
+                state = doLock,
 
-            //TODO(Brandon): what is this code for?
-            // try
+            };
+
+
+
+            new KomodoMessage("lock", JsonUtility.ToJson(ts)).Send();
+            
+            
+            
+            // int lockState = 0;
+
+            // //SETUP and send network lockstate
+            // if (doLock)
             // {
-            //     Entity currentEntity = NetworkedObjectsManager.Instance.GetEntity(index);
+            //     lockState = (int)INTERACTIONS.LOCK;
             // }
-            // catch (Exception e)
+            // else
             // {
-            //     Debug.LogWarning($"Tried to get entity with index {index}. Error: {e.Message}");
+            //     lockState = (int)INTERACTIONS.UNLOCK;
             // }
+
+            // int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(NetworkedObjectsManager.Instance.GetNetworkedSubObjectList(this.index)[0].Entity).entityID;
+
+            // NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
+            // {
+            //     sourceEntity_id = NetworkUpdateHandler.Instance.client_id,
+            //     targetEntity_id = entityID,
+            //     interactionType = lockState,
+            // });
         }
 
         /* TODO: implement these two functions. Right now they don't work because ProcessNetworkToggleVisibility expects an entityID, not an index.
@@ -357,58 +458,69 @@ namespace Komodo.Runtime
         /// </summary>
         /// <param name="entityID"></param>
         /// <param name="doShow"></param>
-        public void ProcessNetworkToggleVisibility(int entityID, bool doShow)
+        public void ProcessNetworkToggleVisibility(int index, bool doShow)
         {
-            var netObject = NetworkedObjectsManager.Instance.networkedObjectFromEntityId[entityID];
+            //    Debug.Log($" networked game object at {entityID}");
 
-            if (netObject == null)
-            {
-                Debug.LogError($"Could not get entity with id {entityID}");
+            //    var netObject = NetworkedObjectsManager.Instance.networkedObjectFromEntityId[entityID];
 
-                return;
-            }
+            //    if (netObject == null)
+            //    {
+            //        Debug.LogError($"Could not get entity with id {entityID}");
 
-
-
-            var index = entityManager.GetSharedComponentManaged<ButtonIDSharedComponentData>(netObject.entity).buttonID;
-
-            NetworkedGameObject net_go = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index);
-          
-            if (!net_go)
-            {
-                Debug.LogError($"Could not get networked game object at {index}");
-
-                return;
-            }
+            //        return;
+            //    }
 
 
-          //  GameObject currentObj = net_go.gameObject;
 
-           
+            ////    var index = entityManager.GetSharedComponentManaged<ButtonIDSharedComponentData>(netObject.entity).buttonID;
+
+            //    NetworkedGameObject net_go = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index);
+
+            //    if (!net_go)
+            //    {
+            //        Debug.LogError($"Could not get networked game object at {index}");
+
+            //        return;
+            //    }
+
+
+            //    if (index > modelVisibilityToggleList.Count || !modelVisibilityToggleList[index])
+            //    {
+            //        Debug.LogError($"Tried to change state of model lock button, but there was none with index {index}");
+
+            //        return;
+            //    }
             if (index > modelVisibilityToggleList.Count || !modelVisibilityToggleList[index])
             {
                 Debug.LogError($"Tried to change state of model lock button, but there was none with index {index}");
 
                 return;
             }
+         //   modelLockToggleList[index].ProcessNetworkToggle(doLock, index);
 
             modelVisibilityToggleList[index].ProcessNetworkToggle(doShow);
         }
 
-        [ContextMenu("Test Process Network Lock Model 0")]
-        public void TestProcessNetworkLock()
-        {
-            ProcessNetworkToggleLock(0, true);
-        }
+        //[ContextMenu("Test Process Network Lock Model 0")]
+        //public void TestProcessNetworkLock()
+        //{
+        //    ProcessNetworkToggleLock(0, true);
+        //}
 
-        [ContextMenu("Test Process Network Unlock Model 0")]
-        public void TestProcessNetworkUnlock()
-        {
-            ProcessNetworkToggleLock(0, false);
-        }
+        //[ContextMenu("Test Process Network Unlock Model 0")]
+        //public void TestProcessNetworkUnlock()
+        //{
+        //    ProcessNetworkToggleLock(0, false);
+        //}
 
         public void ProcessNetworkToggleLock (int index, bool doLock)
         {
+            Debug.Log("received LOCK : " + index);
+
+           //  index =  NetworkedObjectsManager.Instance.networkedObjectFromEntityId[index];
+
+         //   Debug.Log("After received LOCK : " + index);
             if (index > modelLockToggleList.Count || !modelLockToggleList[index])
             {
                 Debug.LogError($"Tried to change state of model lock button, but there was none with index {index}");

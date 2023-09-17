@@ -123,7 +123,7 @@ namespace Komodo.Runtime
             localFiles = new List<ModelFile>();
 
             //since we have coroutines and callbacks, we should keep track of the number of models that have finished retrieving. 
-            GameStateManager.Instance.isAssetImportFinished = false;
+          //  GameStateManager.Instance.isAssetImportFinished = false;
             modelsToRetrieve = modelData.models.Count;
 
             //Wait until all objects are finished loading
@@ -138,7 +138,7 @@ namespace Komodo.Runtime
             });
 
             //since we have coroutines and callbacks, we should keep track of the number of models that have finished instantiating. 
-            GameStateManager.Instance.isAssetImportFinished = false;
+           // GameStateManager.Instance.isAssetImportFinished = false;
             modelsToInstantiate = modelData.models.Count;
 
             //Wait until all objects are finished loading
@@ -152,7 +152,7 @@ namespace Komodo.Runtime
                 return modelsToInstantiate == 0;
             });
 
-            GameStateManager.Instance.isAssetImportFinished = true;
+         //   GameStateManager.Instance.isAssetImportFinished = true;
         }
 
 

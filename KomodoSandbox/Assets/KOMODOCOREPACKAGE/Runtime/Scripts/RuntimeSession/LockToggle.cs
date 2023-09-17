@@ -27,7 +27,9 @@ namespace Komodo.Runtime
 
             UpdateUI(doLock);
 
-        //    SendNetworkUpdate(doLock);
+           UIManager.Instance.SendLockUpdate(this.index, doLock);
+
+            //    SendNetworkUpdate(doLock);
         }
 
         public void UpdateUI (bool doLock)

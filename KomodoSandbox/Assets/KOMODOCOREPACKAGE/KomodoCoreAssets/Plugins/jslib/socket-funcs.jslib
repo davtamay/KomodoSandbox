@@ -327,7 +327,10 @@
 
 
 
+        window.sync.on('Get_UUID', function (uuid) {
 
+        window.gameInstance.SendMessage(window.socketIOAdapterName, 'Get_UUID', uuid)//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
+         });
 
 
 
@@ -669,6 +672,11 @@ console.log("GOT CLIENT NAMES" + JSON.stringify(data) );
     },
 
 
+    RequestUUIDFromServer: function() {
+
+        window.sync.emit('request_serverUUID');//, info); //buffer
+  
+    },
 
     RequestClientIdFromServer: function() {
 

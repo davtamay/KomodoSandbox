@@ -6,6 +6,7 @@ using UnityEngine.Events;
 using System;
 using UnityEditor;
 using Komodo.Utilities;
+using System.Threading.Tasks;
 
 [System.Serializable]
 public struct ModelData
@@ -16,6 +17,8 @@ public struct ModelData
     public bool isWholeObject;
     public string imagePath;
     public float scale;
+
+    public int guid;
 
     public Vector3 pos;
     public Quaternion rot;
@@ -63,7 +66,7 @@ public class InstantiateAssetCards : SingletonComponent<InstantiateAssetCards>
 
         card.modelData.modelName = modelData.modelName;
         card.modelData.modelURL = modelData.modelURL;
-        card.modelData.scale = 1;
+        card.modelData.scale = modelData.scale;//1;
 
         card.modelData.isWholeObject = modelData.isWholeObject;
 
@@ -92,12 +95,12 @@ public class InstantiateAssetCards : SingletonComponent<InstantiateAssetCards>
 
     }
     public Dictionary<string, ModelAssetCard> urlToModelAssetCardDictionary = new Dictionary<string, ModelAssetCard>();
-    
+    ModelLibrary modelLibrary;
     void Start()
     {
         TextAsset jsonFile = Resources.Load<TextAsset>("modelLibrary");
         string jsonText = jsonFile.text;
-        ModelLibrary modelLibrary = JsonUtility.FromJson<ModelLibrary>(jsonText);
+        modelLibrary = JsonUtility.FromJson<ModelLibrary>(jsonText);
 
 
         //we have to capture the placeholder and model library 
@@ -128,50 +131,55 @@ public class InstantiateAssetCards : SingletonComponent<InstantiateAssetCards>
 
 
         GlobalMessageManager.Instance.Subscribe("asset", (s) => {
-
-            ModelData data = JsonUtility.FromJson<ModelData>(s);
-
-            bool doWeHaveItInOurLibrary = false;
-
-            ModelAssetCard modelAssetCard= null;
-
-            foreach (var item in modelLibrary.modelLibrary)
-            {
-                Debug.Log("ITEM : " + item.modelURL + "---- ITEMReceive : " + data.modelURL);
-
-                if (string.Equals(item.modelURL, data.modelURL, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    Debug.Log("LOOKING IN EQUAL NAMES");
-                    if (urlToModelAssetCardDictionary.ContainsKey(item.modelURL))
-                    {
-                        modelAssetCard = urlToModelAssetCardDictionary[item.modelURL];
-                        Debug.Log("FOUND ASSET CARD");
-                    }
-
-                    doWeHaveItInOurLibrary = true;
-                    break;
-                }
-
-
-            }
-                if (!doWeHaveItInOurLibrary)
-                {
-                  Debug.Log("NEW CARD");
-                  modelAssetCard = MakeCard(data, false);
-                }
-
-            modelAssetCard.modelData.pos = data.pos;
-            modelAssetCard.modelData.rot = data.rot;
-
-          //  modelAssetCard.SetPosRot(modelData.pos, modelData.rot);
-            Debug.Log("Receiving");
-            modelAssetCard.CardIsClicked(false);
-
-
-
+            
+            InstantiateAssetFromData(s);
 
         });
     }
 
+    public async Task InstantiateAssetFromData(string s)
+    {
+        ModelData data = JsonUtility.FromJson<ModelData>(s);
+
+        bool doWeHaveItInOurLibrary = false;
+
+        ModelAssetCard modelAssetCard = null;
+
+        foreach (var item in modelLibrary.modelLibrary)
+        {
+          //  Debug.Log("ITEM : " + item.modelURL + "---- ITEMReceive : " + data.modelURL);
+
+            if (string.Equals(item.modelURL, data.modelURL, StringComparison.CurrentCultureIgnoreCase))
+            {
+               // Debug.Log("LOOKING IN EQUAL NAMES");
+                if (urlToModelAssetCardDictionary.ContainsKey(item.modelURL))
+                {
+                    modelAssetCard = urlToModelAssetCardDictionary[item.modelURL];
+                    Debug.Log("FOUND ASSET CARD");
+                }
+
+                doWeHaveItInOurLibrary = true;
+                break;
+            }
+
+
+        }
+        if (!doWeHaveItInOurLibrary)
+        {
+            Debug.Log("NEW CARD");
+            modelAssetCard = MakeCard(data, false);
+        }
+
+        modelAssetCard.modelData.pos = data.pos;
+        modelAssetCard.modelData.rot = data.rot;
+
+        modelAssetCard.modelData.guid = data.guid;
+        Debug.Log("Receiver: " + data.guid);
+        //  modelAssetCard.SetPosRot(modelData.pos, modelData.rot);
+       // Debug.Log("Receiving");
+        await  modelAssetCard.ClickCardFromSender();
+
+      // return Task.CompletedTask;
+    }
   
 }

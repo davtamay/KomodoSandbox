@@ -11,5 +11,8 @@ namespace Komodo.Runtime
         public Position latest;
         public bool render;
         public bool locked;
+        public string url;
+
+        public int guid;
     }
 }

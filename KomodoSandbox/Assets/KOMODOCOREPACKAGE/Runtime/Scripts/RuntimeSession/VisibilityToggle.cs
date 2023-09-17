@@ -19,12 +19,16 @@ namespace Komodo.Runtime
 
         public ModelItem modelItem;
 
-        public void Toggle (bool doShow)
+        public void Toggle (bool doShow, bool isInitial = false)
         {
             if (UIManager.IsAlive)
             {
                 UIManager.Instance.ToggleModelVisibility(this.index, doShow);
             }
+          // Debug.Log("TOGGLEING");
+          
+         if(!isInitial)
+           UIManager.Instance.SendVisibilityUpdate(this.index, doShow);
 
             SelectOrDeselect(doShow);
 
@@ -79,6 +83,8 @@ namespace Komodo.Runtime
         public void ProcessNetworkToggle (bool doShow)
         {
             ProcessNetworkToggle(doShow, this.index);
+
+
         }
 
         public void ProcessNetworkToggle (bool doShow, int index)

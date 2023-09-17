@@ -31,27 +31,11 @@ namespace Komodo.Runtime
 
         GameObject newInstance;
 
-       // bool net_call = true;
-    
-      //  public ModelData itemModelData;
+     
 
-
-        //public void SetupKomodoGLTFAssetV5(bool net_call = true, Vector3 pos = default, Quaternion rot = default, string url = default)
-        //{
-
-
-
-        //}
-
-        public async void Initialize(string url, int index, bool isWhole = true, bool isDownloadPlaceHolder = false, Action<string, int> onPlaceHolderUsed = null, UnityAction onAssetClicked = null, UnityAction onAssetLoaded = null, bool isFromModelLibrary = false, bool net_call = true)
+        public async Task Initialize(string url, int index, bool isWhole = true, bool isDownloadPlaceHolder = false, Action<string, int> onPlaceHolderUsed = null, UnityAction onAssetClicked = null, UnityAction onAssetLoaded = null, bool isFromModelLibrary = false, bool net_call = true)
         {
-            // itemModelData= modelData;
-
-        
-
-       
-
-
+            
             nameDisplay.Initialize("");
 
 
@@ -94,38 +78,24 @@ namespace Komodo.Runtime
 
                         Debug.Log("debg: " + currentModel.thisUrl);
 
-                      //  importInstance.assetModelData = data;
-
-                        // SetupKomodoGLTFAssetV5(importInstance);
                         importInstance.Url = url;
 
                         importInstance.isNetCall = net_call;
-                        //importInstance.pos = this.pos;
-                        //importInstance.rot = this.rot;
-                       // Debug.Log("second :" + modelData.modelURL);
+                      
 
                     }
                     else
                     {
-                      //  Debug.Log("button as : :" + isWhole + "isdownloadPlaceholder" + isDownloadPlaceHolder);
                         model = newInstance.AddComponent<AddToModelList>();
                         model.isWholeObject = isWhole;
                         model.SetIndex(index);
-                      //  model.scale = modelData.scale;//scale;
-                   //     Debug.Log("second :" + modelData.modelURL);
 
                         importInstance = newInstance.AddComponent<KomodoGLTFAssetV5>();
 
                          importInstance.Url = url;
-                        //importInstance.isNetCall = net_call;
-                        //importInstance.pos = pos;
-                        //importInstance.rot = rot;
-                      //  importInstance.assetModelData = data;//InstantiateAssetCards.Instance.urlToModelAssetCardDictionary//itemModelData;
-                      //  importInstance.Url = this.url;
+
                         importInstance.isNetCall = net_call;
                         
-                        //importInstance.pos = this.pos;
-                        //importInstance.rot = this.rot;
 
 
                         model.onImportAttempted += async (Message) =>
@@ -173,7 +143,7 @@ namespace Komodo.Runtime
 
 
 
-                    model.onFinishLoading += (importSuccess) =>
+                    model.onFinishLoading += (importSuccess, indexInList) =>
                     {
                         if (importSuccess == "")
                         {
@@ -182,9 +152,20 @@ namespace Komodo.Runtime
                             if(!isFromModelLibrary)
                                 downloadButton.transform.parent.parent.gameObject.SetActive(false);
 
-                            UIManager.Instance.modelVisibilityToggleList.Add(visibilityToggle);
-                            UIManager.Instance.modelLockToggleList.Add(lockToggle);
-                            visibilityToggle.Toggle(true);
+
+                            if (UIManager.Instance.modelVisibilityToggleList.ContainsKey(indexInList))
+                                UIManager.Instance.modelVisibilityToggleList[indexInList] = visibilityToggle;
+                            else
+                                UIManager.Instance.modelVisibilityToggleList.Add(indexInList, visibilityToggle);
+
+                            if (UIManager.Instance.modelLockToggleList.ContainsKey(indexInList))
+                                UIManager.Instance.modelLockToggleList[indexInList] = lockToggle;
+                            else
+                                UIManager.Instance.modelLockToggleList.Add(indexInList, lockToggle);
+
+
+                          //  UIManager.Instance.modelLockToggleList.Add(indexInList, lockToggle);
+                            visibilityToggle.Toggle(true, true);
 
                             lockToggle.transform.parent.gameObject.SetActive(true);
 
@@ -225,18 +206,18 @@ namespace Komodo.Runtime
 
                 //visibilityToggle.Initialize(this.index);
 
-                UIManager.Instance.modelVisibilityToggleList.Add(visibilityToggle);
+                UIManager.Instance.modelVisibilityToggleList.Add(index,visibilityToggle);
 
                 //lockToggle.Initialize(this.index);
 
-                UIManager.Instance.modelLockToggleList.Add(lockToggle);
+                UIManager.Instance.modelLockToggleList.Add(index, lockToggle);
 
                 //nameDisplay.Initialize(name);
 
 
             }
 
-
+          //  return Task.CompletedTask;
 
 
         }
