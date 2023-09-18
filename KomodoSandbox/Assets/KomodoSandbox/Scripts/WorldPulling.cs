@@ -427,6 +427,8 @@ namespace Komodo.IMPRESS
 
 
 
+
+
             onChangeScale.Invoke(clampedNewScale);
         }
 

@@ -348,13 +348,13 @@ namespace Komodo.Runtime
             //To prevent offset issues when working with editor
 #if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
 
-                mainPlayer.transform.position = temp.position;
+            mainPlayer.transform.position = new Vector3(temp.position.x, mainPlayer.transform.position.y, temp.position.z);
 
                 mainPlayer.transform.rotation = new Quaternion(ROT.x, ROT.y, ROT.z, ROT.w);
 
-                handsParent.transform.position = temp.position;
+                handsParent.transform.position = new Vector3(temp.position.x, handsParent.transform.position.y, temp.position.z);  //temp.position;
 
-                handsParent.transform.rotation = new Quaternion(ROT.x, ROT.y, ROT.z, ROT.w);
+            handsParent.transform.rotation = new Quaternion(ROT.x, ROT.y, ROT.z, ROT.w);
 #endif
             MainClientUpdater.Instance.SetTransformOffset(temp.position, Quaternion.identity);
 
@@ -805,12 +805,21 @@ namespace Komodo.Runtime
         {
             if (avatarEntityGroupFromClientId.ContainsKey(positionData.clientId))
             {
-                var headTransform = avatarEntityGroupFromClientId[positionData.clientId].avatarComponent_Head.transform;
+                //var headTransform = avatarEntityGroupFromClientId[positionData.clientId].avatarComponent_Head.transform.parent;
+                var headTransform = avatarEntityGroupFromClientId[positionData.clientId].avatarComponent_Head.transform.parent ;
                 var lHandTransform = avatarEntityGroupFromClientId[positionData.clientId].avatarComponent_hand_L.transform;
                 var rHandTransform = avatarEntityGroupFromClientId[positionData.clientId].avatarComponent_hand_R.transform;
 
                 headTransform.position = positionData.pos;
                 headTransform.rotation = new Quaternion(positionData.rot.x, positionData.rot.y, positionData.rot.z, positionData.rot.w);
+
+             //   headTransform.localScale = new Vector3(positionData.scaleFactor, positionData.scaleFactor, positionData.scaleFactor);
+                    headTransform.SetGlobalScale(new Vector3(positionData.scaleFactor, positionData.scaleFactor, positionData.scaleFactor)) ;
+                lHandTransform.SetGlobalScale(new Vector3(positionData.scaleFactor, positionData.scaleFactor, positionData.scaleFactor));
+                rHandTransform.SetGlobalScale(new Vector3(positionData.scaleFactor, positionData.scaleFactor, positionData.scaleFactor));
+
+
+                //   headTransform.SetGlobalScale((Vector3.one * 3.5f) * newData.scaleFactor);
 
                 //to use for scalling avatars completely
                 //head has 3.5 scalling so we have to represent it instead of Vector3.one

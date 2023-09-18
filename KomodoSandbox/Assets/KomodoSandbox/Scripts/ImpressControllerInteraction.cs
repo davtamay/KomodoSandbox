@@ -580,12 +580,12 @@ using Komodo.IMPRESS;
 
             hasObject = true;
 
-            //if (currentGrabbedNetObject)
-            //{
-             //   SendInteractionStartGrab();
-      //      }
+        if (currentGrabbedNetObject)
+        {
+            SendInteractionStartGrab();
+        }
 
-            InitializePhysicsParameters();
+        InitializePhysicsParameters();
 
             InitializeStretchParameters();
 
@@ -633,7 +633,8 @@ using Komodo.IMPRESS;
         {
             Debug.Log("Individual");
 
-            var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).entityID;
+            //   var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).entityID;
+            var entityID = currentGrabbedNetObject.thisEntityID;
 
             NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
             {
@@ -645,7 +646,7 @@ using Komodo.IMPRESS;
             });
 
             MainClientUpdater.Instance.AddUpdatable(currentGrabbedNetObject);
-            entityManager.AddComponentData(currentGrabbedNetObject.entity, new SendNetworkUpdateTag { });
+          //  entityManager.AddComponentData(currentGrabbedNetObject.entity, new SendNetworkUpdateTag { });
         }
 
             
@@ -750,7 +751,7 @@ using Komodo.IMPRESS;
 
                // var netIDComp = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity);
 
-              //  SendInteractionEndGrab(netIDComp);
+               SendInteractionEndGrab(currentGrabbedNetObject.thisEntityID);
 
                // SendPhysicsEndGrab(netIDComp);
             }
@@ -762,13 +763,13 @@ using Komodo.IMPRESS;
             hasObject = false;
         }
 
-    private void SendInteractionEndGrab(NetworkEntityIdentificationComponentData netIDComp)
+    private void SendInteractionEndGrab(int netID)
     {
         if (currentGrabbedGroupObject)
             ImpressMainClientUpdater.Instance.RemoveUpdatable(currentGrabbedGroupObject);
         else
         {
-            var entityID = netIDComp.entityID;
+            var entityID = netID;
 
             NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
             {
@@ -786,14 +787,14 @@ using Komodo.IMPRESS;
             MainClientUpdater.Instance.RemoveUpdatable(currentGrabbedNetObject);
 
 
-            if (!entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
-            {
-                Debug.LogWarning("Tried to remove SendNetworkUpdateTag from netObject, but the tag was not found.");
+            //if (!entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
+            //{
+            //    Debug.LogWarning("Tried to remove SendNetworkUpdateTag from netObject, but the tag was not found.");
 
-                return;
-            }
+            //    return;
+            //}
 
-            entityManager.RemoveComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
+            //entityManager.RemoveComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
         }
     }
 
@@ -920,10 +921,10 @@ using Komodo.IMPRESS;
 
             foreach (Collider col in colliders)
             {
-                if (!col.CompareTag(TagList.interactable) && !col.CompareTag(TagList.drawing))
-                {
-                    continue;
-                }
+                //if (!col.CompareTag(TagList.interactable) && !col.CompareTag(TagList.drawing))
+                //{
+                //    continue;
+                //}
 
                 if (!col.gameObject.activeInHierarchy)
                 {

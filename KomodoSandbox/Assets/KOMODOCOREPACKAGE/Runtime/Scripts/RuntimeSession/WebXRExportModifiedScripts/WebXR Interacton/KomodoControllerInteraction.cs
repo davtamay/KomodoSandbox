@@ -618,7 +618,8 @@ namespace Komodo.Runtime
 
         private void SendInteractionStartGrab()
         {
-            var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).entityID;
+            //  var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).entityID;
+            var entityID = currentGrabbedNetObject.thisEntityID;
 
             NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
             {
@@ -631,7 +632,7 @@ namespace Komodo.Runtime
 
             MainClientUpdater.Instance.AddUpdatable(currentGrabbedNetObject);
 
-            entityManager.AddComponentData(currentGrabbedNetObject.entity, new SendNetworkUpdateTag { });
+          //  entityManager.AddComponentData(currentGrabbedNetObject.entity, new SendNetworkUpdateTag { });
         }
 
         private void InitializeStretchParameters()
@@ -731,11 +732,13 @@ namespace Komodo.Runtime
                     return;
                 }
 
-                var netIDComp = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity);
+                var netIDComp = currentGrabbedNetObject.thisEntityID;
+
+                //var netIDComp = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity);
 
                 SendInteractionEndGrab(netIDComp);
 
-                SendPhysicsEndGrab(netIDComp);
+               // SendPhysicsEndGrab(netIDComp);
             }
 
             ResetStretchParameters();
@@ -745,9 +748,9 @@ namespace Komodo.Runtime
             hasObject = false;
         }
 
-        private void SendInteractionEndGrab(NetworkEntityIdentificationComponentData netIDComp)
+        private void SendInteractionEndGrab(int entityID)
         {
-            var entityID = netIDComp.entityID;
+      //      var entityID = netIDComp.entityID;
 
             NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
             {
@@ -760,14 +763,14 @@ namespace Komodo.Runtime
 
             MainClientUpdater.Instance.RemoveUpdatable(currentGrabbedNetObject);
 
-            if (!entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
-            {
-                Debug.LogWarning("Tried to remove SendNetworkUpdateTag from netObject, but the tag was not found.");
+            //if (!entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
+            //{
+            //    Debug.LogWarning("Tried to remove SendNetworkUpdateTag from netObject, but the tag was not found.");
 
-                return;
-            }
+            //    return;
+            //}
 
-            entityManager.RemoveComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
+          //  entityManager.RemoveComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
         }
 
         // TODO -- compare to SendInteractionEndGrab and see if we need to perform those actions as well.
@@ -827,31 +830,33 @@ namespace Komodo.Runtime
             }
         }
 
-        private void SendPhysicsEndGrab(NetworkEntityIdentificationComponentData netIDComp)
-                {
-            //if droping a physics object update it for all.
-            if (!currentGrabbedObjectRigidBody)
-            {
-                return;
-            }
+        //private void SendPhysicsEndGrab(NetworkEntityIdentificationComponentData netIDComp)
+        //        {
 
-            if (!NetworkedPhysicsManager.Instance.physics_networkedEntities.Contains(currentGrabbedNetObject))
-            {
-                NetworkedPhysicsManager.Instance.physics_networkedEntities.Add(currentGrabbedNetObject);
-            }
 
-            if (Entity_Type.physicsObject != netIDComp.current_Entity_Type)
-            {
-                return;
-            }
+        //    //if droping a physics object update it for all.
+        //    if (!currentGrabbedObjectRigidBody)
+        //    {
+        //        return;
+        //    }
 
-            if (entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
-            {
-                return;
-            }
+        //    if (!NetworkedPhysicsManager.Instance.physics_networkedEntities.Contains(currentGrabbedNetObject))
+        //    {
+        //        NetworkedPhysicsManager.Instance.physics_networkedEntities.Add(currentGrabbedNetObject);
+        //    }
 
-            entityManager.AddComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
-        }
+        //    if (Entity_Type.physicsObject != netIDComp.current_Entity_Type)
+        //    {
+        //        return;
+        //    }
+
+        //    if (entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
+        //    {
+        //        return;
+        //    }
+
+        //    entityManager.AddComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
+        //}
 
         private void ResetStretchParameters ()
         {

@@ -5780,7 +5780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainPlayer_AvatarEntityGroup: {fileID: 2311064594114578006}
-  clientPrefab: {fileID: 1611361787474004, guid: 817b13c5774679848ab4c5454ea2cf19,
+  clientPrefab: {fileID: 2399318823429138664, guid: 817b13c5774679848ab4c5454ea2cf19,
     type: 3}
   centerAvatarSpawnLocation: {x: 0, y: 0, z: 0}
   clientReserveCount: 12
@@ -12929,6 +12929,7 @@ MonoBehaviour:
   networkedEntities: []
   posOffset: {x: 0, y: 0, z: 0}
   rotationOffset: {x: 0, y: 0, z: 0, w: 0}
+  playSpace: {fileID: 3265478291813631172}
 --- !u!114 &883117597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24235,6 +24236,7 @@ MonoBehaviour:
   isAvatarLoadingFinished: 0
   isAssetImportFinished: 0
   isSceneLoadingFinished: 0
+  isApplyingCatchup: 0
 --- !u!1 &1788335059
 GameObject:
   m_ObjectHideFlags: 0
@@ -32848,7 +32850,7 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5749747150703122391}
   - {fileID: 2312684449825989915}

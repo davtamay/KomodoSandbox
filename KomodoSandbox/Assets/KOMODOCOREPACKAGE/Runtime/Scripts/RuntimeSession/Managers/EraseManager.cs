@@ -51,7 +51,7 @@ namespace Komodo.Runtime
                             {
                                 netObj.gameObject.SetActive(true);
 
-                             //   DrawingInstanceManager.Instance.SendDrawUpdate(entityID, Entity_Type.LineRender);
+                                DrawingInstanceManager.Instance.SendDrawUpdate(netObj.thisEntityID, Entity_Type.LineRender);
                             }
                         )
                     );

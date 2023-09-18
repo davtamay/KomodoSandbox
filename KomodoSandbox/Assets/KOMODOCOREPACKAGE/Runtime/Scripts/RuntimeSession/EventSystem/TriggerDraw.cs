@@ -82,19 +82,19 @@ namespace Komodo.Runtime
                     //update visuals per stroke 
                     //offset: 5000 + clientid + child render count 
 
-                    // DrawingInstanceManager.Instance.SendDrawUpdate(
-                    //     strokeID,
-                    //     Entity_Type.Line,
-                    //     lineRenderer.widthMultiplier,
-                    //     lineRenderer.GetPosition(curLineIndex),
-                    //     new Vector4
-                    //     (
-                    //         lineRenderer.startColor.r,
-                    //         lineRenderer.startColor.g,
-                    //         lineRenderer.startColor.b,
-                    //         lineRenderer.startColor.a
-                    //     )
-                    // );
+                    DrawingInstanceManager.Instance.SendDrawUpdate(
+                        strokeID,
+                        Entity_Type.Line,
+                        lineRenderer.widthMultiplier,
+                        lineRenderer.GetPosition(curLineIndex),
+                        new Vector4
+                        (
+                            lineRenderer.startColor.r,
+                            lineRenderer.startColor.g,
+                            lineRenderer.startColor.b,
+                            lineRenderer.startColor.a
+                        )
+                    );
 
                     ++lineRenderer.positionCount;
 

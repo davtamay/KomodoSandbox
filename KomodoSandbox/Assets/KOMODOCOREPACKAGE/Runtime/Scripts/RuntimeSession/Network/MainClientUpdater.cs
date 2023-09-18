@@ -37,6 +37,7 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 using Unity.Entities;
 using Komodo.Utilities;
+using SixLabors.ImageSharp;
 //using Komodo.AssetImport;
 
 namespace Komodo.Runtime
@@ -158,8 +159,8 @@ namespace Komodo.Runtime
 
         private Vector3 previousPosition;
         private Quaternion previousRotation;
-        private float positionThreshold = 0.001f; // Adjust the threshold value as needed
-        private float rotationThreshold = 0.001f; // Adjust the threshold value as needed
+        private float positionThreshold = 0.01f; // Adjust the threshold value as needed
+        private float rotationThreshold = 0.01f; // Adjust the threshold value as needed
 
         public Vector3 posOffset;
         public Vector3 GetPosOffset() =>  posOffset;
@@ -167,6 +168,8 @@ namespace Komodo.Runtime
 
         public Quaternion rotationOffset;
         public Quaternion GetRotOffset() =>  rotationOffset;
+
+        public Transform playSpace;
 
         public void SetTransformOffset(Vector3 pOffset, Quaternion rOffset)
         {
@@ -280,7 +283,7 @@ namespace Komodo.Runtime
             switch (entityType)
             {
                 case Entity_Type.users_head:
-                    scaleFactor = headEntityTransform.parent.lossyScale.x;
+                    scaleFactor = playSpace.lossyScale.x;//headEntityTransform.parent.lossyScale.x;
                     break;
 
                 case Entity_Type.users_Lhand:
@@ -298,8 +301,10 @@ namespace Komodo.Runtime
             return scaleFactor;
         }
 
-        public Position GeneratePosition(MainClientUpdater who, Entity_Type entityType, Vector3 position, Quaternion rotation)
+        public Position GeneratePosition(MainClientUpdater who, Entity_Type entityType, Vector3 position, Quaternion rotation, float size = 1  )
         {
+            
+
             return new Position
             {
                 clientId = ComputeClientID(who),
@@ -313,6 +318,7 @@ namespace Komodo.Runtime
                 rot = rotation,
 
                 pos = position,
+
             };
         }
 

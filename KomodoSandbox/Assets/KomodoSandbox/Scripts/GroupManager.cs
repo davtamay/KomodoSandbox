@@ -14,7 +14,8 @@ namespace Komodo.IMPRESS
         public bool isAdding;
     }
 
-    public enum GroupColor {
+    public enum GroupColor
+    {
         RED,
         BLUE,
 
@@ -70,7 +71,7 @@ namespace Komodo.IMPRESS
             GlobalMessageManager.Instance.Subscribe("group", (str) => ReceiveGroupUpdate(str));
         }
 
-        public void Start ()
+        public void Start()
         {
             if (!leftControllerInteraction)
             {
@@ -125,28 +126,28 @@ namespace Komodo.IMPRESS
             ImpressEventManager.StartListening("groupTool.selectBlue", _selectBlue);
         }
 
-        private void _EnableGrouping ()
+        private void _EnableGrouping()
         {
             player.triggerGroupLeft.gameObject.SetActive(true);
 
             player.triggerGroupRight.gameObject.SetActive(true);
         }
 
-        private void _DisableGrouping ()
+        private void _DisableGrouping()
         {
             player.triggerGroupLeft.gameObject.SetActive(false);
 
             player.triggerGroupRight.gameObject.SetActive(false);
         }
 
-        private void _EnableUngrouping ()
+        private void _EnableUngrouping()
         {
             player.triggerUngroupLeft.gameObject.SetActive(true);
 
             player.triggerUngroupRight.gameObject.SetActive(true);
         }
 
-        private void _DisableUngrouping ()
+        private void _DisableUngrouping()
         {
             player.triggerUngroupLeft.gameObject.SetActive(false);
 
@@ -179,23 +180,23 @@ namespace Komodo.IMPRESS
             //}
         }
 
-        private void _SelectRed ()
+        private void _SelectRed()
         {
-            this._currentGroupType = (int) GroupColor.RED;
+            this._currentGroupType = (int)GroupColor.RED;
         }
 
-        private void _SelectBlue ()
+        private void _SelectBlue()
         {
-            this._currentGroupType = (int) GroupColor.BLUE;
+            this._currentGroupType = (int)GroupColor.BLUE;
         }
 
-        private void _CreateNewGroup (int groupID)
+        private void _CreateNewGroup(int groupID)
         {
             currentGroup = Instantiate(groupBoundingBox).AddComponent<Group>();
 
             //make net component
-          //  NetworkedObjectsManager.Instance.CreateNetworkedGameObject(currentGroup.gameObject);
-         //   currentGroup.gameObject.tag = "group";
+            //  NetworkedObjectsManager.Instance.CreateNetworkedGameObject(currentGroup.gameObject);
+            //   currentGroup.gameObject.tag = "group";
 
             //make child of parent to contain our grouped objects
             currentGroup.groupsParent = new GameObject("Linker Parent").transform;
@@ -204,15 +205,15 @@ namespace Komodo.IMPRESS
 
             Color color = Color.red;
 
-            if (groupID == (int) GroupColor.RED)
+            if (groupID == (int)GroupColor.RED)
             {
                 color = Color.red;
             }
-            else if (groupID == (int) GroupColor.BLUE)
+            else if (groupID == (int)GroupColor.BLUE)
             {
                 color = Color.red;
             }
-            else if(groupID == 2)
+            else if (groupID == 2)
             {
                 color = Color.red;
             }
@@ -234,7 +235,7 @@ namespace Komodo.IMPRESS
         }
 
 
-        private void _UpdateGroupBounds ()
+        private void _UpdateGroupBounds()
         {
             //eliminate all objects that are not visible (erase/undo sideeffect)
             for (int i = 0; i < currentGroup.groups.Count; i += 1)
@@ -248,8 +249,8 @@ namespace Komodo.IMPRESS
             }
 
 
-                //remove our children before we create a new bounding box for our parent containing the group
-                currentGroup.transform.DetachChildren();
+            //remove our children before we create a new bounding box for our parent containing the group
+            currentGroup.transform.DetachChildren();
 
             currentGroup.groupsParent.transform.DetachChildren();
 
@@ -284,8 +285,8 @@ namespace Komodo.IMPRESS
                 Destroy(boxCollider);
             }
 
-          //  if (!currentGroup.TryGetComponent(out BoxCollider bC))
-                currentRootCollider = currentGroup.gameObject.AddComponent<BoxCollider>();
+            //  if (!currentGroup.TryGetComponent(out BoxCollider bC))
+            currentRootCollider = currentGroup.gameObject.AddComponent<BoxCollider>();
 
             //add children again
             foreach (var item in currentGroup.groups)
@@ -297,7 +298,7 @@ namespace Komodo.IMPRESS
             currentGroup.groupsParent.SetParent(currentGroup.transform, true);
         }
 
-       
+
 
         /// <summary>
         /// Add an object to a specific group
@@ -322,7 +323,7 @@ namespace Komodo.IMPRESS
 
             // check if this is a call from the user or an external client
             int groupID = NetworkUpdateHandler.Instance.client_id;//GroupIDFromClientIDOrGroupType(otherClientID);
-            
+
 
 
             if (!groups.ContainsKey(groupID))
@@ -402,7 +403,7 @@ namespace Komodo.IMPRESS
             if (!collider.CompareTag("Interactable"))
                 return;
 
-           
+
 
             //to check if this is a call from the client or external clients
             int groupID = NetworkUpdateHandler.Instance.client_id;//_currentGroupType;
@@ -453,21 +454,21 @@ namespace Komodo.IMPRESS
             if (collider.transform.IsChildOf(currentGroup.groupsParent))
             {
                 collider.transform.parent = null;
-                
+
             }
 
             Debug.Log("UNDERGROUP : " + currentGroup.groups.Count);
 
-            if (currentGroup.groups.Count > 2) 
+            if (currentGroup.groups.Count > 2)
             {
                 //  UpdateGroup(currentGroup);
 
-              
+
                 currentGroup.groups.Remove(collider);
                 UpdateGroup(currentGroup);
 
             }
-            else 
+            else
             {
 
 
@@ -516,9 +517,9 @@ namespace Komodo.IMPRESS
                 Destroy(currentGroup.gameObject);
             }
 
-            
+
             Debug.Log("GROUP LENGTH COUNT : " + currentGroup.groups.Count);
-            
+
 
             if (clientIDToGroup.ContainsKey(groupID))
             {
@@ -528,10 +529,10 @@ namespace Komodo.IMPRESS
             }
 
 
-         //   _UpdateGroupBounds();
+            //   _UpdateGroupBounds();
         }
 
-        
+
 
         public void ExitGroup(Group lg)
         {
@@ -555,7 +556,7 @@ namespace Komodo.IMPRESS
                     return true;
                 }
 
-                if (!lgRend.bounds.Contains(leftControllerInteraction.transform.position) && 
+                if (!lgRend.bounds.Contains(leftControllerInteraction.transform.position) &&
                     !lgRend.bounds.Contains(rightControllerInteraction.transform.position))
                 {
                     return true;
@@ -583,7 +584,7 @@ namespace Komodo.IMPRESS
         {
             GroupProperties data = JsonUtility.FromJson<GroupProperties>(message);
 
-           // TODO FIX THIS TO WORK WITH KOMODOCORE v0.5.4
+            // TODO FIX THIS TO WORK WITH KOMODOCORE v0.5.4
             if (data.isAdding)
             {
                 //if (!clientIDToGroup.ContainsKey(data.groupID))
@@ -601,7 +602,7 @@ namespace Komodo.IMPRESS
                 //    if (clientIDToGroup[data.groupID].netObjectList.Contains(NetworkedObjectsManager.Instance.networkedObjectFromEntityId[data.entityID]))
                 //        clientIDToGroup[data.groupID].netObjectList.Remove(NetworkedObjectsManager.Instance.networkedObjectFromEntityId[data.entityID]);
                 //}
-               //     clientIDToGroup.Add(data.groupID, new Group { netObjectList = new List<NetworkedGameObject>() { NetworkedObjectsManager.Instance.networkedObjectFromEntityId[data.entityID] } });
+                //     clientIDToGroup.Add(data.groupID, new Group { netObjectList = new List<NetworkedGameObject>() { NetworkedObjectsManager.Instance.networkedObjectFromEntityId[data.entityID] } });
                 //else
                 //    clientIDToGroup[data.groupID].netObjectList.Add(NetworkedObjectsManager.Instance.networkedObjectFromEntityId[data.entityID]);
 
@@ -666,20 +667,20 @@ namespace Komodo.IMPRESS
 
 
 
-            BoxCollider[] bcs  = rootParent.GetComponents<BoxCollider>();
+            BoxCollider[] bcs = rootParent.GetComponents<BoxCollider>();
 
             for (int i = 0; i < bcs.Length; i++)
             {
                 Destroy(bcs[i]);
             }
-          
+
 
             //if (rootParent.TryGetComponent(out Collider boxCollider))
             //{
             //    Destroy(boxCollider);
             //}
 
-           
+
             rootParent.gameObject.AddComponent<BoxCollider>();
 
             foreach (var item in childList)
@@ -744,9 +745,9 @@ namespace Komodo.IMPRESS
 
             foreach (var item in childList)
             {
-             
+
                 item.transform.SetParent(parentOfCollection.transform, true);
-               // item.SetGlobalScale(item.localScale.x * Vector3.one);
+                // item.SetGlobalScale(item.localScale.x * Vector3.one);
             }
 
 

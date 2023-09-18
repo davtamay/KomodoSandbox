@@ -87,44 +87,44 @@ public class ImpressMainClientUpdater : SingletonComponent<ImpressMainClientUpda
        // }
     }
 
-    public void SendSyncNetObject(NetworkedGameObject eContainer)
-    {
-        //List<NetworkedGameObject> netObjInGroup = new List<NetworkedGameObject>();
+    //public void SendSyncNetObject(NetworkedGameObject eContainer)
+    //{
+    //    //List<NetworkedGameObject> netObjInGroup = new List<NetworkedGameObject>();
 
-        //foreach (Transform item in eContainer.transform)
-        //{
-        //    if(TryGetComponent(out NetworkedGameObject ngo))
-        //    {
-        //        netObjInGroup.Add(ngo);
-
-
-        //    }
-        //}
-      
+    //    //foreach (Transform item in eContainer.transform)
+    //    //{
+    //    //    if(TryGetComponent(out NetworkedGameObject ngo))
+    //    //    {
+    //    //        netObjInGroup.Add(ngo);
 
 
-        var entityData = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.entity);
-
-        IMPRESSPosition position = new IMPRESSPosition
-        {
-            clientId = entityData.clientID,
+    //    //    }
+    //    //}
 
 
 
-            entityId = entityData.entityID,
+    //    // var entityData = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.entity);
 
-            entityType = (int)entityData.current_Entity_Type,
+    //    IMPRESSPosition position = new IMPRESSPosition
+    //    {
+    //        clientId = entityData.clientID,
 
-            rot = eContainer.transform.rotation,
 
-            pos = eContainer.transform.position,
 
-            //since using parenting for objects, we need to translate local to global scalling when having it in your hand, when releasing we need to return such objects scalling from global to local scale
-            scaleFactor = new Vector3(eContainer.transform.lossyScale.x, eContainer.transform.lossyScale.y, eContainer.transform.lossyScale.z)
-        };
+    //        entityId = eContainer.thisEntityID,//entityData.entityID,
 
-        SendSyncPoseMessage(position);
-    }
+    //        entityType = (int)entityData.current_Entity_Type,
+
+    //        rot = eContainer.transform.rotation,
+
+    //        pos = eContainer.transform.position,
+
+    //        //since using parenting for objects, we need to translate local to global scalling when having it in your hand, when releasing we need to return such objects scalling from global to local scale
+    //        scaleFactor = new Vector3(eContainer.transform.lossyScale.x, eContainer.transform.lossyScale.y, eContainer.transform.lossyScale.z)
+    //    };
+
+    //    SendSyncPoseMessage(position);
+    //}
     public void SendSyncPoseMessage(IMPRESSPosition pos)
     {
         var posString = JsonUtility.ToJson(pos);
@@ -151,10 +151,10 @@ public class ImpressMainClientUpdater : SingletonComponent<ImpressMainClientUpda
 
     public void ApplyPosition(IMPRESSPosition positionData)
     {
-        if (GameStateManager.IsAlive && !GameStateManager.Instance.isAssetImportFinished)
-        {
-            return;
-        }
+        //if (GameStateManager.IsAlive && !GameStateManager.Instance.isAssetImportFinished)
+        //{
+        //    return;
+        //}
 
         if (positionData.entityType != (int)Entity_Type.objects && positionData.entityType != (int)Entity_Type.physicsObject)
         {
