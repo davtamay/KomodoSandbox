@@ -122,9 +122,11 @@ namespace Komodo.Runtime
         //}
         public async Task<ModelItem> InstantiateNewAssetToList(ModelData modelData, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true)
         {
+            //this means we cant depend on the button index since it is based on the user index --> need to only use guid
+            var buttonIndex = ModelImportInitializer.Instance.GetRoot().transform.childCount;
 
             //   ModelItem modelItem = InstantiatePlaceHolderButton(url, ModelImportInitializer.Instance.GetRoot().transform.childCount, false, modelData.scale, isWhole, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, net_call, pos, rot);
-            ModelItem modelItem = await InstantiatePlaceHolderButton(modelData, ModelImportInitializer.Instance.GetRoot().transform.childCount, false, isWhole, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, net_call);
+            ModelItem modelItem = await InstantiatePlaceHolderButton(modelData, buttonIndex, false, isWhole, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, net_call);
 
             modelItem.inputURL.text = modelData.modelURL;
 

@@ -321,21 +321,12 @@ namespace Komodo.Runtime
         public NetworkedGameObject CreateNetworkedGameObject(GameObject gObject, int modelListIndex = -1, int customEntityID = 0, bool doNotLinkWithButtonID = false)
         {
 
-            //if(uniqueEntityID == -1)
-            //{
-            //    NetworkedObjectsManager.Instance.net_GO_pendingRegistrationList.Enqueue(this);
-            //    SocketIOJSLib.RequestUUIDFromServer();
-            //}
-            //else
-            //{
-            //    Register(uniqueEntityID);
-            //}
-
-
+          //  Debug.Log("ITS A CUSTOMEENITYID OF 0, so child netobject element is included");
 
             //add a Net component to the object
             NetworkedGameObject netObject = gObject.AddComponent<NetworkedGameObject>();
-            netObject.buttonIndex = modelListIndex;
+
+
 
            // Debug.Log("DRAGON BUTTON INDEX : " + modelListIndex);
             //to look a decomposed set of objects we need to keep track of what Index we are iterating over regarding or importing models to create sets
@@ -346,11 +337,13 @@ namespace Komodo.Runtime
                 return InstantiateNetworkedGameObject(netObject, customEntityID, modelListIndex);
             }
 
-            //if (modelListIndex == -1)
-            //{
-            //    return InstantiateNetworkedGameObject(netObject, customEntityID, modelListIndex);
-            //}
 
+            netObject.buttonIndex = modelListIndex;
+
+          
+
+
+    
             List<NetworkedGameObject> subObjects;
 
             Dictionary<int, List<NetworkedGameObject>> netSubObjectLists = Instance.networkedSubObjectListFromIndex;

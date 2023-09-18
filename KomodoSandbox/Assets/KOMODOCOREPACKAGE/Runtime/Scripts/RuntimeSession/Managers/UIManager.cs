@@ -11,7 +11,7 @@ using System.Reflection;
 public struct ToggleState
 {
     public int clientID;
-    public int entityID;
+    public int guid;
     public bool state;
 }
 
@@ -112,6 +112,10 @@ namespace Komodo.Runtime
         public Dictionary<int, LockToggle> modelLockToggleList = new Dictionary<int, LockToggle>();
 
         [HideInInspector]
+        public Dictionary<int, int> entityIDtoButtonIDDictionary = new Dictionary<int, int>();
+        public Dictionary<int, int> buttonIDtoEntityIDDictionary = new Dictionary<int, int>();
+
+        [HideInInspector]
         public TMP_Text sessionAndBuildName;
 
         private ToggleExpandability menuExpandability;
@@ -126,16 +130,14 @@ namespace Komodo.Runtime
 
         private Image cursorImage;
 
-        private EntityManager entityManager;
-
-        ClientSpawnManager clientManager;
+   
 
         public void Awake()
         {
             // instantiates this singleton in case it doesn't exist yet.
             var uiManager = Instance;
 
-            clientManager = ClientSpawnManager.Instance;
+            //clientManager = ClientSpawnManager.Instance;
 
             if (menuPrefab == null)
             {
@@ -150,7 +152,7 @@ namespace Komodo.Runtime
 
                 var data = JsonUtility.FromJson<ToggleState>(s);
 
-                ProcessNetworkToggleVisibility(data.entityID, data.state);
+                ProcessNetworkToggleVisibility(data.guid, data.state);
                 
             });
 
@@ -158,7 +160,7 @@ namespace Komodo.Runtime
 
                 var data = JsonUtility.FromJson<ToggleState>(s);
 
-                ProcessNetworkToggleLock(data.entityID, data.state);
+                ProcessNetworkToggleLock(data.guid, data.state);
 
             });
 
@@ -343,13 +345,14 @@ namespace Komodo.Runtime
                 Debug.LogError("no NetworkedGameObject component found on currentObj in ClientSpawnManager.cs");
                 return;
             }
-
+             var entityID =   buttonIDtoEntityIDDictionary[index];
+ 
             //  int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.entity).entityID;
 
             ToggleState ts = new ToggleState
             {
                 clientID = NetworkUpdateHandler.Instance.client_id,
-                entityID = netObject.buttonIndex,//netObject.thisEntityID,//entityID,
+                guid = entityID,//netObject.thisEntityID,//entityID,
                 state = doShow,
 
             };
@@ -399,14 +402,19 @@ namespace Komodo.Runtime
                 return;
             }
             Debug.Log("LOCKING" + nObject.name);
+            //thisEntityID is 0 on the receiving end for some reason...
+
             //netObject.thisEntityID
             //return;
             // int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netObject.entity).entityID;
+            
+            var entityID = buttonIDtoEntityIDDictionary[index];
+
 
             ToggleState ts = new ToggleState
             {
                 clientID = NetworkUpdateHandler.Instance.client_id,
-                entityID = netObject.buttonIndex,//netObject.thisEntityID,//entityID,
+                guid = entityID,//netObject.thisEntityID,//netObject.thisEntityID,//entityID,
                 state = doLock,
 
             };
@@ -460,75 +468,56 @@ namespace Komodo.Runtime
         /// <param name="doShow"></param>
         public void ProcessNetworkToggleVisibility(int index, bool doShow)
         {
-            //    Debug.Log($" networked game object at {entityID}");
+            Debug.Log($"Button Index: {index} ");
+       //     Debug.Log($"EntityID : {buttonIDtoEntityIDDictionary[index]} ");
 
-            //    var netObject = NetworkedObjectsManager.Instance.networkedObjectFromEntityId[entityID];
-
-            //    if (netObject == null)
-            //    {
-            //        Debug.LogError($"Could not get entity with id {entityID}");
-
-            //        return;
-            //    }
-
-
-
-            ////    var index = entityManager.GetSharedComponentManaged<ButtonIDSharedComponentData>(netObject.entity).buttonID;
-
-            //    NetworkedGameObject net_go = NetworkedObjectsManager.Instance.GetNetworkedGameObject(index);
-
-            //    if (!net_go)
-            //    {
-            //        Debug.LogError($"Could not get networked game object at {index}");
-
-            //        return;
-            //    }
-
-
-            //    if (index > modelVisibilityToggleList.Count || !modelVisibilityToggleList[index])
-            //    {
-            //        Debug.LogError($"Tried to change state of model lock button, but there was none with index {index}");
-
-            //        return;
-            //    }
-            if (index > modelVisibilityToggleList.Count || !modelVisibilityToggleList[index])
+            if (!entityIDtoButtonIDDictionary.ContainsKey(index))
             {
-                Debug.LogError($"Tried to change state of model lock button, but there was none with index {index}");
+
+                Debug.Log($"ENTITYID {index} TO BUTTON ID DICTIONARY DOES NOT CONTATIN BUTTON ID ");
+                return;
+            }
+
+
+            var buttonID = entityIDtoButtonIDDictionary[index];
+
+
+            if (buttonID > modelVisibilityToggleList.Count || !modelVisibilityToggleList[buttonID])
+            {
+                Debug.LogError($"Tried to change state of model lock button, but there was none with index {buttonID}");
 
                 return;
             }
-         //   modelLockToggleList[index].ProcessNetworkToggle(doLock, index);
 
-            modelVisibilityToggleList[index].ProcessNetworkToggle(doShow);
+            modelVisibilityToggleList[buttonID].ProcessNetworkToggle(doShow);
         }
 
-        //[ContextMenu("Test Process Network Lock Model 0")]
-        //public void TestProcessNetworkLock()
-        //{
-        //    ProcessNetworkToggleLock(0, true);
-        //}
-
-        //[ContextMenu("Test Process Network Unlock Model 0")]
-        //public void TestProcessNetworkUnlock()
-        //{
-        //    ProcessNetworkToggleLock(0, false);
-        //}
 
         public void ProcessNetworkToggleLock (int index, bool doLock)
         {
             Debug.Log("received LOCK : " + index);
 
-           //  index =  NetworkedObjectsManager.Instance.networkedObjectFromEntityId[index];
+            if (!entityIDtoButtonIDDictionary.ContainsKey(index))
+            {
 
-         //   Debug.Log("After received LOCK : " + index);
-            if (index > modelLockToggleList.Count || !modelLockToggleList[index])
+                Debug.Log($"ENTITYID {index} TO BUTTON ID DICTIONARY DOES NOT CONTATIN BUTTON ID ");
+                return;
+            }
+
+
+            var buttonID = UIManager.Instance.entityIDtoButtonIDDictionary[index];
+
+            //  index =  NetworkedObjectsManager.Instance.networkedObjectFromEntityId[index];
+
+            //   Debug.Log("After received LOCK : " + index);
+            if (buttonID > modelLockToggleList.Count || !modelLockToggleList[buttonID])
             {
                 Debug.LogError($"Tried to change state of model lock button, but there was none with index {index}");
 
                 return;
             }
 
-            modelLockToggleList[index].ProcessNetworkToggle(doLock, index);
+            modelLockToggleList[buttonID].ProcessNetworkToggle(doLock, buttonID);
         }
 
       

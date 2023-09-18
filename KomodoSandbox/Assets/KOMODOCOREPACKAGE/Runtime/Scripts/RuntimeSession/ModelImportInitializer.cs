@@ -188,6 +188,7 @@ namespace Komodo.Runtime
             }
         }
 
+        //no ued in favor of using card
         public IEnumerator InstantiateModels()
         {
             for (int i = 0; i < localFiles.Count; i += 1 )
@@ -201,7 +202,7 @@ namespace Komodo.Runtime
                 {
                     //WebGLMemoryStats.LogMoreStats($"ModelImportPostProcessor.SetUpGameObject {model.name} BEFORE");
 
-                    GameObject komodoImportedModel = ModelImportPostProcessor.SetUpGameObject(menuIndex, model, gObject, settings ?? null);
+                    GameObject komodoImportedModel = ModelImportPostProcessor.Instance.SetUpGameObject(menuIndex, model, gObject, settings ?? null);
 
                     //WebGLMemoryStats.LogMoreStats($"ModelImportPostProcessor.SetUpGameObject {model.name} AFTER");
 

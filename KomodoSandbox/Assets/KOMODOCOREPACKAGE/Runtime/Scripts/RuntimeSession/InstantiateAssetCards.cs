@@ -50,8 +50,6 @@ public class InstantiateAssetCards : SingletonComponent<InstantiateAssetCards>
     public Transform contentParent;
 
 
-    //public UnityAction onNewPlaceHolderProvided;
-
 
     private void Awake()
     {

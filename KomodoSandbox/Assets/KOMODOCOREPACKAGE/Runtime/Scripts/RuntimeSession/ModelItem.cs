@@ -15,7 +15,7 @@ namespace Komodo.Runtime
     public class ModelItem : MonoBehaviour
     {
         [ShowOnly]
-        public int index;
+        public int entityButtonIndex;
 
         public VisibilityToggle visibilityToggle;
 
@@ -33,17 +33,17 @@ namespace Komodo.Runtime
 
      
 
-        public async Task Initialize(string url, int index, bool isWhole = true, bool isDownloadPlaceHolder = false, Action<string, int> onPlaceHolderUsed = null, UnityAction onAssetClicked = null, UnityAction onAssetLoaded = null, bool isFromModelLibrary = false, bool net_call = true)
+        public async Task Initialize(string url, int butttonIndex, bool isWhole = true, bool isDownloadPlaceHolder = false, Action<string, int> onPlaceHolderUsed = null, UnityAction onAssetClicked = null, UnityAction onAssetLoaded = null, bool isFromModelLibrary = false, bool net_call = true)
         {
             
             nameDisplay.Initialize("");
 
 
-            visibilityToggle.Initialize(index);
-            lockToggle.Initialize(index);
+            visibilityToggle.Initialize(butttonIndex);
+            lockToggle.Initialize(butttonIndex);
 
-            if (index != -1)
-                this.index = index;
+            if (butttonIndex != -1)
+                this.entityButtonIndex = butttonIndex;
 
 
             if (isDownloadPlaceHolder)
@@ -54,10 +54,10 @@ namespace Komodo.Runtime
                     onAssetClicked?.Invoke();
 
 
-                    if (index == -1)
-                      this.index = ModelImportInitializer.Instance.GetRoot().transform.childCount;
+                    if (butttonIndex == -1)
+                      this.entityButtonIndex = ModelImportInitializer.Instance.GetRoot().transform.childCount;
 
-                    visibilityToggle.Initialize(this.index);
+                    visibilityToggle.Initialize(this.entityButtonIndex);
 
                     downloadButton.transform.parent.parent.gameObject.SetActive(false);
 
@@ -88,7 +88,7 @@ namespace Komodo.Runtime
                     {
                         model = newInstance.AddComponent<AddToModelList>();
                         model.isWholeObject = isWhole;
-                        model.SetIndex(index);
+                        model.SetIndex(butttonIndex);
 
                         importInstance = newInstance.AddComponent<KomodoGLTFAssetV5>();
 
@@ -206,11 +206,11 @@ namespace Komodo.Runtime
 
                 //visibilityToggle.Initialize(this.index);
 
-                UIManager.Instance.modelVisibilityToggleList.Add(index,visibilityToggle);
+                UIManager.Instance.modelVisibilityToggleList.Add(butttonIndex,visibilityToggle);
 
                 //lockToggle.Initialize(this.index);
 
-                UIManager.Instance.modelLockToggleList.Add(index, lockToggle);
+                UIManager.Instance.modelLockToggleList.Add(butttonIndex, lockToggle);
 
                 //nameDisplay.Initialize(name);
 

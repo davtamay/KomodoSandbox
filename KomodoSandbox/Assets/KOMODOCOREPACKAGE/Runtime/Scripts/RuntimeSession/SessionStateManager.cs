@@ -161,6 +161,7 @@ namespace Komodo.Runtime
                 }
 
                 yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
+
                     //it is not waiting
 
                 
@@ -172,7 +173,13 @@ namespace Komodo.Runtime
                     continue;
                 }
 
-                UIManager.Instance.ProcessNetworkToggleVisibility(netObject.thisEntityID, entityState.render);
+               // UIManager.Instance.ProcessNetworkToggleVisibility(netObject.thisEntityID, entityState.render);
+
+
+                UIManager.Instance.ProcessNetworkToggleVisibility(entityState.guid, entityState.render);
+
+                UIManager.Instance.ProcessNetworkToggleLock(entityState.guid, entityState.locked);
+
 
                 //int interactionType = entityState.locked ? (int)INTERACTIONS.LOCK : (int)INTERACTIONS.UNLOCK;
 

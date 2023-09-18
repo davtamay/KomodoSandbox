@@ -118,14 +118,35 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
         mID.isWholeObject = modelData.isWholeObject;
 
         Debug.Log("URL : " + modelData.modelURL);
-
+        Debug.Log("GUID : " + modelData.guid);
 
         root = ModelImportInitializer.Instance.GetRoot();
 
 
+
+        //make a button id association
+        if (UIManager.Instance.entityIDtoButtonIDDictionary.ContainsKey(indexInList))
+        {
+            Debug.Log(modelData.guid + "--- this entitiy is already attached to button: " + indexInList);
+
+        }
+        else
+        {
+            UIManager.Instance.entityIDtoButtonIDDictionary.Add(modelData.guid, indexInList);
+
+            if (!UIManager.Instance.buttonIDtoEntityIDDictionary.ContainsKey(indexInList))
+                UIManager.Instance.buttonIDtoEntityIDDictionary.Add(indexInList, modelData.guid);
+
+        }
+
+
+
+
+
+
         //we initiate this in the post process of our gltfimport;
         Debug.Log("SETUP GO, " + indexInList  + "   " + "with whole object" + mID.isWholeObject);
-        GameObject komodoImportedModel = ModelImportPostProcessor.SetUpGameObject(indexInList, mID, gameObject);
+        GameObject komodoImportedModel = ModelImportPostProcessor.Instance.SetUpGameObject(indexInList, mID, gameObject);
         //ModelImportInitializer.Instance.modelButtonList.InstantiateButton(mID.name, index);  
 
         komodoImportedModel.transform.SetParent(root.transform, false);

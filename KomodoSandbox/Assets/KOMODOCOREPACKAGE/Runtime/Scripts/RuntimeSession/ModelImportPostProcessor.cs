@@ -39,12 +39,20 @@ using UnityEngine;
 using Komodo.AssetImport;
 using Unity.Collections;
 using System;
+using Komodo.Utilities;
 
 namespace Komodo.Runtime
 {
     //Provides funcions to set up gameobject with colliders and setup references for network interaction
-    public class ModelImportPostProcessor
+    public class ModelImportPostProcessor : SingletonComponent<ModelImportPostProcessor>
     {
+        public static ModelImportPostProcessor Instance
+        {
+            get { return ((ModelImportPostProcessor)_Instance); }
+            set { _Instance = value; }
+        }
+
+
         /// <summary>
         /// Set up imported objects with colliders, register them to be used accross the network, and set properties from the data received and the setup flags from AssetImportSetupSettings
         /// </summary>
@@ -53,7 +61,7 @@ namespace Komodo.Runtime
         /// <param name="loadedObject"> our loaded object</param>
         /// <param name="setupFlags"> setup instructions</param>
         /// <returns></returns>
-        public static GameObject SetUpGameObject(int menuButtonIndex, ModelImportData modelData, GameObject loadedObject, ModelImportSettings setupFlags = null)
+        public GameObject SetUpGameObject(int menuButtonIndex, ModelImportData modelData, GameObject loadedObject, ModelImportSettings setupFlags = null)
         {
             const float defaultFitToScale = 2;
             const bool defaultDoSetUpColliders = true;
@@ -95,6 +103,8 @@ namespace Komodo.Runtime
 
             Bounds bounds = new Bounds();
 
+            Debug.Log("ROOT NETGO " + modelData.guid);
+
             if (setupFlags.doSetUpColliders)
             {
                 SetUpColliders(loadedObject, bounds, newParent, modelData, setupFlags, menuButtonIndex);
@@ -102,7 +112,7 @@ namespace Komodo.Runtime
                 //turn off whole colliders for non-whole objects
                 if (!modelData.isWholeObject)
                 {
-                    SetUpSubObjects(newParent, loadedObject, menuButtonIndex);
+                    SetUpSubObjects(newParent, loadedObject, menuButtonIndex, modelData.guid);
                 }
 
                 SetUpAnimation(newParent, loadedObject, modelData.isWholeObject);
@@ -146,35 +156,35 @@ namespace Komodo.Runtime
             // using (BlobAssetStore blobAssetStore = new BlobAssetStore())
             // {
 
-                // var entity = Entity.Null;
+            // var entity = Entity.Null;
 
-                // if (netObject && netObject.Entity != Entity.Null)
-                // {
-                //     entity = netObject.Entity;
-                // }
-                // else
-                // {
-                //     entity = entityManager.CreateEntity();
-                // }
+            // if (netObject && netObject.Entity != Entity.Null)
+            // {
+            //     entity = netObject.Entity;
+            // }
+            // else
+            // {
+            //     entity = entityManager.CreateEntity();
+            // }
 
 #if ECS
           //  entityManager.SetName(entity, newParent.gameObject.name);
 #endif
-              //   NetworkedObjectsManager.Instance.CreateNetworkedGameObject.Add(entity);
-             //   NetworkedObjectsManager.Instance.topLevelEntityList.Add(entity);
+            //   NetworkedObjectsManager.Instance.CreateNetworkedGameObject.Add(entity);
+            //   NetworkedObjectsManager.Instance.topLevelEntityList.Add(entity);
 
-                // var buff = ecbs.AddBuffer<LinkedEntityGroup>(entity);
+            // var buff = ecbs.AddBuffer<LinkedEntityGroup>(entity);
 
-                // SetEntityReferences(entityManager, newParent.transform, buff, menuButtonIndex, entity, true);
+            // SetEntityReferences(entityManager, newParent.transform, buff, menuButtonIndex, entity, true);
 
-                //to be in par with gameobject representation current state 
-             //   entityManager.SetEnabled(entity, false);
+            //to be in par with gameobject representation current state 
+            //   entityManager.SetEnabled(entity, false);
 
-                //play back our structural changes after adding them to our command buffer
-                // ecbs.ShouldPlayback = false;
+            //play back our structural changes after adding them to our command buffer
+            // ecbs.ShouldPlayback = false;
 
-                // ecbs.Playback(entityManager);
-          //  }
+            // ecbs.Playback(entityManager);
+            //  }
         }
 
         public static void SetUpColliders(GameObject loadedObject, Bounds bounds, Transform newParent, ModelImportData modelData, ModelImportSettings setupFlags, int menuButtonIndex)
@@ -255,14 +265,16 @@ namespace Komodo.Runtime
             }
         }
 
-        public static void SetUpSubObjects(Transform newParent, GameObject loadedObject, int menuButtonIndex)
+        public void SetUpSubObjects(Transform newParent, GameObject loadedObject, int menuButtonIndex, int rootID)
         {
             //activate to allow GO setup to happen
             newParent.gameObject.SetActive(true);
 
+            Debug.Log("GUID SUBIBJECT : " + rootID);
+
             //a dictionary to keep new parent and child references to set correct pivot parents after child iteration
             Dictionary<Transform, Transform> childToNewParentPivot = new Dictionary<Transform, Transform>();
-            AddRigidBodiesAndColliders(loadedObject.transform, loadedObject.transform, menuButtonIndex, ref childToNewParentPivot);
+            AddRigidBodiesAndColliders(loadedObject.transform, loadedObject.transform, menuButtonIndex, ref childToNewParentPivot, rootID);
 
             //since we are creating new parent pivots during the child iteration process we have to set parents after the fact
             foreach (KeyValuePair<Transform, Transform> item in childToNewParentPivot)
@@ -374,7 +386,7 @@ namespace Komodo.Runtime
             }
         }
 
-        public static Transform CheckForIndividualFiltersAndSkins(GameObject gameObjectToCheck, Transform root, int menuButtonIndex = -1, bool isNetworked = true)
+        public static Transform CheckForIndividualFiltersAndSkins(GameObject gameObjectToCheck, Transform root, int menuButtonIndex = -1, bool isNetworked = true, int rootID = 0)
         {
             bool hasMeshFilter = false;
             MeshFilter filter = default;
@@ -422,7 +434,8 @@ namespace Komodo.Runtime
                     tempCollider.size = filter.mesh.bounds.size;
                     newParent.localPosition = filter.mesh.bounds.center;
 
-                    if (isNetworked) NetworkedObjectsManager.Instance.CreateNetworkedGameObject(newParent.gameObject, menuButtonIndex);
+                    //does not work in multiplayer since there is no customentityid set 
+                    if (isNetworked) NetworkedObjectsManager.Instance.CreateNetworkedGameObject(newParent.gameObject, menuButtonIndex, rootID + 1);
                 }
                 else if (hasSkinnedRenderer) // NOTE(david): animated objects are considered to have skinned mesh renderers and given whole collider
                 {
@@ -443,28 +456,42 @@ namespace Komodo.Runtime
         /// <param name="transform"></param>
         /// <param name="menuButtonIndex"></param>
         /// <param name="childToNewParentPivot"></param>
-        static void AddRigidBodiesAndColliders(Transform transform, Transform root, int menuButtonIndex, ref Dictionary<Transform, Transform> childToNewParentPivot)
+       /// 
+        int originalRootID;
+        public void AddRigidBodiesAndColliders(Transform transform, Transform root, int menuButtonIndex, ref Dictionary<Transform, Transform> childToNewParentPivot, int rootID)
         {
+             originalRootID = rootID;
+
+            Debug.Log("1 Child from root" + originalRootID);
+
             //check that we are not looking at a transform that we already looked at
             if (!childToNewParentPivot.ContainsValue(transform))
             {
+                originalRootID += 1;
+                Debug.Log("1, Child for root + " + originalRootID);
+
                 //Check parent first for renderers 
-                Transform newPO2 = CheckForIndividualFiltersAndSkins(transform.gameObject, root.transform, menuButtonIndex);
+                Transform newPO2 = CheckForIndividualFiltersAndSkins(transform.gameObject, root.transform, menuButtonIndex, rootID: originalRootID);
 
                 if (newPO2 != null)
                     childToNewParentPivot.Add(newPO2, transform);
             }
 
+
             //check children for renderers
             foreach (Transform child in transform)
             {
-                Transform newParent = CheckForIndividualFiltersAndSkins(child.gameObject, root, menuButtonIndex);
+                originalRootID += 1;
+
+                Debug.Log("2 Child from root " + originalRootID);
+
+                Transform newParent = CheckForIndividualFiltersAndSkins(child.gameObject, root, menuButtonIndex, rootID: originalRootID);
 
                 //if we made a new pivot parent add it to the dictionary to iterate after completing iteraction for the specific model
                 if (newParent != null) childToNewParentPivot.Add(newParent, child);
 
                 //deeper children search //resets our dic 
-                if (child.childCount > 0) AddRigidBodiesAndColliders(child, root.transform, menuButtonIndex, ref childToNewParentPivot);
+                if (child.childCount > 0) AddRigidBodiesAndColliders(child, root.transform, menuButtonIndex, ref childToNewParentPivot, originalRootID);
             }
         }
 
@@ -485,7 +512,7 @@ namespace Komodo.Runtime
             //now attach child to new parent to have pivot point parent
             child.transform.SetParent(pivot, true);
 
-          //  Debug.Log(previousParent);
+            //  Debug.Log(previousParent);
             //set pivot to be parented to the original child parent
             //if (previousParent)
             //{
@@ -495,8 +522,8 @@ namespace Komodo.Runtime
             //{
             //    Debug.Log("2nd" + parentRoot);
             //works but disrupts annimation because gameobject go out of order in hyerarchy
-                pivot.transform.SetParent(parentRoot, false);
-          //  }
+            pivot.transform.SetParent(parentRoot, false);
+            //  }
         }
 
     }
