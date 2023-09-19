@@ -1,5 +1,7 @@
-﻿using Unity.Entities;
+﻿using TMPro;
+using Unity.Entities;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Komodo.Runtime
 {
@@ -17,5 +19,8 @@ namespace Komodo.Runtime
         public AvatarComponent avatarComponent_Head;
         public AvatarComponent avatarComponent_hand_L;
         public AvatarComponent avatarComponent_hand_R;
+
+        public TMP_Text clientNameTag;
+        public TMP_Text clientDialogue;
     }
 }

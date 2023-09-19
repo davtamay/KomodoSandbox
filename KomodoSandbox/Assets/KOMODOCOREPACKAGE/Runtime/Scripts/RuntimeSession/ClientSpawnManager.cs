@@ -87,7 +87,7 @@ namespace Komodo.Runtime
         public float spreadRadius;
 
         //References for displaying user name tags and speechtotext text
-        private List<Text> clientUsernameDisplays = new List<Text>();
+        private List<TMP_Text> clientUsernameDisplays = new List<TMP_Text>();
         private Dictionary<int, TMP_Text> clientUsernameMenuDisplay = new Dictionary<int, TMP_Text>();
         public Dictionary<int, TMP_Text> GetUsernameMenuDisplayDictionary() =>  clientUsernameMenuDisplay;
 
@@ -97,7 +97,7 @@ namespace Komodo.Runtime
         }
 
 
-        private List<Text> clientSpeechToTextDisplays = new List<Text>();
+        private List<TMP_Text> clientSpeechToTextDisplays = new List<TMP_Text>();
 
         #region Lists And Dictionaries to store references in scene
         private List<int> clientIDs = new List<int>();
@@ -1072,19 +1072,26 @@ namespace Komodo.Runtime
             avatar = Instantiate(clientPrefab, Vector3.zero, Quaternion.identity);
 
             avatar.name = $"Client {i + 1}";
-            //Obtain each avatars UI_TEXT REFERENCE FROM THEIR CANVAS IN PREFAB
-            //GET HEAD TO GET CANVAS FOR TEXT COMPONENTS
-            Transform canvas = avatar.transform.GetChild(0).GetComponentInChildren<Canvas>().transform;
-
-            //GET APPROPRIATE TEXT COMPONENT CHARACTER NAME AND SPEECH_TO_TEXT
-            clientUsernameDisplays.Add(canvas.GetChild(0).GetComponent<Text>());
-            canvas.GetChild(0).GetComponent<Text>().text = $"Client {i + 1}";
-
-            clientSpeechToTextDisplays.Add(canvas.GetChild(1).GetChild(0).GetComponent<Text>());
 
             //Set up links for network call references
             var otherClientAvatars = avatar.GetComponentInChildren<AvatarEntityGroup>(true);
             avatars.Add(otherClientAvatars);
+
+
+            //Obtain each avatars UI_TEXT REFERENCE FROM THEIR CANVAS IN PREFAB
+            //GET HEAD TO GET CANVAS FOR TEXT COMPONENTS
+            //ransform canvas = avatar.transform.GetComponentInChildren<Canvas>().transform;
+
+            //GET APPROPRIATE TEXT COMPONENT CHARACTER NAME AND SPEECH_TO_TEXT
+         //   var usernameText = canvas.GetComponentInChildren<TMP_Text>(true);
+            clientUsernameDisplays.Add(otherClientAvatars.clientNameTag);
+            otherClientAvatars.clientNameTag.text = $"Client {i + 1}";
+
+
+           // var dialogueText = canvas.GetComponentInChildren<Text>(true);
+            clientSpeechToTextDisplays.Add(otherClientAvatars.clientDialogue);
+
+         
 
             //set up our entitiies to store data about components
             otherClientAvatars.rootEntity = entityManager.CreateEntity();

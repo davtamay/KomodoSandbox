@@ -193,9 +193,6 @@ namespace Komodo.Runtime
 
             toggle.group.allowSwitchOff = false;
 
-         //   toggle.group.allowSwitchOff = true
-
-
 
             startSessionButton.interactable = true;
 

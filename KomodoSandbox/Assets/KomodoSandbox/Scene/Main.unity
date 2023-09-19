@@ -5780,7 +5780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainPlayer_AvatarEntityGroup: {fileID: 2311064594114578006}
-  clientPrefab: {fileID: 2399318823429138664, guid: 817b13c5774679848ab4c5454ea2cf19,
+  clientPrefab: {fileID: 5035276421977158961, guid: 817b13c5774679848ab4c5454ea2cf19,
     type: 3}
   centerAvatarSpawnLocation: {x: 0, y: 0, z: 0}
   clientReserveCount: 12
@@ -31813,6 +31813,8 @@ MonoBehaviour:
   avatarComponent_Head: {fileID: 2311330626103315051}
   avatarComponent_hand_L: {fileID: 7518589719240845574}
   avatarComponent_hand_R: {fileID: 4584273622366305461}
+  clientNameTag: {fileID: 0}
+  clientDialogue: {fileID: 0}
 --- !u!114 &2311064594114578007
 MonoBehaviour:
   m_ObjectHideFlags: 0

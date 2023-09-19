@@ -84,7 +84,6 @@ namespace Komodo.Runtime
         {
             ProcessNetworkToggle(doShow, this.index);
 
-
         }
 
         public void ProcessNetworkToggle (bool doShow, int index)
