@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public interface ICursorHover : IEventSystemHandler 
     {
         void OnHover(CursorHoverEventData cursorData);
@@ -33,4 +33,4 @@ namespace Komodo.Runtime
             this.inputSourceActiveState = isLineRenderActive;
         }
     }
-}
+//}

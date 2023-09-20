@@ -2,8 +2,8 @@
 using Unity.Entities;
 using UnityEngine.Events;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [RequireComponent(typeof(Collider))]
     public class TriggerEraseDraw : MonoBehaviour
     {
@@ -22,4 +22,4 @@ namespace Komodo.Runtime
         public void OnDisable() => onTriggeredOff.Invoke();
 
     }
-}
+//}

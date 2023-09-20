@@ -1,8 +1,8 @@
 using Komodo.Runtime;
 using UnityEngine;
 
-namespace Komodo.IMPRESS
-{
+//namespace Komodo.IMPRESS
+//{
     public class TriggerUngroup : MonoBehaviour
     {
         public void OnTriggerEnter(Collider collider)
@@ -10,4 +10,4 @@ namespace Komodo.IMPRESS
             GroupManager.Instance.RemoveFromGroup(collider);
         }
     }
-}
+//}

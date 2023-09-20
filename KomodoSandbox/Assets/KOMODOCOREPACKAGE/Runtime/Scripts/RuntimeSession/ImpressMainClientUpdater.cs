@@ -4,7 +4,7 @@ using UnityEngine;
 using Komodo.Utilities;
 using Komodo.Runtime;
 using Unity.Entities;
-using Komodo.IMPRESS;
+//using Komodo.IMPRESS;
 
 [System.Serializable]
 public struct IMPRESSPosition

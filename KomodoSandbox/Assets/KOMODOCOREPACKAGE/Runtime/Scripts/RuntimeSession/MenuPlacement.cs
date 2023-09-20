@@ -33,17 +33,17 @@ namespace Komodo.Runtime
 
             _currentKind = MenuAnchor.Kind.UNKNOWN;
 
-            KomodoEventManager.StartListening("menu.setRightHanded", () =>
+            KomodoEventManager.Instance.StartListening("menu.setRightHanded", () =>
             {
                 SetCurrentMenuAnchor(MenuAnchor.Kind.RIGHT_HANDED);
             });
 
-            KomodoEventManager.StartListening("menu.setLeftHanded", () =>
+            KomodoEventManager.Instance.StartListening("menu.setLeftHanded", () =>
             {
                 SetCurrentMenuAnchor(MenuAnchor.Kind.LEFT_HANDED);
             });
 
-            KomodoEventManager.StartListening("menu.setScreen", () =>
+            KomodoEventManager.Instance.StartListening("menu.setScreen", () =>
             {
                 SetCurrentMenuAnchor(MenuAnchor.Kind.SCREEN);
             });

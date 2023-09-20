@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class ToolPlacement : MonoBehaviour
     {
         public ToolAnchor leftHandedToolAnchor;
@@ -39,17 +39,17 @@ namespace Komodo.Runtime
 
         public void Start ()
         {
-            KomodoEventManager.StartListening("tools.setRightHanded", () =>
+            KomodoEventManager.Instance.StartListening("tools.setRightHanded", () =>
             {
                 SetCurrentToolAnchor(ToolAnchor.Kind.RIGHT_HANDED);
             });
 
-            KomodoEventManager.StartListening("tools.setLeftHanded", () =>
+            KomodoEventManager.Instance.StartListening("tools.setLeftHanded", () =>
             {
                 SetCurrentToolAnchor(ToolAnchor.Kind.LEFT_HANDED);
             });
 
-            KomodoEventManager.StartListening("tools.setScreen", () =>
+            KomodoEventManager.Instance.StartListening("tools.setScreen", () =>
             {
                 SetCurrentToolAnchor(ToolAnchor.Kind.SCREEN);
             });
@@ -92,4 +92,4 @@ namespace Komodo.Runtime
             return anchor.transform;
         }
     }
-}
+//}

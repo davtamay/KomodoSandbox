@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [RequireComponent(typeof(Toggle))]
     public class VisibilityToggle : MonoBehaviour, IPointerClickHandler
     {
@@ -100,4 +100,4 @@ namespace Komodo.Runtime
             toggle.isOn = doShow;
         }
     }
-}
+//}

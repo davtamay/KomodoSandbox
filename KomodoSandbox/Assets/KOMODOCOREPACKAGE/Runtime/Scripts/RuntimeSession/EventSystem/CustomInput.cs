@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     /// <summary>
     /// Used to override behavior of Unity EventSystem to use our camera for UI interaction
     /// </summary>
@@ -38,4 +38,4 @@ namespace Komodo.Runtime
         public override Vector2 mousePosition => new Vector2(controllerCameraRay.pixelWidth / 2, controllerCameraRay.scaledPixelHeight / 2);
 
     }
-}
+//}

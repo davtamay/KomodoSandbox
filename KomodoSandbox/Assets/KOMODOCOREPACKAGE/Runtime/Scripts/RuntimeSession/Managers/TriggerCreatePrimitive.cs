@@ -5,8 +5,8 @@ using Komodo.Utilities;
 using Komodo.Runtime;
 using System.Collections;
 
-namespace Komodo.IMPRESS
-{
+//namespace Komodo.IMPRESS
+//{
     public class TriggerCreatePrimitive : MonoBehaviour
     {
         public void OnEnable()
@@ -36,4 +36,4 @@ namespace Komodo.IMPRESS
         //    CreatePrimitiveManager.Instance.CreatePrimitive();
         //}
     }
-}
+//}

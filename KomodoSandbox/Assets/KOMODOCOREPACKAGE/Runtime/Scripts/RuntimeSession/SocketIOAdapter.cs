@@ -6,8 +6,8 @@ using Newtonsoft.Json;
 using NUnit.Framework.Internal;
 using System.Xml.Linq;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
     {
         //Reminder -- socket-funcs.jslib can only send zero arguments, one string, or one number via the SendMessage function.
@@ -724,4 +724,4 @@ namespace Komodo.Runtime
             Instance.LeaveAndCloseConnection();
         }
     }
-}
+//}

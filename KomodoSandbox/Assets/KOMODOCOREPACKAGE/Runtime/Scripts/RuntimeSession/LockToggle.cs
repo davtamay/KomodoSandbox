@@ -4,8 +4,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Unity.Entities;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [RequireComponent(typeof(Toggle))]
     public class LockToggle : MonoBehaviour, IPointerClickHandler
     {
@@ -148,4 +148,4 @@ namespace Komodo.Runtime
             toggle.isOn = doLock;
         }
     }
-}
+//}

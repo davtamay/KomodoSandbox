@@ -105,9 +105,10 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
 
         mID = new ModelImportData();
         mID.name = modelData.modelName;//name;
-        modelData.id = indexInList;
-        mID.id = indexInList;
+       // modelData.guid = indexInList;
+        mID.buttonID = indexInList;
         mID.url = modelData.modelURL;//url;
+
 
         mID.guid = modelData.guid;
 

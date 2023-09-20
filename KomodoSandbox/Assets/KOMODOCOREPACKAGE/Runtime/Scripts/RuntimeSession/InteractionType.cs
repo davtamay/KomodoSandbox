@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public enum INTERACTIONS
     {
         LOOK = 0,
@@ -26,4 +26,4 @@ namespace Komodo.Runtime
         INTERACTION_TAB = 16,
         CREATE_TAB = 17,
     }
-}
+//}

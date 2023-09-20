@@ -38,8 +38,8 @@ using UnityEngine.UI;
 using Komodo.AssetImport;
 using Komodo.Utilities;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
 
     // Declare the GetParentURL method from the WebGLPlugin.jslib file
     //[DllImport("__Internal")]
@@ -236,4 +236,4 @@ namespace Komodo.Runtime
             }
         }
     }
-}
+//}

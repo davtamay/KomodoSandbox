@@ -1,15 +1,17 @@
-using Komodo.Runtime;
+//using Komodo.Runtime;
 using Komodo.Utilities;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+//using Komodo.IMPRESS;
 
-namespace Komodo.IMPRESS
-{
+
+//namespace Komodo.Runtime
+//{
+
+
     public class CreatePrimitiveManager : SingletonComponent<CreatePrimitiveManager>
     {
         public static CreatePrimitiveManager Instance
@@ -442,7 +444,7 @@ namespace Komodo.IMPRESS
 
             primitive.AddComponent<BoxCollider>();
 
-            var netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive);
+          
 
             // //tag it to be used with ECS system
             // entityManager.AddComponentData(netObject.Entity, new PrimitiveTag());
@@ -457,9 +459,14 @@ namespace Komodo.IMPRESS
 
             primitive.transform.SetParent(primitiveCreationParent.transform, true);
 
-            _primitiveID = 100000000 + 10000000 + (NetworkUpdateHandler.Instance.client_id * 10000) + _strokeIndex;
+              Guid myGUID = Guid.NewGuid();
 
-            _strokeIndex++;
+             _primitiveID = myGUID.GetHashCode();//100000000 + 10000000 + (NetworkUpdateHandler.Instance.client_id * 10000) + _strokeIndex;
+
+
+            var netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive, customEntityID: _primitiveID);
+    
+          
 
             var rot2 = primitive.transform.rotation;
 
@@ -488,7 +495,7 @@ namespace Komodo.IMPRESS
 
         public void SendPrimitiveUpdate(int sID, int primitiveType, float scale = 1, Vector3 primitivePos = default, Vector4 primitiveRot = default)
         {
-            var drawUpdate = new Primitive(
+            var primitiveUpdate = new Primitive(
                 (int) NetworkUpdateHandler.Instance.client_id,
                 sID,
                 (int) primitiveType,
@@ -497,40 +504,44 @@ namespace Komodo.IMPRESS
                 primitiveRot
             );
 
-            var primSer = JsonUtility.ToJson(drawUpdate);
+            var primSer = JsonUtility.ToJson(primitiveUpdate);
 
             KomodoMessage komodoMessage = new KomodoMessage("primitive", primSer);
 
             komodoMessage.Send();
         }
 
-        public void ReceivePrimitiveUpdate(string stringData)
+        public void ReceivePrimitiveUpdate(string stringData, bool receivingCall = false)
         {
             Primitive newData = JsonUtility.FromJson<Primitive>(stringData);
 
+
+        Debug.Log("GOT NEW PRIMITIVE DATA : " + newData.guid);
+
             //detect if we should render or notrender it
-            if (newData.primitiveType == 9)
+            if (newData.indentifier == 9)
             {
-                if (NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(newData.primitiveId))
+                if (NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(newData.guid))
                 {
-                    NetworkedObjectsManager.Instance.networkedObjectFromEntityId[newData.primitiveId].gameObject.SetActive(true);
+                    NetworkedObjectsManager.Instance.networkedObjectFromEntityId[newData.guid].gameObject.SetActive(true);
                 }
 
                 return;
             }
-            else if (newData.primitiveType == -9)
+            else if (newData.indentifier == -9)
             {
-                if (NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(newData.primitiveId))
+                if (NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(newData.guid))
                 {
-                    NetworkedObjectsManager.Instance.networkedObjectFromEntityId[newData.primitiveId].gameObject.SetActive(false);
+                    NetworkedObjectsManager.Instance.networkedObjectFromEntityId[newData.guid].gameObject.SetActive(false);
                 }
 
                 return;
             }
+            
 
             PrimitiveType primitiveToInstantiate = PrimitiveType.Sphere;
 
-                switch (newData.primitiveType)
+                switch (newData.indentifier)
                 {
                     case 0:
                         primitiveToInstantiate = PrimitiveType.Sphere;
@@ -559,17 +570,17 @@ namespace Komodo.IMPRESS
 
             var primitive = GameObject.CreatePrimitive(primitiveToInstantiate);
 
-            NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive);
+            NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive, customEntityID: newData.guid);
 
-            entityManager.AddComponentData(nAGO.entity, new PrimitiveTag { });
+           // entityManager.AddComponentData(nAGO.entity, new PrimitiveTag { });
 
             primitive.tag = "Interactable";
 
-            var pos = newData.primitivePos;
+            var pos = newData.pos;
 
-            var rot = newData.primitiveRot;
+            var rot = newData.rot;
 
-            var scale = newData.scale;
+            var scale = newData.scaleFactor;
 
             primitive.transform.position = pos;
 
@@ -578,31 +589,12 @@ namespace Komodo.IMPRESS
             primitive.transform.rotation = new Quaternion(rot.x, rot.y, rot.z, rot.w);
 
             primitive.transform.SetParent(primitiveCreationParent.transform, true);
-        }
-    }
 
-    public struct Primitive
-    {
-        public int clientId;
-        public int primitiveId;
-        public int primitiveType;
-        public float scale;
-        public Vector3 primitivePos;
-        public Vector4 primitiveRot;
 
-        public Primitive(int clientId, int primitiveId, int primitiveType, float scale, Vector3 primitivePos, Vector4 primitiveRot)
-        {
-            this.clientId = clientId;
-
-            this.primitiveId = primitiveId;
-
-            this.primitiveType = primitiveType;
-
-            this.scale = scale;
-
-            this.primitivePos = primitivePos;
-
-            this.primitiveRot = primitiveRot;
-        }
+        if (receivingCall)
+            GameStateManager.Instance.isAssetImportFinished = true;
     }
 }
+
+   
+//}

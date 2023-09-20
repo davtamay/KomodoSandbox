@@ -37,11 +37,11 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 using Unity.Entities;
 using Komodo.Utilities;
-using SixLabors.ImageSharp;
+//using SixLabors.ImageSharp;
 //using Komodo.AssetImport;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
 
     //Customized unityevent to allow it to accept particular funcions to send our network information to
     [System.Serializable] public class Coord_UnityEvent : UnityEvent<Position> { }
@@ -84,7 +84,7 @@ namespace Komodo.Runtime
 
         private Animator rightHandAnimator;
 
-        private EntityManager entityManager;
+        //private EntityManager entityManager;
 
         private NetworkUpdateHandler netUpdateHandler;
 
@@ -115,7 +115,7 @@ namespace Komodo.Runtime
             }
 
             //WebGLMemoryStats.LogMoreStats("MainClientUpdater Start BEFORE");
-            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+          //  entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
             //if we are missing our avatarentitygroup in editor try to get it from our game object
             if (!mainClientAvatarEntityGroup) mainClientAvatarEntityGroup = GetComponent<AvatarEntityGroup>();
@@ -159,8 +159,8 @@ namespace Komodo.Runtime
 
         private Vector3 previousPosition;
         private Quaternion previousRotation;
-        private float positionThreshold = 0.01f; // Adjust the threshold value as needed
-        private float rotationThreshold = 0.01f; // Adjust the threshold value as needed
+        private float positionThreshold = 0.2f; // Adjust the threshold value as needed
+        private float rotationThreshold = 0.2f; // Adjust the threshold value as needed
 
         public Vector3 posOffset;
         public Vector3 GetPosOffset() =>  posOffset;
@@ -309,7 +309,7 @@ namespace Komodo.Runtime
             {
                 clientId = ComputeClientID(who),
 
-                entityId = ComputeEntityID(clientID, entityType),
+                guid = ComputeEntityID(clientID, entityType),
 
                 entityType = ComputeEntityType(entityType),
 
@@ -333,15 +333,15 @@ namespace Komodo.Runtime
         public void SendSyncNetObject(NetworkedGameObject eContainer)
         {
             Debug.Log("sending net sync");
-            var entityData = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.entity);
+          //  var entityData = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.entity);
 
             Position position = new Position
             {
-                clientId = entityData.clientID,
+                clientId = NetworkUpdateHandler.Instance.client_id,
 
-                entityId = entityData.entityID,
+                guid = eContainer.thisEntityID,
 
-                entityType = (int)entityData.current_Entity_Type,
+                entityType = (int)Entity_Type.objects,//entityData.current_Entity_Type,
 
                 rot = eContainer.transform.rotation,
 
@@ -356,4 +356,4 @@ namespace Komodo.Runtime
     }
 
 
-}
+//}

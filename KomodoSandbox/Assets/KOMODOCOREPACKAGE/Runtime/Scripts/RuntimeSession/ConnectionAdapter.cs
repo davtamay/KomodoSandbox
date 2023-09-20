@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class ConnectionAdapter : MonoBehaviour
     {
         public TMPro.TMP_Text socketIODisplay;
@@ -33,12 +33,12 @@ namespace Komodo.Runtime
 
             NetworkUpdateHandler netHandler = NetworkUpdateHandler.Instance;
 
-            KomodoEventManager.StartListening("connection.leaveAndRejoin", () =>
+            KomodoEventManager.Instance.StartListening("connection.leaveAndRejoin", () =>
             {
                 SocketIOAdapter.Instance.LeaveAndRejoin();
             });
 
-            KomodoEventManager.StartListening("connection.closeConnectionAndRejoin", () =>
+            KomodoEventManager.Instance.StartListening("connection.closeConnectionAndRejoin", () =>
             {
                 SocketIOAdapter.Instance.CloseConnectionAndRejoin();
             });
@@ -336,4 +336,4 @@ namespace Komodo.Runtime
             socketIODisplay.text = $"{connectDisconnectReconnect}\n{sessionStatus}\n{socketID}\n{pingPongClients}\n{error}";
         }
     }
-}
+//}

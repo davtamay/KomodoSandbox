@@ -42,7 +42,7 @@ namespace Komodo.AssetImport{
     
         {
             public string name;
-            public int id;
+            public int buttonID;
             public string url;
 
             public float scale;

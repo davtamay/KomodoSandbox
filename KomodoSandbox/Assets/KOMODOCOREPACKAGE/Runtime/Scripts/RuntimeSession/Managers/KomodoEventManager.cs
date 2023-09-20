@@ -6,14 +6,19 @@ using UnityEngine.UI;
 using Komodo.Utilities;
 using Komodo.Runtime;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [RequireComponent(typeof(MainUIReferences))]
-    public class KomodoEventManager : MonoBehaviour
+    public class KomodoEventManager : SingletonComponent<KomodoEventManager>
+{
+    public static KomodoEventManager Instance
     {
-        public void Start()
-        {
-        }
+        get { return ((KomodoEventManager)_Instance); }
+        set { _Instance = value; }
+    }
+    //public void Start()
+    //    {
+    //    }
 
         // From Unity Learn Tutorial: 
         // Create a Simple Messaging System with Events 
@@ -26,46 +31,47 @@ namespace Komodo.Runtime
         // of our projects."
 
         /* This dictionary will help hold references (String) to events and events (UnityEvent) themselves */
-        private Dictionary <string, UnityEvent> eventDictionary;
+        //private Dictionary <string, UnityEvent> eventDictionary;
 
 
-        private static KomodoEventManager eventManager;
+    //    private static KomodoEventManager eventManager;
 
-        public static KomodoEventManager Instance
-        {
-            get
-            {
-                if (!eventManager)
-                {
-                    eventManager = FindObjectOfType(typeof (KomodoEventManager)) as KomodoEventManager;
-                    
-                    if (!eventManager)
-                    {
-                        Debug.LogError("There needs to be one active EventManager script in your scene.");
-                    }
-                    else
-                    {
-                        eventManager.Init();
-                    }
-                }
+    //public static KomodoEventManager Instance
+    //{
+    //    get
+    //    {
+    //        if (!eventManager)
+    //        {
+    //            eventManager = FindObjectOfType(typeof (KomodoEventManager)) as KomodoEventManager;
 
-                return eventManager;
-            }
-        }
+    //            if (!eventManager)
+    //            {
+    //                Debug.LogError("There needs to be one active EventManager script in your scene.");
+    //            }
+    //            else
+    //            {
+    //                eventManager.Init();
+    //            }
+    //        }
 
+    //        return eventManager;
+    //    }
+    //}
+
+    Dictionary<string, UnityEvent> eventDictionary = new Dictionary<string, UnityEvent>();
         /* a method to initialize the eventManager */
-        void Init ()
-        {
-            if (eventDictionary == null)
-            {
-                eventDictionary = new Dictionary<string, UnityEvent>();
-            }
-        }
+        //void Init ()
+        //{
+        //    if (eventDictionary == null)
+        //    {
+               
+        //    }
+        //}
 
         /* This method first checks the dictionary and see if the dictionary has a key that pairs to 
         whatever we want to add. If there is a key, we add to it. If not, we create a new Unity event
         and we add the listener to it and push it to the dictionary.  */
-        public static void StartListening (string eventName, UnityAction listener)
+        public void StartListening (string eventName, UnityAction listener)
         {
             if (!Instance)
             {
@@ -96,9 +102,9 @@ namespace Komodo.Runtime
         }
 
         /* This method will stop eventManager from listening*/
-        public static void StopListening (string eventName, UnityAction listener)
+        public  void StopListening (string eventName, UnityAction listener)
         {
-            if (eventManager == null)
+            if (Instance == null)
             {
                 return;
             }
@@ -117,4 +123,4 @@ namespace Komodo.Runtime
             }
         }
     }
-}
+//}

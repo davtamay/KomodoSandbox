@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System;
 using Komodo.Utilities;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class DrawingInstanceManager : SingletonComponent<DrawingInstanceManager>
     {
         public static DrawingInstanceManager Instance
@@ -349,4 +349,4 @@ namespace Komodo.Runtime
             }
         }
     }
-}
+//}

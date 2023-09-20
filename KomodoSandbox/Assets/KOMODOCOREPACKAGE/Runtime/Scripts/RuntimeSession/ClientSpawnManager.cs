@@ -49,8 +49,8 @@ using Unity.Collections;
 using TMPro;
 //using Komodo.AssetImport;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     //UnityEvent_Extemsions to send client information to funcions specified in editor
     [System.Serializable] public class UnityEvent_Int : UnityEvent<int> { }
     [System.Serializable] public class UnityEvent_String : UnityEvent<string> { }
@@ -1163,4 +1163,4 @@ namespace Komodo.Runtime
 
         #endregion
     }
-}
+//}

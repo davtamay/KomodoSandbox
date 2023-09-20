@@ -4,8 +4,8 @@ using UnityEngine;
 // using Unity.Entities;
 using Komodo.Utilities;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class NetworkedObjectsManager : SingletonComponent<NetworkedObjectsManager>
     {
         public static NetworkedObjectsManager Instance
@@ -37,7 +37,9 @@ namespace Komodo.Runtime
 
         public void Register (int entityID, NetworkedGameObject netObject)
         {
+        //    netObject.thisEntityID = entityID;
             networkedObjectFromEntityId.Add(entityID, netObject);
+
         }
 
         // public Entity GetEntity(int index)
@@ -112,11 +114,11 @@ namespace Komodo.Runtime
                 return false;
             }
 
-            int entityId = positionData.entityId;
+            int entityId = positionData.guid;
 
             if (!networkedObjectFromEntityId.ContainsKey(entityId))
             {
-                Debug.LogWarning("Entity ID : " + positionData.entityId + "not found in Dictionary dropping object movement packet");
+                Debug.LogWarning("Entity ID : " + positionData.guid + "not found in Dictionary dropping object movement packet");
 
                 return false;
             }
@@ -327,12 +329,13 @@ namespace Komodo.Runtime
             NetworkedGameObject netObject = gObject.AddComponent<NetworkedGameObject>();
 
 
+        netObject.thisEntityID = customEntityID;
 
-           // Debug.Log("DRAGON BUTTON INDEX : " + modelListIndex);
-            //to look a decomposed set of objects we need to keep track of what Index we are iterating over regarding or importing models to create sets
-            //we keep a list reference for each index and keep on adding to it if we find a model with the same id
-            //make sure we are using it as a button reference
-            if (doNotLinkWithButtonID || modelListIndex == -1)
+        // Debug.Log("DRAGON BUTTON INDEX : " + modelListIndex);
+        //to look a decomposed set of objects we need to keep track of what Index we are iterating over regarding or importing models to create sets
+        //we keep a list reference for each index and keep on adding to it if we find a model with the same id
+        //make sure we are using it as a button reference
+        if (doNotLinkWithButtonID || modelListIndex == -1)
             {
                 return InstantiateNetworkedGameObject(netObject, customEntityID, modelListIndex);
             }
@@ -340,7 +343,7 @@ namespace Komodo.Runtime
 
             netObject.buttonIndex = modelListIndex;
 
-          
+           
 
 
     
@@ -457,4 +460,4 @@ namespace Komodo.Runtime
             return true;
         }
     }
-}
+//}

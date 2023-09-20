@@ -4,8 +4,8 @@ using UnityEngine;
 using Unity.Entities;
 using Komodo.Utilities;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class NetworkedPhysicsManager : SingletonComponent<NetworkedPhysicsManager>
     {
         public static NetworkedPhysicsManager Instance
@@ -56,67 +56,67 @@ namespace Komodo.Runtime
         public void ApplyPositionToStart(Position positionData)
         {
             //alternate kinematic to allow for sending non physics transform updates;
-            if (NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(positionData.entityId))
+            if (NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(positionData.guid))
             {
-                if (!rigidbodyFromEntityId.ContainsKey(positionData.entityId))
+                if (!rigidbodyFromEntityId.ContainsKey(positionData.guid))
                 {
-                    rigidbodyFromEntityId.Add(positionData.entityId, NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.entityId].GetComponent<Rigidbody>());
+                    rigidbodyFromEntityId.Add(positionData.guid, NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.guid].GetComponent<Rigidbody>());
                 }
 
-                var rb = rigidbodyFromEntityId[positionData.entityId];
+                var rb = rigidbodyFromEntityId[positionData.guid];
 
                 if (!rb)
                 {
-                    Debug.LogError("There is no rigidbody in netobject entity id: " + positionData.entityId);
+                    Debug.LogError("There is no rigidbody in netobject entity id: " + positionData.guid);
 
                     return;
                 }
 
                 rb.isKinematic = true;
 
-                NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.entityId].transform.position = positionData.pos;
+                NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.guid].transform.position = positionData.pos;
 
-                NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.entityId].transform.rotation = positionData.rot;
+                NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.guid].transform.rotation = positionData.rot;
 
-                UnityExtensionMethods.SetGlobalScale(NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.entityId].transform, Vector3.one * positionData.scaleFactor);
+                UnityExtensionMethods.SetGlobalScale(NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.guid].transform, Vector3.one * positionData.scaleFactor);
             }
             else
             {
-                Debug.LogWarning("Entity ID : " + positionData.entityId + "not found in Dictionary dropping physics object movement packet");
+                Debug.LogWarning("Entity ID : " + positionData.guid + "not found in Dictionary dropping physics object movement packet");
             }
         }
 
         public void ApplyPositionToEnd(Position positionData)
         {
             //alternate kinematic to allow for sending non physics transform updates;
-            if (NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(positionData.entityId))
+            if (NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(positionData.guid))
             {
                 //skip opperation if current object is grabbed to avoid turning physics back on
 
-                if (entityManager.HasComponent<TransformLockTag>(NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.entityId].entity))
+                if (entityManager.HasComponent<TransformLockTag>(NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.guid].entity))
                     return;
 
-                if (!rigidbodyFromEntityId.ContainsKey(positionData.entityId))
+                if (!rigidbodyFromEntityId.ContainsKey(positionData.guid))
                 {
-                    rigidbodyFromEntityId.Add(positionData.entityId, NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.entityId].GetComponent<Rigidbody>());
+                    rigidbodyFromEntityId.Add(positionData.guid, NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.guid].GetComponent<Rigidbody>());
                 }
 
-                var rb = rigidbodyFromEntityId[positionData.entityId];
+                var rb = rigidbodyFromEntityId[positionData.guid];
 
                 if (!rb)
                 {
-                    Debug.LogError("There is no rigidbody in netobject entity id: " + positionData.entityId);
+                    Debug.LogError("There is no rigidbody in netobject entity id: " + positionData.guid);
 
                     return;
                 }
 
-                rb = NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.entityId].GetComponent<Rigidbody>();
+                rb = NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.guid].GetComponent<Rigidbody>();
 
                 rb.isKinematic = false;
             }
             else
             {
-                Debug.LogWarning("Entity ID : " + positionData.entityId + "not found in Dictionary dropping physics object movement packet");
+                Debug.LogWarning("Entity ID : " + positionData.guid + "not found in Dictionary dropping physics object movement packet");
             }
         }
 
@@ -158,7 +158,7 @@ namespace Komodo.Runtime
             coords = new Position
             {
                 clientId = entityIDContainer.clientID,
-                entityId = entityIDContainer.entityID,
+                guid = entityIDContainer.entityID,
                 entityType = (int)entityIDContainer.current_Entity_Type,
                 rot = eContainer.transform.rotation,
                 pos = eContainer.transform.position,
@@ -181,7 +181,7 @@ namespace Komodo.Runtime
         coords = new Position
         {
             clientId = entityIDContainer.clientID,
-            entityId = entityIDContainer.entityID,
+            guid = entityIDContainer.entityID,
             entityType = (int)Entity_Type.physicsEnd,
 
         };
@@ -203,4 +203,4 @@ namespace Komodo.Runtime
             return result;
         }
     }
-}
+//}

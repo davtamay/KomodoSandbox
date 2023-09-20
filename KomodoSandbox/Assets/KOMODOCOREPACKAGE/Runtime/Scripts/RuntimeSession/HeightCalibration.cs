@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [System.Serializable]
     public class UnityEvent_Float : UnityEvent<float> 
     {
@@ -205,4 +205,4 @@ namespace Komodo.Runtime
             return head.transform.position.y;
         }
     }
-}
+//}

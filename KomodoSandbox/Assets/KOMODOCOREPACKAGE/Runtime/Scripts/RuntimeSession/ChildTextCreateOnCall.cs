@@ -5,8 +5,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class ChildTextCreateOnCall : MonoBehaviour
     {
         public Transform transformToAddTextUnder;
@@ -143,4 +143,4 @@ namespace Komodo.Runtime
         //}
 
     }
-}
+//}

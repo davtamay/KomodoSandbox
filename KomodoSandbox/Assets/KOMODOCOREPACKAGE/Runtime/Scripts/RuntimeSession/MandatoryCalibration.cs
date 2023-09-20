@@ -59,16 +59,16 @@ namespace Komodo.Runtime
 
         void OnEnable() 
         {
-            KomodoEventManager.StartListening("MandatoryHeightCalibration", ShowCalibrationPromptListener);
-            KomodoEventManager.StartListening("FinishedHeightCalibration", HideCalibrationPromptListener);
-            KomodoEventManager.StartListening("TeleportedTwice", TeleportationCountListener);
+            KomodoEventManager.Instance.StartListening("MandatoryHeightCalibration", ShowCalibrationPromptListener);
+            KomodoEventManager.Instance.StartListening("FinishedHeightCalibration", HideCalibrationPromptListener);
+            KomodoEventManager.Instance.StartListening("TeleportedTwice", TeleportationCountListener);
         }
 
         void OnDisable() 
         {
-            KomodoEventManager.StopListening("MandatoryHeightCalibration", ShowCalibrationPromptListener);
-            KomodoEventManager.StopListening("FinishedHeightCalibration", HideCalibrationPromptListener);
-            KomodoEventManager.StopListening("TeleportedTwice", TeleportationCountListener);
+            KomodoEventManager.Instance.StopListening("MandatoryHeightCalibration", ShowCalibrationPromptListener);
+            KomodoEventManager.Instance.StopListening("FinishedHeightCalibration", HideCalibrationPromptListener);
+            KomodoEventManager.Instance.StopListening("TeleportedTwice", TeleportationCountListener);
         }
 
         void ShowPrompt() 

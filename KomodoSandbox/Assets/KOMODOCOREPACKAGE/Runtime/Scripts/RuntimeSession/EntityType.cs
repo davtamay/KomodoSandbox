@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     //types of data in scene
     public enum Entity_Type
     {
@@ -21,4 +21,4 @@ namespace Komodo.Runtime
         LineRender = 13,
         LineNotRender = 14,
     }
-}
+//}

@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using WebXR;
 
-namespace Komodo.IMPRESS
-{
+//using Komodo.IMPRESS;
+
+//namespace Komodo.IMPRESS
+//{
     public class ImpressPlayer : MonoBehaviour
     {
         public TriggerCreatePrimitive triggerCreatePrimitiveLeft;
@@ -145,4 +147,4 @@ namespace Komodo.IMPRESS
         //    }
         //}
     }
-}
+//}

@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     /// <summary>
     /// This script is meant to be an inputsource for interacting with UI elements with GraphicsRaycaster and world objects with PhysicsRaycaster 
     /// </summary>
@@ -74,4 +74,4 @@ namespace Komodo.Runtime
         }
 
     }
-}
+//}

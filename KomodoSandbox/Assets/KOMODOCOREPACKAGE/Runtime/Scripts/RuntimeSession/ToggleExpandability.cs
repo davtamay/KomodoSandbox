@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class ToggleExpandability : MonoBehaviour
     {
         public GameObject[] expanders;
@@ -42,4 +42,4 @@ namespace Komodo.Runtime
             }
         }
     }
-}
+//}

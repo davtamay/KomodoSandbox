@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class StandaloneDesktopInputModule : StandaloneInputModule
     {
         public GameObject GetCurrentFocusedObject_Desktop()
@@ -12,4 +12,4 @@ namespace Komodo.Runtime
             return base.GetCurrentFocusedGameObject();
         }
     }
-}
+//}

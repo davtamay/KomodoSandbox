@@ -4,8 +4,8 @@ using Komodo.Utilities;
 using System;
 using System.Collections.Generic;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
 
     public class GlobalMessageManager : SingletonComponent<GlobalMessageManager>
     {
@@ -84,4 +84,4 @@ namespace Komodo.Runtime
 
     }
 
-}
+//}

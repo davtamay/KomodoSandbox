@@ -41,8 +41,8 @@ using Unity.Collections;
 using System;
 using Komodo.Utilities;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     //Provides funcions to set up gameobject with colliders and setup references for network interaction
     public class ModelImportPostProcessor : SingletonComponent<ModelImportPostProcessor>
     {
@@ -527,4 +527,4 @@ namespace Komodo.Runtime
         }
 
     }
-}
+//}

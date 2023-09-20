@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class ToolAnchor : MonoBehaviour
     {
         public enum Kind
@@ -16,4 +16,4 @@ namespace Komodo.Runtime
 
         public Kind kind;
     }
-}
+//}

@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class TabManager : MonoBehaviour
     {
         private List<TabButton> _tabButtons;
@@ -101,4 +101,4 @@ namespace Komodo.Runtime
             }
         }
     }
-}
+//}

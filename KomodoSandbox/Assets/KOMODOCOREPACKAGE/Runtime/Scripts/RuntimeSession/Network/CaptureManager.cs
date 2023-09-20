@@ -48,14 +48,14 @@ namespace Komodo.Runtime
             startCapture += Start_Record;
             stopCapture += End_Record;
 
-            KomodoEventManager.StartListening("capture.start", startCapture);
-            KomodoEventManager.StartListening("capture.stop", stopCapture);
+            KomodoEventManager.Instance.StartListening("capture.start", startCapture);
+            KomodoEventManager.Instance.StartListening("capture.stop", stopCapture);
         }
 
         public static void Deinitialize() 
         {
-            KomodoEventManager.StopListening("capture.start", startCapture);
-            KomodoEventManager.StopListening("capture.stop", stopCapture);
+            KomodoEventManager.Instance.StopListening("capture.start", startCapture);
+            KomodoEventManager.Instance.StopListening("capture.stop", stopCapture);
 
             startCapture -= Start_Record;
             stopCapture -= End_Record;

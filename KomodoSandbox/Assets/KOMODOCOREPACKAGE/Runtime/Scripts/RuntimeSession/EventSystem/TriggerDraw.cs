@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 /* using Unity.Entities;
  */
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
 
     [RequireComponent(typeof(LineRenderer))]
     public class TriggerDraw : MonoBehaviour
@@ -157,4 +157,4 @@ namespace Komodo.Runtime
             lineRenderer.positionCount = 0;
         }
     }
-}
+//}

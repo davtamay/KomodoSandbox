@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-namespace Komodo.Runtime
-{
+
+//namespace Komodo.Runtime
+//{
     [System.Serializable]
     public class SessionState
     {
@@ -14,4 +12,4 @@ namespace Komodo.Runtime
         public int scene;
         public bool isRecording;
     }
-}
+//}

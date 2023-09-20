@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public interface ISliderHover : IEventSystemHandler
     {
         void OnSliderHover(SliderEventData cursorData);
@@ -34,4 +34,4 @@ namespace Komodo.Runtime
             this.isInputActive = isInputActive;
         }
     }
-}
+//}

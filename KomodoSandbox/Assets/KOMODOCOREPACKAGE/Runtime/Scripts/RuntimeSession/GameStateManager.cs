@@ -8,8 +8,8 @@ using Unity.Entities;
 using UnityEngine;
 using Komodo.Utilities;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
 
     #region Update Registration Call Interfaces
     public interface IUpdatable
@@ -140,4 +140,4 @@ namespace Komodo.Runtime
 
         #endregion
     }
-}
+//}

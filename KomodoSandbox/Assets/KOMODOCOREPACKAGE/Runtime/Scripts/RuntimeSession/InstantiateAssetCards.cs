@@ -11,14 +11,16 @@ using System.Threading.Tasks;
 [System.Serializable]
 public struct ModelData
 {
-    public int id;
+    public int modelType;
+
+    public int guid;
     public string modelName;
     public string modelURL;
     public bool isWholeObject;
     public string imagePath;
     public float scale;
 
-    public int guid;
+  //  public int guid;
 
     public Vector3 pos;
     public Quaternion rot;

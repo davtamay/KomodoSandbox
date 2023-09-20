@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Komodo.AssetImport;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [System.Serializable]
     public struct SessionDetails
     {
@@ -17,4 +17,4 @@ namespace Komodo.Runtime
         public string start_time;
         public List<User> users;
     }
-}
+//}

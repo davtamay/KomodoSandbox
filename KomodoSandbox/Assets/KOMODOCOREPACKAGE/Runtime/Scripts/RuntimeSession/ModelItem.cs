@@ -10,8 +10,8 @@ using GLTFast.Logging;
 using UnityEngine.Networking;
 using UnityEngine.Events;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class ModelItem : MonoBehaviour
     {
         [ShowOnly]
@@ -313,4 +313,4 @@ namespace Komodo.Runtime
         }
 
     }
-}
+//}

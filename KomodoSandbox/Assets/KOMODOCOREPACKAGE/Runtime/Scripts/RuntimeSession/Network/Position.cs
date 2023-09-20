@@ -1,12 +1,12 @@
 using UnityEngine;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [System.Serializable]
     public struct Position
     {
         public int clientId;
-        public int entityId;
+        public int guid;
         public int entityType;
         public float scaleFactor;
         public Quaternion rot;
@@ -15,11 +15,11 @@ namespace Komodo.Runtime
         public Position(int clientId, int entityId, int entityType, float scaleFactor, Quaternion rot, Vector3 pos)
         {
             this.clientId = clientId;
-            this.entityId = entityId;
+            this.guid = entityId;
             this.entityType = entityType;
             this.scaleFactor = scaleFactor;
             this.rot = rot;
             this.pos = pos;
         }
     }
-}
+//}

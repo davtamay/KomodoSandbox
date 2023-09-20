@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public static class SocketIOJSLib
     {
         public static int SUCCESS = 0;
@@ -152,4 +152,4 @@ namespace Komodo.Runtime
         [DllImport("__Internal")]
         public static extern int CloseChatConnection();
     }
-}
+//}

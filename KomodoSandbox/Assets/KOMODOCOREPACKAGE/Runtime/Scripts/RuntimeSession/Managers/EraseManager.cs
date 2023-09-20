@@ -2,8 +2,8 @@ using Komodo.Runtime;
 using Komodo.Utilities;
 using Unity.Entities;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class EraseManager : SingletonComponent<EraseManager>
     {
         public static EraseManager Instance
@@ -60,4 +60,4 @@ namespace Komodo.Runtime
 
     }
     }
-}
+//}

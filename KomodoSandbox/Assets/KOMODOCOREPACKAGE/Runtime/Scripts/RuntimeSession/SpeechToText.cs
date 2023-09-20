@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     //For handling different type of text between clients
     public enum STRINGTYPE
     {
@@ -37,4 +37,4 @@ namespace Komodo.Runtime
     }
 
 
-}
+//}

@@ -1,8 +1,8 @@
 using UnityEngine;
 using System.Runtime.InteropServices;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     // TODO(rob): move this to GlobalMessageManager.cs
 
     // Message System: WIP
@@ -46,4 +46,4 @@ namespace Komodo.Runtime
 #endif
         }
     }
-}
+//}

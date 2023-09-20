@@ -5,8 +5,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using Komodo.Runtime;
 
-namespace Komodo.IMPRESS
-{
+//namespace Komodo.IMPRESS
+//{
     public struct GroupProperties
     {
         public int groupID;
@@ -755,7 +755,7 @@ namespace Komodo.IMPRESS
             //parentOfCollection.transform.SetParent(rootParent.transform, true);
         }
     }
-}
+//}
 
 
 

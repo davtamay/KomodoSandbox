@@ -3,8 +3,8 @@ using Unity.Entities;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     /// <summary>
     /// Used to store Entity components that maek up avatars to help ease access to the GameObjects that should receive/send network updates. 
     /// </summary>
@@ -23,4 +23,4 @@ namespace Komodo.Runtime
         public TMP_Text clientNameTag;
         public TMP_Text clientDialogue;
     }
-}
+//}

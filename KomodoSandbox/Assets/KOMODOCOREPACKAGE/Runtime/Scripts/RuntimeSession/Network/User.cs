@@ -1,6 +1,6 @@
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [System.Serializable]
     public struct User
     {
@@ -9,4 +9,4 @@ namespace Komodo.Runtime
         public string last_name;
         public string email;
     }
-}
+//}

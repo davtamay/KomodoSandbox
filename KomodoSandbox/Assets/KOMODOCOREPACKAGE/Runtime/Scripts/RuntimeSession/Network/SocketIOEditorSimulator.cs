@@ -2,8 +2,8 @@
 using Komodo.Utilities;
 using System.Collections.Generic;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class SocketIOEditorSimulator : SingletonComponent<SocketIOEditorSimulator>
     {
         public static SocketIOEditorSimulator Instance
@@ -472,4 +472,4 @@ namespace Komodo.Runtime
             SocketIOAdapter.Instance.OnPong(56789);
         }
     }
-}
+//}

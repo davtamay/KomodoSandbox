@@ -7,8 +7,8 @@ using Komodo.Utilities;
 using System.Collections.Generic;
 using UnityEngine.XR;
 using UnityEditor.XR.LegacyInputHelpers;
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     //Camera collection to reference for eventsystem interaction
     public class EventSystemManager : SingletonComponent<EventSystemManager>
     {
@@ -216,4 +216,4 @@ namespace Komodo.Runtime
         }
 
     }
-}
+//}

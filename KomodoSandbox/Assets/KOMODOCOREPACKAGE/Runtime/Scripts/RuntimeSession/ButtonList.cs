@@ -39,8 +39,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class ButtonList : MonoBehaviour
     {
         //define the prefab to use to generate our list of buttons
@@ -73,4 +73,4 @@ namespace Komodo.Runtime
         }
 
     }
-}
+//}

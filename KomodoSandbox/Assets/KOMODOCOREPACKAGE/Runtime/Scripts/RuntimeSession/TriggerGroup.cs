@@ -3,8 +3,8 @@ using UnityEngine;
 using Komodo.Utilities;
 using Komodo.Runtime;
 
-namespace Komodo.IMPRESS
-{
+//namespace Komodo.IMPRESS
+//{
     public class TriggerGroup : MonoBehaviour
     {
         public void OnTriggerEnter(Collider collider)
@@ -12,4 +12,4 @@ namespace Komodo.IMPRESS
             GroupManager.Instance.AddToGroup(collider);
         }
     }
-}
+//}

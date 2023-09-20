@@ -6,8 +6,8 @@ using WebXR;
 using System.Collections;
 using Komodo.Utilities;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class FreeFlightController : MonoBehaviour, IUpdatable
     {
         [Tooltip("Enable/disable rotation control. For use in Unity editor only.")]
@@ -613,4 +613,4 @@ namespace Komodo.Runtime
 
         }
     }
-}
+//}

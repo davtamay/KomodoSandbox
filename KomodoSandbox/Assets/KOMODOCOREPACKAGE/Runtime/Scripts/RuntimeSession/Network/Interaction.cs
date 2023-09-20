@@ -1,6 +1,6 @@
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public struct Interaction
     {
         public int sourceEntity_id;
@@ -14,4 +14,4 @@ namespace Komodo.Runtime
             this.interactionType = interactionType;
         }
     }
-}
+//}

@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using WebXR;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     /// <summary>
     /// Functions to move our avatar
     /// </summary>
@@ -574,4 +574,4 @@ namespace Komodo.Runtime
 
         }
     }
-}
+//}

@@ -4,8 +4,8 @@ using UnityEngine;
 using Komodo.Utilities;
 using System;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class UndoRedoManager : SingletonComponent<UndoRedoManager>
     {
         public static UndoRedoManager Instance
@@ -36,4 +36,4 @@ namespace Komodo.Runtime
 
 
     }
-}
+//}

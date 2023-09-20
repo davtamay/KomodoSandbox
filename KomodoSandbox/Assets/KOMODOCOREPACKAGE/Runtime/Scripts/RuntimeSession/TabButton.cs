@@ -5,8 +5,8 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [RequireComponent(typeof(Image))]
     public class TabButton : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, IPointerExitHandler
     {
@@ -57,4 +57,4 @@ namespace Komodo.Runtime
             onTabDeselected.Invoke();
         }
     }
-}
+//}

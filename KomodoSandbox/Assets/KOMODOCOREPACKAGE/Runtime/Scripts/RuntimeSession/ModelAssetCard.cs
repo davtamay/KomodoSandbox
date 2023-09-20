@@ -61,7 +61,7 @@ public class ModelAssetCard : MonoBehaviour
     {
         if (net_call)
         {
-            System.Guid myGUID = System.Guid.NewGuid();
+            Guid myGUID = Guid.NewGuid();
             modelData.guid = myGUID.GetHashCode();
             Debug.Log(modelData.guid);
       

@@ -4,10 +4,10 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
 using WebXR;
-using Unity.Entities;
+//using Unity.Entities;
 using Komodo.Utilities;
 using Komodo.Runtime;
-using Komodo.IMPRESS;
+//using Komodo.IMPRESS;
 
 [RequireComponent(typeof(WebXRController), typeof(AvatarComponent))]
     public class ImpressControllerInteraction : MonoBehaviour, IUpdatable
@@ -85,7 +85,7 @@ using Komodo.IMPRESS;
 
         private Vector3 velocity;
 
-        private EntityManager entityManager;
+        //private EntityManager entityManager;
 
         // TODO (Brandon): refactor this file into...
         // * GrabManager
@@ -109,7 +109,7 @@ using Komodo.IMPRESS;
 
         void Start()
         {
-            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+//entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
             SetUpHands();
 
@@ -804,13 +804,13 @@ using Komodo.IMPRESS;
         if (currentGrabbedGroupObject)
             return;
 
-        int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).entityID;
+        //int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).entityID;
 
             NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
             {
                 sourceEntity_id = int.Parse(NetworkUpdateHandler.Instance.client_id.ToString() + handEntityType.ToString()),
 
-                targetEntity_id = entityID,
+                targetEntity_id = currentGrabbedNetObject.thisEntityID,//entityID,
 
                 interactionType = (int)INTERACTIONS.DROP,
             });
@@ -876,12 +876,12 @@ using Komodo.IMPRESS;
                 return;
             }
 
-            if (entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
-            {
-                return;
-            }
+            //if (entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
+            //{
+            //    return;
+            //}
 
-            entityManager.AddComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
+            //entityManager.AddComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
         }
 
         private void ResetStretchParameters()
@@ -1031,12 +1031,12 @@ using Komodo.IMPRESS;
 
         private void InitializeNetworkedPhysicsObjectIfNeeded()
         {
-            Entity_Type netObjectType = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).current_Entity_Type;
+            //Entity_Type netObjectType = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).current_Entity_Type;
 
-            if (netObjectType != Entity_Type.physicsObject)
-            {
-                return;
-            }
+            //if (netObjectType != Entity_Type.physicsObject)
+            //{
+            //    return;
+            //}
 
             currentGrabbedObjectRigidBody = currentGrabbedNetObject.GetComponent<Rigidbody>();
 

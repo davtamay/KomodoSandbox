@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class AvatarComponent : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public Entity_Type thisEntityType;
@@ -46,4 +46,4 @@ namespace Komodo.Runtime
             }
         }
     }
-}
+//}

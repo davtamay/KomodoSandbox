@@ -3,8 +3,8 @@ using UnityEngine;
 using Komodo.Utilities;
 using Komodo.Runtime;
 
-namespace Komodo.IMPRESS
-{
+//namespace Komodo.IMPRESS
+//{
     public class Group : MonoBehaviour
     {
         public List<Collider> groups;
@@ -18,4 +18,4 @@ namespace Komodo.IMPRESS
 
         public List<NetworkedGameObject> netObjectList = new List<NetworkedGameObject>();
     }
-}
+//}

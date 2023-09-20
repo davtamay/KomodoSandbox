@@ -6,8 +6,8 @@ using System.Net.Sockets;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [Serializable]
     public struct ServerSessions
     {
@@ -255,4 +255,4 @@ namespace Komodo.Runtime
 
 
     }
-}
+//}

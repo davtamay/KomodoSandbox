@@ -1,7 +1,7 @@
 using Unity.Entities;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public struct NetworkEntityIdentificationComponentData : IComponentData
     {
         public int clientID;
@@ -11,4 +11,4 @@ namespace Komodo.Runtime
 
         public Entity_Type current_Entity_Type;
     }
-}
+//}

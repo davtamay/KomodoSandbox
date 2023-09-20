@@ -157,11 +157,11 @@ namespace Komodo.IMPRESS
         {
             _enable += Enable;
 
-            KomodoEventManager.StartListening("drawTool.enable", _enable);
+            KomodoEventManager.Instance.StartListening("drawTool.enable", _enable);
 
             _disable += Disable;
 
-            KomodoEventManager.StartListening("drawTool.disable", _disable);
+            KomodoEventManager.Instance.StartListening("drawTool.disable", _disable);
         }
 
         public static void TryGrabPlayerDrawTargets()

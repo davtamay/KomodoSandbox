@@ -1,7 +1,7 @@
 using UnityEngine;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public struct Draw
     {
         // Who is sending the draw update
@@ -37,4 +37,4 @@ namespace Komodo.Runtime
 
         // TODO: Add constructors for ContinueLine, EndLine, ShowLine, HideLIne
     }
-}
+//}

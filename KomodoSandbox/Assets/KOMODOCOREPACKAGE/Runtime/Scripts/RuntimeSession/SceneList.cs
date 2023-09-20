@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 //using UnityEditor;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [System.Serializable]
     public struct SceneReference
     {
@@ -41,4 +41,4 @@ namespace Komodo.Runtime
             }
         }
     }
-}
+//}

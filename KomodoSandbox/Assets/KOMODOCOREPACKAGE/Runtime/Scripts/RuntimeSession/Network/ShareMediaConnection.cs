@@ -5,8 +5,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
  
     public enum MediaType {TEXT = 0, AUDIO = 1, VIDEO = 2, SHARE_SCREEN = 3 } 
     public class ShareMediaConnection : MonoBehaviour
@@ -152,4 +152,4 @@ namespace Komodo.Runtime
         }
 
     }
-}
+//}

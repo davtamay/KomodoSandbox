@@ -3,8 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class HoverCursor : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public GameObject cursorGraphic;
@@ -76,4 +76,4 @@ namespace Komodo.Runtime
             HideCursor();
         }
     }
-}
+//}

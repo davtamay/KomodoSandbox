@@ -43,8 +43,8 @@ using Komodo.AssetImport;
 using Komodo.Utilities;
 using TMPro;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     [System.Serializable]
     public class Int_UnityEvent : UnityEvent<int> { }
 
@@ -127,7 +127,7 @@ namespace Komodo.Runtime
             arr[SEQ] = (float)seq;
             arr[SESSION_ID] = (float)session_id;
             arr[CLIENT_ID] = (float)coords.clientId;
-            arr[ENTITY_ID] = (float)coords.entityId;
+            arr[ENTITY_ID] = (float)coords.guid;
             arr[ENTITY_TYPE] = (float)coords.entityType;
             arr[SCALE] = coords.scaleFactor;
             arr[ROTX] = coords.rot.x;
@@ -560,4 +560,4 @@ namespace Komodo.Runtime
             }
         }
     }
-}
+//}

@@ -15,8 +15,8 @@ public struct ToggleState
     public bool state;
 }
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
    
     public class UIManager : SingletonComponent<UIManager>
     {
@@ -741,4 +741,4 @@ namespace Komodo.Runtime
 
         }
     }
-}
+//}

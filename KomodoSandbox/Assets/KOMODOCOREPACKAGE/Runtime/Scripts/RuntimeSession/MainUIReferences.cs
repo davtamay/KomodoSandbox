@@ -3,8 +3,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class MainUIReferences : MonoBehaviour
     {
 
@@ -136,4 +136,4 @@ namespace Komodo.Runtime
             }
         }
     }
-}
+//}

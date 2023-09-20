@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Komodo.IMPRESS
-{
+//namespace Komodo.IMPRESS
+//{
     public static class ImpressEventManager
     {
         // public void Start()
@@ -80,4 +80,4 @@ namespace Komodo.IMPRESS
             }
         }
     }
-}
+//}

@@ -7371,8 +7371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aad357aebd1e17642b9d0bd8077972cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lineRendererContainerPrefab: {fileID: 6293749851114551507, guid: 696e1fee7db7e40489bfa953fbc02ca0,
-    type: 3}
+  lineRendererContainerPrefab: {fileID: 0}
   userStrokeParent: {fileID: 0}
   externalStrokeParent: {fileID: 0}
   playerRefs: {fileID: 2311064594114577961}
@@ -16358,7 +16357,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1657683740}
   m_HandleRect: {fileID: 1657683739}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -29604,11 +29603,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47dfa1113fc3cfb47aaf2616e7cc811a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftControllerInteraction: {fileID: 2310716809545385630}
-  rightControllerInteraction: {fileID: 2310410839809595079}
-  player: {fileID: 2311064594114578008}
-  groupBoundingBox: {fileID: 7019741626311183605, guid: 062c2be618f8fa4448ac670a5363f7ac,
-    type: 3}
 --- !u!1 &2139089474
 GameObject:
   m_ObjectHideFlags: 0

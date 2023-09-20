@@ -28,25 +28,25 @@ namespace Komodo.IMPRESS
 
             _onLeftTriggerDown += TryStartLeftWorldPulling;
 
-            KomodoEventManager.StartListening("controllers.left.triggerDown", _onLeftTriggerDown);
+            KomodoEventManager.Instance.StartListening("controllers.left.triggerDown", _onLeftTriggerDown);
 
             _onLeftTriggerUp += EndLeftSelect;
 
             _onLeftTriggerUp += StopLeftWorldPulling;
 
-            KomodoEventManager.StartListening("controllers.left.triggerUp", _onLeftTriggerUp);
+            KomodoEventManager.Instance.StartListening("controllers.left.triggerUp", _onLeftTriggerUp);
 
             _onRightTriggerDown += StartRightSelect;
 
             _onRightTriggerDown += TryStartRightWorldPulling;
 
-            KomodoEventManager.StartListening("controllers.right.triggerDown", _onRightTriggerDown);
+            KomodoEventManager.Instance.StartListening("controllers.right.triggerDown", _onRightTriggerDown);
 
             _onRightTriggerUp += EndRightSelect;
 
             _onRightTriggerUp += StopRightWorldPulling;
 
-            KomodoEventManager.StartListening("controllers.right.triggerUp", _onRightTriggerUp);
+            KomodoEventManager.Instance.StartListening("controllers.right.triggerUp", _onRightTriggerUp);
         }
 
         private static void FindSelectors ()
@@ -166,13 +166,13 @@ namespace Komodo.IMPRESS
 
         public static void Deinitialize ()
         {
-            KomodoEventManager.StopListening("controllers.left.triggerDown", _onLeftTriggerDown);
+            KomodoEventManager.Instance.StopListening("controllers.left.triggerDown", _onLeftTriggerDown);
 
-            KomodoEventManager.StopListening("controllers.left.triggerUp", _onLeftTriggerUp);
+            KomodoEventManager.Instance.StopListening("controllers.left.triggerUp", _onLeftTriggerUp);
 
-            KomodoEventManager.StopListening("controllers.right.triggerDown", _onRightTriggerDown);
+            KomodoEventManager.Instance.StopListening("controllers.right.triggerDown", _onRightTriggerDown);
 
-            KomodoEventManager.StopListening("controllers.right.triggerUp", _onRightTriggerUp);
+            KomodoEventManager.Instance.StopListening("controllers.right.triggerUp", _onRightTriggerUp);
         }
     }
 }

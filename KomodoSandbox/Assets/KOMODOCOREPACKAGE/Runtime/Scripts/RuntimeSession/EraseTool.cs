@@ -26,11 +26,11 @@ namespace Komodo.Runtime
         {
             _enable += Enable;
 
-            KomodoEventManager.StartListening("eraseTool.enable", _enable);
+            KomodoEventManager.Instance.StartListening("eraseTool.enable", _enable);
 
             _disable += Disable;
 
-            KomodoEventManager.StartListening("eraseTool.disable", _disable);
+            KomodoEventManager.Instance.StartListening("eraseTool.disable", _disable);
         }
 
         [ContextMenu("Test EraseTool: Start Erasing")]

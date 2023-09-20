@@ -6,8 +6,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Komodo.Utilities;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     /// <summary>
     /// Used to establish gameobject as a reference to be used in networking
     /// </summary>
@@ -89,6 +89,8 @@ namespace Komodo.Runtime
             
             //// get our entitymanager to get access to the entity world
             entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+         
+            
             if (buttonIndex == -1)
                 buttonIndex = importIndex;
 
@@ -110,6 +112,9 @@ namespace Komodo.Runtime
 
 //            //set custom id if we are not given a specified id when instantiating this network associated object
             int EntityID = (uniqueEntityID == -1) ? NetworkedObjectsManager.Instance.GenerateUniqueEntityID() : uniqueEntityID;
+
+            if (this.thisEntityID == -1)
+             this.thisEntityID = EntityID;
 
 
             Register(EntityID);
@@ -235,4 +240,4 @@ namespace Komodo.Runtime
             SendLookEndInteraction();
         }
     }
-}
+//}

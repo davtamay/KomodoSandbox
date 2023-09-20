@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     //TODO add null checks to all public variables
     public class PlayerReferences : MonoBehaviour
     {
@@ -120,4 +120,4 @@ namespace Komodo.Runtime
             }
         }
     }
-}
+//}

@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using Komodo.Runtime;
 
-namespace Komodo.IMPRESS
-{
+//namespace Komodo.IMPRESS
+//{
     // TODO(Brandon) - rename this to BrushManager
     public class DrawingManager : DrawingInstanceManager
     {
@@ -66,11 +66,11 @@ namespace Komodo.IMPRESS
         {
             _enable += Enable;
 
-            KomodoEventManager.StartListening("drawTool.enable", _enable);
+            KomodoEventManager.Instance.StartListening("drawTool.enable", _enable);
 
             _disable += Disable;
 
-            KomodoEventManager.StartListening("drawTool.disable", _disable);
+            KomodoEventManager.Instance.StartListening("drawTool.disable", _disable);
         }
 
         // Our own function. Not to be confused with Unity's OnEnable.
@@ -89,4 +89,4 @@ namespace Komodo.IMPRESS
             playerRefs.drawR.gameObject.SetActive(false);
         }
     }
-}
+//}

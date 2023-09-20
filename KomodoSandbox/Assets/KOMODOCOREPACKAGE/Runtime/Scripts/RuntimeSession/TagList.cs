@@ -1,4 +1,4 @@
-namespace Komodo.Runtime {
+//namespace Komodo.Runtime {
     /**
      *  Until we can refactor Komodo to move away from the use of tags, we must 
      * use this list. For single-object tags, we expect only one gameObject 
@@ -43,4 +43,4 @@ namespace Komodo.Runtime {
         public const string eventSystemDesktop = "EventSystemDesktop";
         public const string hand = "Hand";
     }
-}
+//}

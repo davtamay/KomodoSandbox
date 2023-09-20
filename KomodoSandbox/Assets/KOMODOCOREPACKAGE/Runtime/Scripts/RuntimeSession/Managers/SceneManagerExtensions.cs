@@ -7,8 +7,8 @@ using Komodo.Utilities;
 using UnityEngine.Events;
 using System.Linq;
 
-namespace Komodo.Runtime
-{
+//namespace Komodo.Runtime
+//{
     public class SceneManagerExtensions : SingletonComponent<SceneManagerExtensions>
     {
         public static SceneManagerExtensions Instance
@@ -244,4 +244,4 @@ namespace Komodo.Runtime
             SceneManager.MergeScenes(source, target);
         }
     }
-}
+//}
