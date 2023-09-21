@@ -251,6 +251,7 @@ public class SessionStateManager : SingletonComponent<SessionStateManager>
         //{
         //    return;
         //}
+      //  Debug.Log("ENTITY_TYPE: " + positionData.entityType);
 
         if (positionData.entityType != (int)Entity_Type.objects && positionData.entityType != (int)Entity_Type.physicsObject)
         {
@@ -279,6 +280,7 @@ public class SessionStateManager : SingletonComponent<SessionStateManager>
 
             case (int)Entity_Type.objects:
 
+                
                 NetworkedObjectsManager.Instance.TryToApplyPosition(positionData);
 
                 break;

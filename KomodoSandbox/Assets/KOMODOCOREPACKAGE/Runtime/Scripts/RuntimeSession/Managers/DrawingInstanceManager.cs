@@ -25,26 +25,35 @@ using Komodo.Utilities;
 
         private Dictionary<int, LineRenderer> lineRendererFromId = new Dictionary<int, LineRenderer>();
 
-        public void Awake()
-        {
-            //used to set our managers alive state to true to detect if it exist within scene
-            var initManager = Instance;
+    public void Awake()
+    {
+        //used to set our managers alive state to true to detect if it exist within scene
+        var initManager = Instance;
 
-            //TODO -- warn if we are not attached to a GameObject
+        //TODO -- warn if we are not attached to a GameObject
 
-            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
-            //parent for our stored lines
-            userStrokeParent = new GameObject("UserStrokeParent").transform;
+        //parent for our stored lines
+        userStrokeParent = new GameObject("UserStrokeParent").transform;
 
-            externalStrokeParent = new GameObject("ExternalClientStrokeParent").transform;
+        externalStrokeParent = new GameObject("ExternalClientStrokeParent").transform;
 
-            userStrokeParent.SetParent(transform);
+        userStrokeParent.SetParent(transform);
 
-            externalStrokeParent.SetParent(transform);
+        externalStrokeParent.SetParent(transform);
 
-            GlobalMessageManager.Instance.Subscribe("draw", (str) => ReceiveDrawUpdate(str));
-        }
+        GlobalMessageManager.Instance.Subscribe("draw", (str) => ReceiveDrawUpdate(str));
+
+        //string data1 = JsonUtility.ToJson(new Draw(0, 222, (int)Entity_Type.Line, 1.0f, Vector3.zero, Vector4.one));
+        //string data2 = JsonUtility.ToJson(new Draw(0, 222, (int)Entity_Type.Line, 1.0f, Vector3.one, Vector4.one));
+        //string data3 = JsonUtility.ToJson(new Draw(0, 222, (int)Entity_Type.LineEnd, 1.0f, Vector3.one * 2, Vector4.one));
+
+
+        //ReceiveDrawUpdate(data1);
+        //ReceiveDrawUpdate(data2);
+        //ReceiveDrawUpdate(data3);
+    }
 
         public void InitializeFinishedLineFromOwnClient(int strokeID, LineRenderer lineRenderer, bool doSendNetworkUpdate)
         {
@@ -61,7 +70,7 @@ using Komodo.Utilities;
             lineRendCopy.name = "LineR:" + strokeID;
 
             //Create a reference to use in network
-            NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(pivot, strokeID, strokeID);
+            NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(pivot, customEntityID: strokeID);
 
             // Make own client's draw strokes grabbable
             pivot.tag = TagList.interactable;
@@ -101,18 +110,33 @@ using Komodo.Utilities;
 
             lineRendCopy.transform.SetParent(pivot.transform, true);
 
-            // if (doSendNetworkUpdate)
-            // {
-            //     SendDrawUpdate(
-            //         strokeID,
-            //         Entity_Type.LineEnd,
-            //         copiedLR.widthMultiplier,
-            //         lineRenderer.GetPosition(lineRenderer.positionCount - 1),
-            //         new Vector4(lineRenderer.startColor.r, lineRenderer.startColor.g, lineRenderer.startColor.b,  lineRenderer.startColor.a)
-            //     );
-            // }
+        if (doSendNetworkUpdate)
+        {
+            SendDrawUpdate(
+                strokeID,
+                Entity_Type.LineEnd,
+                copiedLR.widthMultiplier,
+                lineRenderer.GetPosition(lineRenderer.positionCount - 1),
+                new Vector4(lineRenderer.startColor.r, lineRenderer.startColor.g, lineRenderer.startColor.b, lineRenderer.startColor.a)
+            );
 
-            pivot.transform.SetParent(userStrokeParent, true);
+          
+
+          //  var data =
+          //  JsonUtility.ToJson(
+          //      new Draw(
+          //          1,
+          //    strokeID +100,
+          //    (int)Entity_Type.LineEnd,
+          //    1,
+          //    lineRenderer.GetPosition(lineRenderer.positionCount - 1),
+          //    new Vector4(lineRenderer.startColor.r, lineRenderer.startColor.g, lineRenderer.startColor.b, lineRenderer.startColor.a)
+          //    )
+          //);
+          //  ReceiveDrawUpdate(data);
+        }
+
+        pivot.transform.SetParent(userStrokeParent, true);
 
             if (UndoRedoManager.IsAlive)
             {
@@ -128,15 +152,16 @@ using Komodo.Utilities;
 
         public void InitializeFinishedLineFromOtherClient(int strokeID, LineRenderer renderer)
         {
+            
             GameObject pivot = new GameObject("LineRender:" + strokeID, typeof(BoxCollider));
 
-            NetworkedGameObject netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(pivot, strokeID, strokeID, true);
+        NetworkedGameObject netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(pivot, customEntityID: strokeID); //strokeID, strokeID, true);
 
             // Make other clients' draw strokes grabbable
             pivot.tag = TagList.interactable;
 
             //tag created drawing object will be useful in the future for having items with multiple tags
-            entityManager.AddComponentData(netObject.entity, new DrawingTag { });
+          //  entityManager.AddComponentData(netObject.entity, new DrawingTag { });
 
             var collider = pivot.GetComponent<BoxCollider>();
 
@@ -201,7 +226,7 @@ using Komodo.Utilities;
         {
             GameObject lineRendCopy = Instantiate(lineRendererContainerPrefab).gameObject;
 
-            lineRendCopy.name = "LineR:" + data.strokeId;
+            lineRendCopy.name = "LineR:" + data.guid;
 
             lineRendCopy.transform.SetParent(externalStrokeParent, true);
 
@@ -210,14 +235,14 @@ using Komodo.Utilities;
 
         protected void ContinueLine (Draw data)
         {
-            if (!IsLineRendererRegistered(data.strokeId))
+            if (!IsLineRendererRegistered(data.guid))
             {
-                Debug.LogWarning($"Line renderer {data.strokeId} will not be started or continued, because it was never registered.");
+                Debug.LogWarning($"Line renderer {data.guid} will not be started or continued, because it was never registered.");
 
                 return;
             }
 
-            LineRenderer renderer = GetLineRenderer(data.strokeId);
+            LineRenderer renderer = GetLineRenderer(data.guid);
 
             var brushColor = new Vector4(data.curColor.x, data.curColor.y, data.curColor.z, data.curColor.w);
 
@@ -234,60 +259,60 @@ using Komodo.Utilities;
 
         protected void EndLine (Draw data)
         {
-            if (!IsLineRendererRegistered(data.strokeId))
+            if (!IsLineRendererRegistered(data.guid))
             {
-                Debug.LogWarning($"Line renderer {data.strokeId} will not be ended, because it was never registered.");
+                Debug.LogWarning($"Line renderer {data.guid} will not be ended, because it was never registered.");
 
                 return;
             }
 
-            LineRenderer renderer = GetLineRenderer(data.strokeId);
+            LineRenderer renderer = GetLineRenderer(data.guid);
 
             renderer.positionCount += 1;
 
             renderer.SetPosition(renderer.positionCount - 1, data.curStrokePos);
 
-            InitializeFinishedLineFromOtherClient(data.strokeId, renderer);
+            InitializeFinishedLineFromOtherClient(data.guid, renderer);
         }
 
         protected void DeleteLine (Draw data)
         {
-            if (!IsLineRendererRegistered(data.strokeId))
+            if (!IsLineRendererRegistered(data.guid))
             {
-                Debug.LogWarning($"Line renderer {data.strokeId} will not be deleted, because it was never registered.");
+                Debug.LogWarning($"Line renderer {data.guid} will not be deleted, because it was never registered.");
 
                 return;
             }
 
-            bool success = NetworkedObjectsManager.Instance.DestroyAndUnregisterEntity(data.strokeId);
+            bool success = NetworkedObjectsManager.Instance.DestroyAndUnregisterEntity(data.guid);
 
             if (!success)
             {
-                Debug.LogWarning($"Could not delete line {data.strokeId}'s networked object.");
+                Debug.LogWarning($"Could not delete line {data.guid}'s networked object.");
 
                 return;
             }
 
-            UnregisterLineRenderer(data.strokeId);
+            UnregisterLineRenderer(data.guid);
         }
 
         protected void ShowLine (Draw data)
         {
-            bool success = NetworkedObjectsManager.Instance.ShowEntity(data.strokeId);
+            bool success = NetworkedObjectsManager.Instance.ShowEntity(data.guid);
 
             if (!success)
             {
-                Debug.LogWarning($"Could not show line {data.strokeId}.");
+                Debug.LogWarning($"Could not show line {data.guid}.");
             }
         }
 
         protected void HideLine (Draw data)
         {
-            bool success = NetworkedObjectsManager.Instance.HideEntity(data.strokeId);
+            bool success = NetworkedObjectsManager.Instance.HideEntity(data.guid);
 
             if (!success)
             {
-                Debug.LogWarning($"Could not hide line {data.strokeId}.");
+                Debug.LogWarning($"Could not hide line {data.guid}.");
             }
         }
 
@@ -297,14 +322,14 @@ using Komodo.Utilities;
 
             currentLineRenderer.positionCount = 0;
 
-            RegisterLineRenderer(data.strokeId, currentLineRenderer);
+            RegisterLineRenderer(data.guid, currentLineRenderer);
         }
 
         public void ReceiveDrawUpdate (string stringData)
         {
             Draw data = JsonUtility.FromJson<Draw>(stringData);
 
-            if (!IsLineRendererRegistered(data.strokeId))
+            if (!IsLineRendererRegistered(data.guid))
             {
                 StartLineAndRegisterLineRenderer(data);
             }

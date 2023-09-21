@@ -8,7 +8,7 @@ using UnityEngine;
         public int clientId;
 
         // An ID unique among all entities (draw strokes, models, model pack subobjects)
-        public int strokeId;
+        public int guid;
 
         // The kind of action being performed.
         // See Entity_Type.Line ... Entity_Type.LineNotRender
@@ -28,7 +28,7 @@ using UnityEngine;
         public Draw(int clientId, int strokeId, int strokeType, float lineWidth, Vector3 curStrokePos, Vector4 curColor)
         {
             this.clientId = clientId;
-            this.strokeId = strokeId;
+            this.guid = strokeId;
             this.strokeType = strokeType;
             this.lineWidth = lineWidth;
             this.curStrokePos = curStrokePos;

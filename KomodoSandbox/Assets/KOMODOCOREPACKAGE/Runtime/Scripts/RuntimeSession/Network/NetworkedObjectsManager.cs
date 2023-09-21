@@ -37,9 +37,7 @@ using Komodo.Utilities;
 
         public void Register (int entityID, NetworkedGameObject netObject)
         {
-        //    netObject.thisEntityID = entityID;
             networkedObjectFromEntityId.Add(entityID, netObject);
-
         }
 
         // public Entity GetEntity(int index)
@@ -132,7 +130,28 @@ using Komodo.Utilities;
                 return false;
             }
 
-            netObjTransform.position = positionData.pos;
+      //  Debug.Log("APPLING POSITION: to : " + netObjTransform.gameObject.name + positionData.pos);
+
+      //  Debug.Log("PARENT : " + netObjTransform.parent.gameObject.name);
+      //  Debug.Log("CHILD : " + netObjTransform.GetChild(0).gameObject.name);
+      //  //if (netObjTransform.GetChild(0).gameObject.name) ;
+
+      //  if (netObjTransform.GetChild(0))
+      //      netObjTransform.GetChild(0).gameObject.SetActive(false);
+
+      ////  if (netObjTransform.parent)
+      //      Debug.Log("DOES PARENT HAVE RENDERER : " + netObjTransform.parent.GetComponent<LineRenderer>() != null);
+      //  Debug.Log("DOES CHILD HAVE RENDERER : " + netObjTransform.GetChild(0).GetComponent<LineRenderer>() != null);
+      //  Debug.Log("DOES CURRENT HAVE RENDERER : " + netObjTransform.GetComponent<LineRenderer>() != null);
+        //if (netObjTransform.GetChild(0)) {
+
+        //    Debug.Log("has child renderer : " + netObjTransform.GetChild(0).GetComponent<LineRenderer>() != null);
+
+        //}
+
+
+
+        netObjTransform.position = positionData.pos;
 
             netObjTransform.rotation = positionData.rot;
 

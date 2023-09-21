@@ -117,6 +117,7 @@ using Komodo.Utilities;
              this.thisEntityID = EntityID;
 
 
+            
             Register(EntityID);
 
             //            thisEntityID = EntityID;

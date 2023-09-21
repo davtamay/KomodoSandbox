@@ -76,9 +76,9 @@ using Komodo.Utilities;
         private int clientID => NetworkUpdateHandler.Instance.client_id;
 
         //Hand References for position and animation information
-        private Vector3 leftHandOriginalLocalPosition;
+        private Vector3 previousLeftHandOriginalLocalPosition;
 
-        private Vector3 rightHandOriginalLocalPosition;
+        private Vector3 previousRightHandOriginalLocalPosition;
 
         private Animator leftHandAnimator;
 
@@ -148,21 +148,40 @@ using Komodo.Utilities;
             //GameStateManager.Instance.RegisterUpdatableObject(this);
 
             //Grab current position of hands to detect if they have moved to avoid rendering them when they havent;
-            leftHandOriginalLocalPosition = mainClientAvatarEntityGroup.avatarComponent_hand_L.transform.localPosition;
+            //leftHandOriginalLocalPosition = mainClientAvatarEntityGroup.avatarComponent_hand_L.transform.localPosition;
 
-            rightHandOriginalLocalPosition = mainClientAvatarEntityGroup.avatarComponent_hand_R.transform.localPosition;
+         //   rightHandOriginalLocalPosition = mainClientAvatarEntityGroup.avatarComponent_hand_R.transform.localPosition;
 
 
-            previousPosition = headEntityTransform.position;
-            previousRotation = headEntityTransform.rotation;
-        }
+        previousHeadPosition = headEntityTransform.position;
+        previousHeadRotation = headEntityTransform.rotation;
 
-        private Vector3 previousPosition;
-        private Quaternion previousRotation;
-        private float positionThreshold = 0.2f; // Adjust the threshold value as needed
-        private float rotationThreshold = 0.2f; // Adjust the threshold value as needed
+        //   previousLHandPosition = leftHandEntityTransform.localPosition;
+        previousLeftHandOriginalLocalPosition = mainClientAvatarEntityGroup.avatarComponent_hand_L.transform.localPosition;
+        previousLHandRotation = leftHandEntityTransform.rotation;
 
-        public Vector3 posOffset;
+        previousRightHandOriginalLocalPosition = mainClientAvatarEntityGroup.avatarComponent_hand_R.transform.localPosition;
+        previousRHandRotation = rightHandEntityTransform.rotation;
+        //  previousRHandPosition = rightHandEntityTransform.localPosition;
+
+
+
+    }
+
+    private Vector3 previousHeadPosition;
+        private Quaternion previousHeadRotation;
+        private float positionThreshold = 0.32f; // Adjust the threshold value as needed
+        private float rotationThreshold = 0.32f; // Adjust the threshold value as needed
+
+
+        private Vector3 previousLHandPosition;
+        private Quaternion previousLHandRotation;
+
+    private Vector3 previousRHandPosition;
+    private Quaternion previousRHandRotation;
+
+
+    public Vector3 posOffset;
         public Vector3 GetPosOffset() =>  posOffset;
 
 
@@ -185,34 +204,43 @@ using Komodo.Utilities;
             //if (Mathf.Approximately(headEntityTransform.position, previousPosition) || headEntityTransform.rotation != previousRotation)
             //{
 
-            if (Vector3.Distance(headEntityTransform.position, previousPosition) > positionThreshold ||
-                Quaternion.Angle(headEntityTransform.rotation, previousRotation) > rotationThreshold)
+            if (Vector3.Distance(headEntityTransform.position, previousHeadPosition) > positionThreshold ||
+                Quaternion.Angle(headEntityTransform.rotation, previousHeadRotation) > rotationThreshold)
             {
                 //SendSyncPosition(Entity_Type.users_head, headEntityTransform.position + posOffset, headEntityTransform.rotation); 
                 SendSyncPosition(Entity_Type.users_head, headEntityTransform.position, headEntityTransform.rotation);
 
 
 
-                previousPosition = headEntityTransform.position;
-                previousRotation = headEntityTransform.rotation;
+                previousHeadPosition = headEntityTransform.position;
+                previousHeadRotation = headEntityTransform.rotation;
 
             }
 
-            //CHECKS IF OUR L_HAND HAS MOVED TO SEND LHAND REFERENCE DATA TO FUNCION TO FIT STRUCTURE NEEDED FOR UNITYEVENT
-            if (leftHandOriginalLocalPosition != leftHandEntityTransform.localPosition)
+        //CHECKS IF OUR L_HAND HAS MOVED TO SEND LHAND REFERENCE DATA TO FUNCION TO FIT STRUCTURE NEEDED FOR UNITYEVENT
+        // if (leftHandOriginalLocalPosition != leftHandEntityTransform.localPosition)
+
+        if (Vector3.Distance(previousLeftHandOriginalLocalPosition, leftHandEntityTransform.localPosition) > positionThreshold ||
+            Quaternion.Angle(previousLHandRotation, leftHandEntityTransform.rotation) > rotationThreshold)
             {
+
                 SendSyncPosition(Entity_Type.users_Lhand, leftHandEntityTransform.position, leftHandEntityTransform.rotation);
 
-                leftHandOriginalLocalPosition = leftHandEntityTransform.localPosition;
+                previousLeftHandOriginalLocalPosition = leftHandEntityTransform.localPosition;
+                previousLHandRotation = leftHandEntityTransform.rotation;
             }
 
-            ////CHECKS IF OUR R_HAND HAS MOVED TO SENDS LHAND REFERENCE DATA TO FUNCION TO FIT STRUCTURE NEEDED FOR UNITYEVENT
-            if (rightHandOriginalLocalPosition != rightHandEntityTransform.localPosition)
-            {
+        ////CHECKS IF OUR R_HAND HAS MOVED TO SENDS LHAND REFERENCE DATA TO FUNCION TO FIT STRUCTURE NEEDED FOR UNITYEVENT
+        // if (previousRightHandOriginalLocalPosition != rightHandEntityTransform.localPosition)
+        if (Vector3.Distance(previousRightHandOriginalLocalPosition, rightHandEntityTransform.localPosition) > positionThreshold ||
+         Quaternion.Angle(previousRHandRotation, rightHandEntityTransform.rotation) > rotationThreshold)
+        {
                 SendSyncPosition(Entity_Type.users_Rhand, rightHandEntityTransform.position, rightHandEntityTransform.rotation);
 
-                rightHandOriginalLocalPosition = rightHandEntityTransform.localPosition;
-            }
+
+                previousRightHandOriginalLocalPosition = rightHandEntityTransform.localPosition;
+                 previousRHandRotation = rightHandEntityTransform.rotation;
+        }
 
             //ADJUST DATA AND SEND UPDATES FROM THOSE GAMEOBJECTS REGISTERED TO OUR LIST 
             foreach (var entityContainers in networkedEntities)

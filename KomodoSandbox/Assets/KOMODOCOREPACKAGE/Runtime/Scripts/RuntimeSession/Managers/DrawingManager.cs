@@ -38,7 +38,7 @@ using Komodo.Runtime;
         //    StartLineAndRegisterLineRenderer(data);
         //}
 
-        LineRenderer renderer = GetLineRenderer(data.strokeId);
+        LineRenderer renderer = GetLineRenderer(data.guid);
 
         renderer.widthMultiplier = data.lineWidth;
 

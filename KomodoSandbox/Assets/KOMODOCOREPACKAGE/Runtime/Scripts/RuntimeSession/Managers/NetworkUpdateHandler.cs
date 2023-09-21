@@ -412,7 +412,7 @@ using TMPro;
         public void _DeserializeAndProcessSyncData(string data)
         {
             var pos = JsonUtility.FromJson<Position>(data);
-            Debug.Log("GOT Data : " + "session : " + session_id + "  from: " + client_id + "  : " + pos);
+            Debug.Log("GOT Data : " + "session : " + session_id + "  from: " + client_id + "  : " + pos.guid);
 
             if (!SessionStateManager.IsAlive)
             {

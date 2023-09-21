@@ -357,14 +357,18 @@ using TMPro;
             handsParent.transform.rotation = new Quaternion(ROT.x, ROT.y, ROT.z, ROT.w);
 #endif
             MainClientUpdater.Instance.SetTransformOffset(temp.position, Quaternion.identity);
+       
+            MainClientUpdater.Instance.SendSyncPosition(Entity_Type.users_head, temp.position, new Quaternion(ROT.x, ROT.y, ROT.z, ROT.w));
 
-            //Turn Off Dummy 
-            var parObject = temp.parent.parent.gameObject;
+        //Turn Off Dummy 
+        var parObject = temp.parent.parent.gameObject;
 
             parObject.name = "Main_Client";
 
             nextAvailableSlot += 1;
-        }
+
+      //MainClientUpdater.Instance.SendSyncPosition(Entity_Type.users_head, headEntityTransform.position, headEntityTransform.rotation);
+    }
 
         public void DisplayOwnClientIsConnected ()
         {

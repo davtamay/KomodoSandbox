@@ -10,7 +10,7 @@ using Unity.Entities;
 public struct IMPRESSPosition
 {
     public int clientId;
-    public int entityId;
+    public int guid;
     public int entityType;
     public Vector3 scaleFactor;
     public Quaternion rot;
@@ -19,7 +19,7 @@ public struct IMPRESSPosition
     public IMPRESSPosition(int clientId, int entityId, int entityType, Vector3 scaleFactor, Quaternion rot, Vector3 pos)
     {
         this.clientId = clientId;
-        this.entityId = entityId;
+        this.guid = entityId;
         this.entityType = entityType;
         this.scaleFactor = scaleFactor;
         this.rot = rot;
@@ -211,11 +211,11 @@ public class ImpressMainClientUpdater : SingletonComponent<ImpressMainClientUpda
             return false;
         }
 
-        int entityId = positionData.entityId;
+        int entityId = positionData.guid;
 
         if (!NetworkedObjectsManager.Instance.networkedObjectFromEntityId.ContainsKey(entityId))
         {
-            Debug.LogWarning("Entity ID : " + positionData.entityId + "not found in Dictionary dropping object movement packet");
+            Debug.LogWarning("Entity ID : " + positionData.guid + "not found in Dictionary dropping object movement packet");
 
             return false;
         }
