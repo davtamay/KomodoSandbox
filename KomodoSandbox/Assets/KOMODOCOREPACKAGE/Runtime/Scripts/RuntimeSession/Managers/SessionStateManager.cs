@@ -184,16 +184,32 @@ public class SessionStateManager : SingletonComponent<SessionStateManager>
                         var primitiveModel = new Primitive { modelType = 2, guid = entityState.guid, indentifier = entityState.indentifier, scaleFactor = entityState.latest.scaleFactor, pos = entityState.latest.pos, rot = new Vector4(entityState.latest.rot.x, entityState.latest.rot.y, entityState.latest.rot.z, entityState.latest.rot.w )};
                         CreatePrimitiveManager.Instance.ReceivePrimitiveUpdate(JsonUtility.ToJson(primitiveModel), true);
 
-
-
                         break;
-                    //yield break ;
 
                     case 3:
-                        // CreatePrimitiveManger.Instance.CreatePrimitiver(primitiveModel);
-                        //    new Primitive { guid = entityState.guid, modelURL = entityState.url, pos = entityState.latest.pos, rot = entityState.latest.rot };
-                        //InstantiateAssetCards.Instance.InstantiateAssetFromData(JsonUtility.ToJson(primitiveModel));
-                        //GameStateManager.Instance.isAssetImportFinished = false;
+
+                        GameStateManager.Instance.isAssetImportFinished = false;
+
+                        //make sure that the user completed the line before spawning one.
+                        // Line = 10, LineEnd = 11
+                        if (entityState.drawEntity.strokeType == 11)
+                        {
+                            Debug.Log("REVEIVED ENTITY STATE OF 11 " + entityState.guid);
+                      
+                            //do all before end
+                            for (int e = 0; e < entityState.drawEntity.posArray.Length -1; e++)
+                            {
+                              var  drawModel = new Draw(1, entityState.guid, (int)Entity_Type.Line, entityState.drawEntity.lineWidth, entityState.drawEntity.posArray[e],entityState.drawEntity.color);
+                                DrawingInstanceManager.Instance.ReceiveDrawUpdate(JsonUtility.ToJson(drawModel));
+                            }
+
+                            //do ending to create the model to grab
+                          var  drawModelEnd = new Draw(1, entityState.guid, (int)Entity_Type.LineEnd, entityState.drawEntity.lineWidth, entityState.drawEntity.posArray[entityState.drawEntity.posArray.Length -1], entityState.drawEntity.color);
+                            DrawingInstanceManager.Instance.ReceiveDrawUpdate(JsonUtility.ToJson(drawModelEnd));
+
+                        }
+                        else
+                           skipRestOfCode = true;
 
 
                         break;

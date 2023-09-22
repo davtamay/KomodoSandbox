@@ -377,7 +377,7 @@ using TMPro;
         //TODO(Brandon): Suggestion: rename this to PositionUpdate
         public void SendSyncPoseMessage(Position pos)
         {
-            Debug.Log("Sending Dat : " + "to session : " + session_id  + "  from: " + client_id + "  : "+ pos);
+       //     Debug.Log("Sending Dat : " + "to session : " + session_id  + "  from: " + client_id + "  : "+ pos);
          //   pos.pos += MainClientUpdater.Instance.posOffset;
            // pos.rot *= 
 
@@ -412,7 +412,7 @@ using TMPro;
         public void _DeserializeAndProcessSyncData(string data)
         {
             var pos = JsonUtility.FromJson<Position>(data);
-            Debug.Log("GOT Data : " + "session : " + session_id + "  from: " + client_id + "  : " + pos.guid);
+          //  Debug.Log("GOT Data : " + "session : " + session_id + "  from: " + client_id + "  : " + pos.guid);
 
             if (!SessionStateManager.IsAlive)
             {

@@ -181,6 +181,10 @@ using Komodo.Utilities;
             renderer.transform.SetParent(pivot.transform, true);
 
             pivot.transform.SetParent(externalStrokeParent, true);
+
+
+        Debug.Log("MADE NEW DRAW :" + strokeID);
+             GameStateManager.Instance.isAssetImportFinished = true;
         }
 
         public void SendDrawUpdate(int id, Entity_Type entityType, float lineWidth = 1, Vector3 curPos = default, Vector4 color = default)
@@ -244,7 +248,7 @@ using Komodo.Utilities;
 
             LineRenderer renderer = GetLineRenderer(data.guid);
 
-            var brushColor = new Vector4(data.curColor.x, data.curColor.y, data.curColor.z, data.curColor.w);
+            var brushColor = new Vector4(data.color.x, data.color.y, data.color.z, data.color.w);
 
             renderer.startColor = brushColor;
 
@@ -254,7 +258,7 @@ using Komodo.Utilities;
 
             ++renderer.positionCount;
 
-            renderer.SetPosition(renderer.positionCount - 1, data.curStrokePos);
+            renderer.SetPosition(renderer.positionCount - 1, data.pos);
         }
 
         protected void EndLine (Draw data)
@@ -270,7 +274,7 @@ using Komodo.Utilities;
 
             renderer.positionCount += 1;
 
-            renderer.SetPosition(renderer.positionCount - 1, data.curStrokePos);
+            renderer.SetPosition(renderer.positionCount - 1, data.pos);
 
             InitializeFinishedLineFromOtherClient(data.guid, renderer);
         }
@@ -339,6 +343,7 @@ using Komodo.Utilities;
                 // Continues a Line
                 case (int) Entity_Type.Line:
                 {
+                    Debug.Log("REVEIVED LINE " + data.guid);
                     ContinueLine(data);
 
                     break;
@@ -346,6 +351,7 @@ using Komodo.Utilities;
 
                 case (int) Entity_Type.LineEnd:
                 {
+                    Debug.Log("REVEIVED LINE END " + data.guid);
                     EndLine(data);
 
                     break;

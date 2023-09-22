@@ -19,11 +19,12 @@ using UnityEngine;
 
         // Used for continue line and end line. 
         // The endpoint of the currently drawn line segment.
-        public Vector3 curStrokePos;
+        public Vector3 pos;
 
         // Used for continue line.
         // The color of the line segment.
-        public Vector4 curColor;
+        public Vector4 color;
+
 
         public Draw(int clientId, int strokeId, int strokeType, float lineWidth, Vector3 curStrokePos, Vector4 curColor)
         {
@@ -31,8 +32,8 @@ using UnityEngine;
             this.guid = strokeId;
             this.strokeType = strokeType;
             this.lineWidth = lineWidth;
-            this.curStrokePos = curStrokePos;
-            this.curColor = curColor;
+            this.pos = curStrokePos;
+            this.color = curColor;
         }
 
         // TODO: Add constructors for ContinueLine, EndLine, ShowLine, HideLIne

@@ -527,8 +527,8 @@ using System.Xml.Linq;
             ClientSpawnManager.Instance.RemoveAllClients();
 
 
-
-            var state = JsonUtility.FromJson<SessionState>(packedData);
+        // Newtonsoft.Json.jsom
+             var state = JsonConvert.DeserializeObject<SessionState>(packedData);//JsonUtility.FromJson<SessionState>(packedData);
 
             SessionStateManager.Instance.SetSessionState(state);
 
