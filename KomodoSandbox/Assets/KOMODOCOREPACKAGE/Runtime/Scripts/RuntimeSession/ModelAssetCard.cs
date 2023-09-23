@@ -54,7 +54,7 @@ public class ModelAssetCard : MonoBehaviour
 
     public async Task ClickCardFromSender()
     {
-        await mbl.InstantiateNewAssetToList(modelData, !wholeObjectToggle.isOn, onAssetCardClicked, onAssetLoaded, true, false);
+        await mbl.InstantiateNewAssetToList(modelData, onAssetCardClicked, onAssetLoaded, true, false);
     }
 
     public async void CardIsClicked(bool net_call = true)
@@ -66,8 +66,9 @@ public class ModelAssetCard : MonoBehaviour
             Debug.Log(modelData.guid);
       
         }
+        modelData.isWholeObject = !wholeObjectToggle.isOn;
 
-        await mbl.InstantiateNewAssetToList(modelData, !wholeObjectToggle.isOn, onAssetCardClicked, onAssetLoaded, true, net_call);
+        await mbl.InstantiateNewAssetToList(modelData, onAssetCardClicked, onAssetLoaded, true, net_call);
 
       //  return Task.CompletedTask;
     

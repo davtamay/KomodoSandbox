@@ -70,14 +70,15 @@ using Komodo.Utilities;
             lineRendCopy.name = "LineR:" + strokeID;
 
             //Create a reference to use in network
-            NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(pivot, customEntityID: strokeID);
+            NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(pivot, customEntityID: strokeID, modelType: MODEL_TYPE.Drawing);
 
-            // Make own client's draw strokes grabbable
-            pivot.tag = TagList.interactable;
+        // Make own client's draw strokes grabbable
+         pivot.tag = TagList.interactable;
+       // pivot.tag = TagList.drawing;
 
-            // entityManager.AddComponentData(nAGO.Entity, new DrawingTag { });
+        // entityManager.AddComponentData(nAGO.Entity, new DrawingTag { });
 
-            var bColl = pivot.GetComponent<BoxCollider>();
+        var bColl = pivot.GetComponent<BoxCollider>();
 
             LineRenderer copiedLR = lineRendCopy.GetComponent<LineRenderer>();
 
@@ -155,10 +156,10 @@ using Komodo.Utilities;
             
             GameObject pivot = new GameObject("LineRender:" + strokeID, typeof(BoxCollider));
 
-        NetworkedGameObject netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(pivot, customEntityID: strokeID); //strokeID, strokeID, true);
+        NetworkedGameObject netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(pivot, customEntityID: strokeID, modelType: MODEL_TYPE.Drawing); //strokeID, strokeID, true);
 
-            // Make other clients' draw strokes grabbable
-            pivot.tag = TagList.interactable;
+        // Make other clients' draw strokes grabbable
+        pivot.tag = TagList.interactable;
 
             //tag created drawing object will be useful in the future for having items with multiple tags
           //  entityManager.AddComponentData(netObject.entity, new DrawingTag { });
@@ -343,7 +344,7 @@ using Komodo.Utilities;
                 // Continues a Line
                 case (int) Entity_Type.Line:
                 {
-                    Debug.Log("REVEIVED LINE " + data.guid);
+                  //  Debug.Log("REVEIVED LINE " + data.guid);
                     ContinueLine(data);
 
                     break;
@@ -351,7 +352,7 @@ using Komodo.Utilities;
 
                 case (int) Entity_Type.LineEnd:
                 {
-                    Debug.Log("REVEIVED LINE END " + data.guid);
+                  //  Debug.Log("REVEIVED LINE END " + data.guid);
                     EndLine(data);
 
                     break;

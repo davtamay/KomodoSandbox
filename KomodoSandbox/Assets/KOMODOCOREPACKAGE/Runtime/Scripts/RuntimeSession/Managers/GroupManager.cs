@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Komodo.Runtime;
+using JetBrains.Annotations;
 
 //namespace Komodo.IMPRESS
 //{
-    public struct GroupProperties
+public struct GroupProperties
     {
         public int groupID;
         public int entityID;
@@ -190,7 +191,7 @@ using Komodo.Runtime;
             this._currentGroupType = (int)GroupColor.BLUE;
         }
 
-        private void _CreateNewGroup(int groupID)
+        private Group _CreateNewGroup(int groupID)
         {
             currentGroup = Instantiate(groupBoundingBox).AddComponent<Group>();
 
@@ -232,6 +233,8 @@ using Komodo.Runtime;
             groups.Add(groupID, currentGroup);
 
             currentGroup.groups = new List<Collider>();
+
+        return currentGroup;
         }
 
 
@@ -325,15 +328,15 @@ using Komodo.Runtime;
             int groupID = NetworkUpdateHandler.Instance.client_id;//GroupIDFromClientIDOrGroupType(otherClientID);
 
 
-
+        Group currentGroup;
             if (!groups.ContainsKey(groupID))
             {
-                _CreateNewGroup(groupID);
+            currentGroup = _CreateNewGroup(groupID);
             }
 
             currentGroup = groups[groupID];
 
-            Debug.Log("UNDERGROUP : " + currentGroup.groups.Count);
+         //   Debug.Log("UNDERGROUP : " + currentGroup.groups.Count);
 
             if (currentGroup.groups.Contains(collider))
             {
@@ -351,11 +354,16 @@ using Komodo.Runtime;
 
 
 
-            //new
-            if (!clientIDToGroup.ContainsKey(groupID))
-                clientIDToGroup.Add(groupID, new Group { netObjectList = new List<NetworkedGameObject>() { collider.GetComponent<NetworkedGameObject>() } });
-            else
-                clientIDToGroup[groupID].netObjectList.Add(collider.GetComponent<NetworkedGameObject>());
+        //new
+        if (!clientIDToGroup.ContainsKey(groupID))
+        {
+            clientIDToGroup.Add(groupID, currentGroup );
+
+
+            //Debug.Log("ADDING NEW COLLIDER");
+        }
+       
+            clientIDToGroup[groupID].netObjectList.Add(collider.GetComponent<NetworkedGameObject>());
 
         }
 

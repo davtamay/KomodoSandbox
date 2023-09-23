@@ -61,27 +61,32 @@ namespace Komodo.IMPRESS
             // komodo stuff
             base.TryAndErase(netReg);
 
-            var entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netReg.entity).entityID;
 
-            if (entityManager.HasComponent<PrimitiveTag>(netReg.entity))
-            {
+            //if (netReg.thisModelType != MODEL_TYPE.Primitive)
+            //    return;
+
+
+            //    var entityID = netReg.thisEntityID;//entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(netReg.entity).entityID;
+
+            //if (netReg.thisModelType == MODEL_TYPE.Primitive)//entityManager.HasComponent<PrimitiveTag>(netReg.entity))
+            //{
                 // hide object in our view instead ofdestroying it, so we can undo the erasure. 
-                netReg.gameObject.SetActive(false);
+                //netReg.gameObject.SetActive(false);
 
-                // tell other clients to do the same thing
-                CreatePrimitiveManager.Instance.SendPrimitiveUpdate(entityID, -9);
+                //// tell other clients to do the same thing
+                //CreatePrimitiveManager.Instance.SendPrimitiveUpdate(entityID, -9);
 
-                // save to actions stack
-                if (UndoRedoManager.IsAlive)
-                {
-                    UndoRedoManager.Instance.savedStrokeActions.Push(() =>
-                    {
-                        netReg.gameObject.SetActive(true);
+                //// save to actions stack
+                //if (UndoRedoManager.IsAlive)
+                //{
+                //    UndoRedoManager.Instance.savedStrokeActions.Push(() =>
+                //    {
+                //        netReg.gameObject.SetActive(true);
 
-                        CreatePrimitiveManager.Instance.SendPrimitiveUpdate(entityID, 9);
-                    });
-                }
-            }
+                //        CreatePrimitiveManager.Instance.SendPrimitiveUpdate(entityID, 9);
+                //    });
+                //}
+          //  }
         }
 
         public void ShowEraserDisplays ()

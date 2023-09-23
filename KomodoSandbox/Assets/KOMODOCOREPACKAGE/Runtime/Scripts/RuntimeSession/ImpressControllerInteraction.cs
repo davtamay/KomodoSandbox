@@ -10,131 +10,131 @@ using Komodo.Runtime;
 //using Komodo.IMPRESS;
 
 [RequireComponent(typeof(WebXRController), typeof(AvatarComponent))]
-    public class ImpressControllerInteraction : MonoBehaviour, IUpdatable
-    {
-        private const float handColliderRadius = 0.1f;
+public class ImpressControllerInteraction : MonoBehaviour, IUpdatable
+{
+    private const float handColliderRadius = 0.1f;
 
-        [Header("Trigger Button")]
+    [Header("Trigger Button")]
 
-        public UnityEvent onTriggerButtonDown;
+    public UnityEvent onTriggerButtonDown;
 
-        public UnityEvent onTriggerButtonUp;
+    public UnityEvent onTriggerButtonUp;
 
-        [Header("Grip Button")]
+    [Header("Grip Button")]
 
-        public UnityEvent onGripButtonDown;
+    public UnityEvent onGripButtonDown;
 
-        public UnityEvent onGripButtonUp;
+    public UnityEvent onGripButtonUp;
 
-        [Header("A / X Button")]
-        public UnityEvent onPrimaryButtonDown;
+    [Header("A / X Button")]
+    public UnityEvent onPrimaryButtonDown;
 
-        public UnityEvent onPrimaryButtonUp;
+    public UnityEvent onPrimaryButtonUp;
 
-        [Header("B / Y Button")]
-        public UnityEvent onSecondaryButtonDown;
+    [Header("B / Y Button")]
+    public UnityEvent onSecondaryButtonDown;
 
-        public UnityEvent onSecondaryButtonUp;
+    public UnityEvent onSecondaryButtonUp;
 
-        [Header("Thumbstick Button")]
-        public UnityEvent onThumbstickButtonDown;
+    [Header("Thumbstick Button")]
+    public UnityEvent onThumbstickButtonDown;
 
-        public UnityEvent onThumbstickButtonUp;
+    public UnityEvent onThumbstickButtonUp;
 
-        [Header("Thumbstick Flick")]
-        public UnityEvent onLeftFlick;
+    [Header("Thumbstick Flick")]
+    public UnityEvent onLeftFlick;
 
-        public UnityEvent onRightFlick;
+    public UnityEvent onRightFlick;
 
-        public UnityEvent onDownFlick;
+    public UnityEvent onDownFlick;
 
-        public UnityEvent onUpFlick;
+    public UnityEvent onUpFlick;
 
-        private bool isHorAxisReset;
+    private bool isHorAxisReset;
 
-        private bool isVerAxisReset;
+    private bool isVerAxisReset;
 
-        //this hand field references
-        private Transform thisHandTransform;
+    //this hand field references
+    private Transform thisHandTransform;
 
-        private Animator thisHandAnimator;
+    private Animator thisHandAnimator;
 
-        private bool hasObject;
+    private bool hasObject;
 
-        private Rigidbody currentGrabbedObjectRigidBody;
+    private Rigidbody currentGrabbedObjectRigidBody;
 
-        private NetworkedGameObject currentGrabbedNetObject;
+    private NetworkedGameObject currentGrabbedNetObject;
     private Group currentGrabbedGroupObject;
 
     [ShowOnly] public Transform hoveredObjectTransform = null;
 
-        private WebXRController webXRController;
+    private WebXRController webXRController;
 
-        private int handEntityType;
+    private int handEntityType;
 
-        public static ImpressControllerInteraction firstControllerOfStretchGesture;
+    public static ImpressControllerInteraction firstControllerOfStretchGesture;
 
-        public static ImpressControllerInteraction secondControllerOfStretchGesture;
+    public static ImpressControllerInteraction secondControllerOfStretchGesture;
 
-        [Header("Rigidbody Properties")]
-        public float throwForce = 3f;
+    [Header("Rigidbody Properties")]
+    public float throwForce = 3f;
 
-        private Vector3 oldPos;
+    private Vector3 oldPos;
 
-        private Vector3 newPos;
+    private Vector3 newPos;
 
-        private Vector3 velocity;
+    private Vector3 velocity;
 
-        //private EntityManager entityManager;
+    //private EntityManager entityManager;
 
-        // TODO (Brandon): refactor this file into...
-        // * GrabManager
-        // * PhysicsManager
-        // * ImpressStretchManager (update existing)
-        // ... and then create LeftHand and RightHand components, which require ...
-        // * Animator
-        // * AvatarComponent
+    // TODO (Brandon): refactor this file into...
+    // * GrabManager
+    // * PhysicsManager
+    // * ImpressStretchManager (update existing)
+    // ... and then create LeftHand and RightHand components, which require ...
+    // * Animator
+    // * AvatarComponent
 
-        void Awake()
+    void Awake()
+    {
+        if (firstControllerOfStretchGesture == null)
         {
-            if (firstControllerOfStretchGesture == null)
-            {
-                firstControllerOfStretchGesture = this;
-            }
-            else
-            {
-                secondControllerOfStretchGesture = this;
-            }
+            firstControllerOfStretchGesture = this;
         }
-
-        void Start()
+        else
         {
-//entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-
-            SetUpHands();
-
-            //Register the OnUpdate Loop
-            GameStateManager.Instance.RegisterUpdatableObject(this);
+            secondControllerOfStretchGesture = this;
         }
+    }
 
-        private void SetUpHands()
-        {
-            thisHandTransform = transform;
+    void Start()
+    {
+        //entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
-            thisHandAnimator = gameObject.GetComponent<Animator>();
+        SetUpHands();
 
-            webXRController = gameObject.GetComponent<WebXRController>();
+        //Register the OnUpdate Loop
+        GameStateManager.Instance.RegisterUpdatableObject(this);
+    }
 
-            //identify the entity type for network calls
-            handEntityType = (int)GetComponent<AvatarComponent>().thisEntityType;
+    private void SetUpHands()
+    {
+        thisHandTransform = transform;
 
-            //set old pos for physics calculations
-            oldPos = thisHandTransform.position;
+        thisHandAnimator = gameObject.GetComponent<Animator>();
 
-            //SetControllerVisible(false);
+        webXRController = gameObject.GetComponent<WebXRController>();
 
-            //SetHandJointsVisible(false);
-        }
+        //identify the entity type for network calls
+        handEntityType = (int)GetComponent<AvatarComponent>().thisEntityType;
+
+        //set old pos for physics calculations
+        oldPos = thisHandTransform.position;
+
+        //SetControllerVisible(false);
+
+        //SetHandJointsVisible(false);
+    }
 
 #if WEBXR_INPUT_PROFILES
         private void ControllerProfilesList(Dictionary<string, string> profilesList)
@@ -247,212 +247,212 @@ using Komodo.Runtime;
         }
 #endif
 
-        public void OnUpdate(float realTime)
+    public void OnUpdate(float realTime)
+    {
+        UpdatePhysicsParameters();
+
+        UpdateHandAnimationState();
+
+        ProcessGripInput();
+
+        ProcessTriggerInput();
+
+        ProcessButtonsInput();
+
+        ProcessThumbstickInput();
+    }
+
+    private void ProcessThumbstickInput()
+    {
+        float horAxis = webXRController.GetAxisIndexValue(2); //webXRController.GetAxis("ThumbstickX");
+
+        float verAxis = webXRController.GetAxisIndexValue(3); //webXRController.GetAxis("ThumbstickY");
+
+        //Reset Horizontal Flick
+        if (horAxis >= -0.5f && horAxis <= 0.5f)
         {
-            UpdatePhysicsParameters();
-
-            UpdateHandAnimationState();
-
-            ProcessGripInput();
-
-            ProcessTriggerInput();
-
-            ProcessButtonsInput();
-
-            ProcessThumbstickInput();
+            isHorAxisReset = true;
         }
 
-        private void ProcessThumbstickInput()
+        //Left flick
+        if (horAxis < -0.5f && isHorAxisReset)
         {
-            float horAxis = webXRController.GetAxisIndexValue(2); //webXRController.GetAxis("ThumbstickX");
+            isHorAxisReset = false;
 
-            float verAxis = webXRController.GetAxisIndexValue(3); //webXRController.GetAxis("ThumbstickY");
-
-            //Reset Horizontal Flick
-            if (horAxis >= -0.5f && horAxis <= 0.5f)
-            {
-                isHorAxisReset = true;
-            }
-
-            //Left flick
-            if (horAxis < -0.5f && isHorAxisReset)
-            {
-                isHorAxisReset = false;
-
-                onRightFlick.Invoke();
-            }
-
-            //Right flick
-            if (horAxis > 0.5f && isHorAxisReset)
-            {
-                isHorAxisReset = false;
-
-                onLeftFlick.Invoke();
-            }
-
-            //Reset Vertical Flick
-            if (verAxis >= -0.5f && verAxis <= 0.5f)
-            {
-                isVerAxisReset = true;
-            }
-
-            if (verAxis < -0.5f && isVerAxisReset)
-            {
-                isVerAxisReset = false;
-
-                onDownFlick.Invoke();
-            }
-
-            if (verAxis > 0.5f && isVerAxisReset)
-            {
-                isVerAxisReset = false;
-
-                onUpFlick.Invoke();
-            }
-
-            if (webXRController.GetButtonDown(WebXRController.ButtonTypes.Thumbstick))
-            {
-                onThumbstickButtonDown.Invoke();
-            }
-
-            if (webXRController.GetButtonUp(WebXRController.ButtonTypes.Thumbstick))
-            {
-                onThumbstickButtonUp.Invoke();
-            }
+            onRightFlick.Invoke();
         }
 
-        private void ProcessButtonsInput()
+        //Right flick
+        if (horAxis > 0.5f && isHorAxisReset)
         {
-            // Primary Button
-            if (webXRController.GetButtonDown(WebXRController.ButtonTypes.ButtonA))
-            {
-                onPrimaryButtonDown.Invoke();
-            }
+            isHorAxisReset = false;
 
-            if (webXRController.GetButtonUp(WebXRController.ButtonTypes.ButtonA))
-            {
-                onPrimaryButtonUp.Invoke();
-            }
-
-            // Secondary Button
-            if (webXRController.GetButtonDown(WebXRController.ButtonTypes.ButtonB))
-            {
-                onSecondaryButtonDown.Invoke();
-            }
-
-            if (webXRController.GetButtonUp(WebXRController.ButtonTypes.ButtonB))
-            {
-                onSecondaryButtonUp.Invoke();
-            }
+            onLeftFlick.Invoke();
         }
 
-        private void ProcessTriggerInput()
+        //Reset Vertical Flick
+        if (verAxis >= -0.5f && verAxis <= 0.5f)
         {
-            if (webXRController.GetButtonUp(WebXRController.ButtonTypes.Trigger))
-            {
-                onTriggerButtonUp?.Invoke();
-
-                if (firstControllerOfStretchGesture == this)
-                {
-                    DoubleTapState.Instance.leftHandTriggerPressed = false;
-                }
-
-                if (secondControllerOfStretchGesture == this)
-                {
-                    DoubleTapState.Instance.rightHandTriggerPressed = false;
-                }
-
-                DoubleTapState.Instance.OnDoubleTriggerStateOff?.Invoke();
-            }
-
-            if (webXRController.GetButtonDown(WebXRController.ButtonTypes.Trigger))
-            {
-                onTriggerButtonDown.Invoke();
-
-                if (firstControllerOfStretchGesture == this)
-                {
-                    DoubleTapState.Instance.leftHandTriggerPressed = true;
-                }
-
-                if (secondControllerOfStretchGesture == this)
-                {
-                    DoubleTapState.Instance.rightHandTriggerPressed = true;
-                }
-
-                if (DoubleTapState.Instance.leftHandTriggerPressed && DoubleTapState.Instance.rightHandTriggerPressed)
-                {
-                    DoubleTapState.Instance.OnDoubleTriggerStateOn?.Invoke();
-                }
-            }
+            isVerAxisReset = true;
         }
 
-        private void ProcessGripInput()
+        if (verAxis < -0.5f && isVerAxisReset)
         {
-            if (webXRController.GetButtonDown(WebXRController.ButtonTypes.Grip))
+            isVerAxisReset = false;
+
+            onDownFlick.Invoke();
+        }
+
+        if (verAxis > 0.5f && isVerAxisReset)
+        {
+            isVerAxisReset = false;
+
+            onUpFlick.Invoke();
+        }
+
+        if (webXRController.GetButtonDown(WebXRController.ButtonTypes.Thumbstick))
+        {
+            onThumbstickButtonDown.Invoke();
+        }
+
+        if (webXRController.GetButtonUp(WebXRController.ButtonTypes.Thumbstick))
+        {
+            onThumbstickButtonUp.Invoke();
+        }
+    }
+
+    private void ProcessButtonsInput()
+    {
+        // Primary Button
+        if (webXRController.GetButtonDown(WebXRController.ButtonTypes.ButtonA))
+        {
+            onPrimaryButtonDown.Invoke();
+        }
+
+        if (webXRController.GetButtonUp(WebXRController.ButtonTypes.ButtonA))
+        {
+            onPrimaryButtonUp.Invoke();
+        }
+
+        // Secondary Button
+        if (webXRController.GetButtonDown(WebXRController.ButtonTypes.ButtonB))
+        {
+            onSecondaryButtonDown.Invoke();
+        }
+
+        if (webXRController.GetButtonUp(WebXRController.ButtonTypes.ButtonB))
+        {
+            onSecondaryButtonUp.Invoke();
+        }
+    }
+
+    private void ProcessTriggerInput()
+    {
+        if (webXRController.GetButtonUp(WebXRController.ButtonTypes.Trigger))
+        {
+            onTriggerButtonUp?.Invoke();
+
+            if (firstControllerOfStretchGesture == this)
             {
-                onGripButtonDown.Invoke();
-
-                StartGrab();
-
-                if (firstControllerOfStretchGesture == this)
-                {
-                    DoubleTapState.Instance.leftHandGripPressed = true;
-                }
-
-                if (secondControllerOfStretchGesture == this)
-                {
-                    DoubleTapState.Instance.rightHandGripPressed = true;
-                }
-
-                if (DoubleTapState.Instance.leftHandGripPressed && DoubleTapState.Instance.rightHandGripPressed)
-                {
-                    DoubleTapState.Instance.OnDoubleGripStateOn?.Invoke();
-                }
+                DoubleTapState.Instance.leftHandTriggerPressed = false;
             }
 
-            if (webXRController.GetButtonUp(WebXRController.ButtonTypes.Grip))
+            if (secondControllerOfStretchGesture == this)
             {
-                onGripButtonUp.Invoke();
+                DoubleTapState.Instance.rightHandTriggerPressed = false;
+            }
 
-                EndGrab();
+            DoubleTapState.Instance.OnDoubleTriggerStateOff?.Invoke();
+        }
 
-                if (firstControllerOfStretchGesture == this)
-                {
-                    DoubleTapState.Instance.leftHandGripPressed = false;
-                }
+        if (webXRController.GetButtonDown(WebXRController.ButtonTypes.Trigger))
+        {
+            onTriggerButtonDown.Invoke();
 
-                if (secondControllerOfStretchGesture == this)
-                {
-                    DoubleTapState.Instance.rightHandGripPressed = false;
-                }
+            if (firstControllerOfStretchGesture == this)
+            {
+                DoubleTapState.Instance.leftHandTriggerPressed = true;
+            }
 
-                DoubleTapState.Instance.OnDoubleGripStateOff?.Invoke();
+            if (secondControllerOfStretchGesture == this)
+            {
+                DoubleTapState.Instance.rightHandTriggerPressed = true;
+            }
+
+            if (DoubleTapState.Instance.leftHandTriggerPressed && DoubleTapState.Instance.rightHandTriggerPressed)
+            {
+                DoubleTapState.Instance.OnDoubleTriggerStateOn?.Invoke();
+            }
+        }
+    }
+
+    private void ProcessGripInput()
+    {
+        if (webXRController.GetButtonDown(WebXRController.ButtonTypes.Grip))
+        {
+            onGripButtonDown.Invoke();
+
+            StartGrab();
+
+            if (firstControllerOfStretchGesture == this)
+            {
+                DoubleTapState.Instance.leftHandGripPressed = true;
+            }
+
+            if (secondControllerOfStretchGesture == this)
+            {
+                DoubleTapState.Instance.rightHandGripPressed = true;
+            }
+
+            if (DoubleTapState.Instance.leftHandGripPressed && DoubleTapState.Instance.rightHandGripPressed)
+            {
+                DoubleTapState.Instance.OnDoubleGripStateOn?.Invoke();
             }
         }
 
-        private void UpdateHandAnimationState()
+        if (webXRController.GetButtonUp(WebXRController.ButtonTypes.Grip))
         {
-            float handAnimationNormalizedTime = webXRController.GetButton(WebXRController.ButtonTypes.Trigger) ? 1 : webXRController.GetAxis(WebXRController.AxisTypes.Grip);
+            onGripButtonUp.Invoke();
 
-            //Set anim current state depending on grip and trigger pressure
-            thisHandAnimator.Play("Take", -1, handAnimationNormalizedTime);
-        }
+            EndGrab();
 
-        private void UpdatePhysicsParameters()
-        {
-            if (!hoveredObjectTransform || !currentGrabbedObjectRigidBody)
+            if (firstControllerOfStretchGesture == this)
             {
-                return;
+                DoubleTapState.Instance.leftHandGripPressed = false;
             }
 
-            newPos = thisHandTransform.position;
+            if (secondControllerOfStretchGesture == this)
+            {
+                DoubleTapState.Instance.rightHandGripPressed = false;
+            }
 
-            var dif = newPos - oldPos;
-
-            velocity = dif / Time.deltaTime;
-
-            oldPos = newPos;
+            DoubleTapState.Instance.OnDoubleGripStateOff?.Invoke();
         }
+    }
+
+    private void UpdateHandAnimationState()
+    {
+        float handAnimationNormalizedTime = webXRController.GetButton(WebXRController.ButtonTypes.Trigger) ? 1 : webXRController.GetAxis(WebXRController.AxisTypes.Grip);
+
+        //Set anim current state depending on grip and trigger pressure
+        thisHandAnimator.Play("Take", -1, handAnimationNormalizedTime);
+    }
+
+    private void UpdatePhysicsParameters()
+    {
+        if (!hoveredObjectTransform || !currentGrabbedObjectRigidBody)
+        {
+            return;
+        }
+
+        newPos = thisHandTransform.position;
+
+        var dif = newPos - oldPos;
+
+        velocity = dif / Time.deltaTime;
+
+        oldPos = newPos;
+    }
 
 #if WEBXR_INPUT_PROFILES
         private void ControllerProfilesList(Dictionary<string, string> profilesList)
@@ -563,64 +563,66 @@ using Komodo.Runtime;
         }
 #endif
 
-        [ContextMenu("Start Grab")]
-        public void StartGrab()
+    [ContextMenu("Start Grab")]
+    public void StartGrab()
+    {
+        if (hasObject)
         {
-            if (hasObject)
-            {
-                return;
-            }
-
-            hoveredObjectTransform = FindHoveredObjectTransform();
-
-            if (!hoveredObjectTransform)
-            {
-                return;
-            }
-
-            hasObject = true;
-
-        if (currentGrabbedNetObject)
-        {
-            SendInteractionStartGrab();
+            return;
         }
+
+        hoveredObjectTransform = FindHoveredObjectTransform();
+
+        if (!hoveredObjectTransform)
+        {
+            return;
+        }
+
+        hasObject = true;
+
+        //had to remove because group object currently does not have 
+        //netobject associated with it, we have to mimick parenting and issue with sync reparanting on both client
+        //if (currentGrabbedNetObject)
+        //{
+            SendInteractionStartGrab();
+      //  }
 
         InitializePhysicsParameters();
 
-            InitializeStretchParameters();
+        InitializeStretchParameters();
 
-            //check if first hand has the same object as the second hand 
-            if (ImpressStretchManager.Instance.firstObjectGrabbed == hoveredObjectTransform && ImpressStretchManager.Instance.secondObjectGrabbed == hoveredObjectTransform)
-            {
-                StartStretch();
+        //check if first hand has the same object as the second hand 
+        if (ImpressStretchManager.Instance.firstObjectGrabbed == hoveredObjectTransform && ImpressStretchManager.Instance.secondObjectGrabbed == hoveredObjectTransform)
+        {
+            StartStretch();
 
-                return;
-            }
-
-            hoveredObjectTransform.SetParent(thisHandTransform, true);
+            return;
         }
 
-        private void InitializePhysicsParameters()
-        {
-            if (!currentGrabbedObjectRigidBody)
-            {
-                return;
-            }
+        hoveredObjectTransform.SetParent(thisHandTransform, true);
+    }
 
-            currentGrabbedObjectRigidBody.isKinematic = true;
+    private void InitializePhysicsParameters()
+    {
+        if (!currentGrabbedObjectRigidBody)
+        {
+            return;
         }
 
-        private Transform FindHoveredObjectTransform()
-        {
-            Collider[] colls = Physics.OverlapSphere(thisHandTransform.position, handColliderRadius);
+        currentGrabbedObjectRigidBody.isKinematic = true;
+    }
 
-            return GetNearestUnlockedNetObject(colls);
-        }
+    private Transform FindHoveredObjectTransform()
+    {
+        Collider[] colls = Physics.OverlapSphere(thisHandTransform.position, handColliderRadius);
 
-        private void SendInteractionStartGrab()
-        {
+        return GetNearestUnlockedNetObject(colls);
+    }
 
-     
+    private void SendInteractionStartGrab()
+    {
+
+
 
 
         if (currentGrabbedGroupObject)
@@ -646,81 +648,100 @@ using Komodo.Runtime;
             });
 
             MainClientUpdater.Instance.AddUpdatable(currentGrabbedNetObject);
-          //  entityManager.AddComponentData(currentGrabbedNetObject.entity, new SendNetworkUpdateTag { });
+            //  entityManager.AddComponentData(currentGrabbedNetObject.entity, new SendNetworkUpdateTag { });
         }
 
-            
-        }
 
-        private void InitializeStretchParameters()
+    }
+
+    private void InitializeStretchParameters()
+    {
+        if (firstControllerOfStretchGesture == this && ImpressStretchManager.Instance.firstObjectGrabbed == null)
         {
-            if (firstControllerOfStretchGesture == this && ImpressStretchManager.Instance.firstObjectGrabbed == null)
-            {
-                ImpressStretchManager.Instance.firstObjectGrabbed = hoveredObjectTransform;
-            }
-            //check second hand if it has object
-            else if (secondControllerOfStretchGesture == this && ImpressStretchManager.Instance.secondObjectGrabbed == null)
-            {
-                ImpressStretchManager.Instance.secondObjectGrabbed = hoveredObjectTransform;
-            }
+            ImpressStretchManager.Instance.firstObjectGrabbed = hoveredObjectTransform;
+        }
+        //check second hand if it has object
+        else if (secondControllerOfStretchGesture == this && ImpressStretchManager.Instance.secondObjectGrabbed == null)
+        {
+            ImpressStretchManager.Instance.secondObjectGrabbed = hoveredObjectTransform;
+        }
+    }
+
+    private void StartStretch()
+    {
+        ImpressStretchManager.Instance.onStretchStart.Invoke();
+
+        //share our origin parent if it is null
+        var firstObject = ImpressStretchManager.Instance.originalParentOfFirstHandTransform;
+
+        var secondObject = ImpressStretchManager.Instance.originalParentOfSecondHandTransform;
+
+        //share our parent since we are grabbing the same parent
+        if (firstObject)
+        {
+            ImpressStretchManager.Instance.originalParentOfSecondHandTransform = firstObject;
         }
 
-        private void StartStretch()
+        if (secondObject)
         {
-            ImpressStretchManager.Instance.onStretchStart.Invoke();
-
-            //share our origin parent if it is null
-            var firstObject = ImpressStretchManager.Instance.originalParentOfFirstHandTransform;
-
-            var secondObject = ImpressStretchManager.Instance.originalParentOfSecondHandTransform;
-
-            //share our parent since we are grabbing the same parent
-            if (firstObject)
-            {
-                ImpressStretchManager.Instance.originalParentOfSecondHandTransform = firstObject;
-            }
-
-            if (secondObject)
-            {
-                ImpressStretchManager.Instance.originalParentOfFirstHandTransform = secondObject;
-            }
-
-            //SET WHOLE OBJECT PIVOT TO BE POSITION OF FIRST HAND THAT GRABBED OBJECT, ALLOWING FOR EXPANDING FROM FIRST HAND
-            if (firstControllerOfStretchGesture == this)
-            {
-                ImpressStretchManager.Instance.endpoint1.position = secondControllerOfStretchGesture.thisHandTransform.position;
-            }
-            else if (secondControllerOfStretchGesture == this)
-            {
-                ImpressStretchManager.Instance.endpoint1.position = firstControllerOfStretchGesture.thisHandTransform.position;
-            }
-
-            //RESET AND SET PIVOT PARENT
-            ImpressStretchManager.Instance.endpoint1.transform.localScale = Vector3.one;
-
-            ImpressStretchManager.Instance.firstObjectGrabbed.SetParent(ImpressStretchManager.Instance.endpoint1, true);
+            ImpressStretchManager.Instance.originalParentOfFirstHandTransform = secondObject;
         }
 
-        [ContextMenu("End Grab")]
-        public void EndGrab()
+        //SET WHOLE OBJECT PIVOT TO BE POSITION OF FIRST HAND THAT GRABBED OBJECT, ALLOWING FOR EXPANDING FROM FIRST HAND
+        if (firstControllerOfStretchGesture == this)
         {
-            if (!hasObject)
+            ImpressStretchManager.Instance.endpoint1.position = secondControllerOfStretchGesture.thisHandTransform.position;
+        }
+        else if (secondControllerOfStretchGesture == this)
+        {
+            ImpressStretchManager.Instance.endpoint1.position = firstControllerOfStretchGesture.thisHandTransform.position;
+        }
+
+        //RESET AND SET PIVOT PARENT
+        ImpressStretchManager.Instance.endpoint1.transform.localScale = Vector3.one;
+
+        ImpressStretchManager.Instance.firstObjectGrabbed.SetParent(ImpressStretchManager.Instance.endpoint1, true);
+    }
+
+    [ContextMenu("End Grab")]
+    public void EndGrab()
+    {
+        if (!hasObject)
+        {
+            return;
+        }
+
+        //Both objects of each hands are present
+        if (ImpressStretchManager.Instance.firstObjectGrabbed && ImpressStretchManager.Instance.secondObjectGrabbed)
+        {
+            if (ImpressStretchManager.Instance.firstObjectGrabbed == ImpressStretchManager.Instance.secondObjectGrabbed)
             {
-                return;
+                EndStretch();
+            }
+            else
+            {
+                EndGrabForOneObjectInOneHand();
             }
 
-            //Both objects of each hands are present
-            if (ImpressStretchManager.Instance.firstObjectGrabbed && ImpressStretchManager.Instance.secondObjectGrabbed)
-            {
-                if (ImpressStretchManager.Instance.firstObjectGrabbed == ImpressStretchManager.Instance.secondObjectGrabbed)
-                {
-                    EndStretch();
-                }
-                else
-                {
-                    EndGrabForOneObjectInOneHand();
-                }
+            ResetStretchParameters();
 
+            hoveredObjectTransform = null;
+
+            hasObject = false;
+
+            return;
+        }
+
+        //We only have one object in our hands, check to remove appropriate object from whichever hand
+        if (ImpressStretchManager.Instance.firstObjectGrabbed == null || ImpressStretchManager.Instance.secondObjectGrabbed == null)
+        {
+            RestoreStretchParentsIfNeeded();
+
+            ThrowPhysicsObject();
+
+            //only drop when object is the last thing to drop
+            if (!currentGrabbedNetObject)
+            {
                 ResetStretchParameters();
 
                 hoveredObjectTransform = null;
@@ -730,38 +751,19 @@ using Komodo.Runtime;
                 return;
             }
 
-            //We only have one object in our hands, check to remove appropriate object from whichever hand
-            if (ImpressStretchManager.Instance.firstObjectGrabbed == null || ImpressStretchManager.Instance.secondObjectGrabbed == null)
-            {
-                RestoreStretchParentsIfNeeded();
+            // var netIDComp = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity);
 
-                ThrowPhysicsObject();
+            SendInteractionEndGrab(currentGrabbedNetObject.thisEntityID);
 
-                //only drop when object is the last thing to drop
-                if (!currentGrabbedNetObject)
-                {
-                    ResetStretchParameters();
-
-                    hoveredObjectTransform = null;
-
-                    hasObject = false;
-
-                    return;
-                }
-
-               // var netIDComp = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.Entity);
-
-               SendInteractionEndGrab(currentGrabbedNetObject.thisEntityID);
-
-               // SendPhysicsEndGrab(netIDComp);
-            }
-
-            ResetStretchParameters();
-
-            hoveredObjectTransform = null;
-
-            hasObject = false;
+            // SendPhysicsEndGrab(netIDComp);
         }
+
+        ResetStretchParameters();
+
+        hoveredObjectTransform = null;
+
+        hasObject = false;
+    }
 
     private void SendInteractionEndGrab(int netID)
     {
@@ -798,178 +800,178 @@ using Komodo.Runtime;
         }
     }
 
-        // TODO -- compare to SendInteractionEndGrab and see if we need to perform those actions as well.
-        private void SendInteractionEndGrabAlternateVersion()
-        {
+    // TODO -- compare to SendInteractionEndGrab and see if we need to perform those actions as well.
+    private void SendInteractionEndGrabAlternateVersion()
+    {
         if (currentGrabbedGroupObject)
             return;
 
         //int entityID = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).entityID;
 
-            NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
-            {
-                sourceEntity_id = int.Parse(NetworkUpdateHandler.Instance.client_id.ToString() + handEntityType.ToString()),
+        NetworkUpdateHandler.Instance.SendSyncInteractionMessage(new Interaction
+        {
+            sourceEntity_id = int.Parse(NetworkUpdateHandler.Instance.client_id.ToString() + handEntityType.ToString()),
 
-                targetEntity_id = currentGrabbedNetObject.thisEntityID,//entityID,
+            targetEntity_id = currentGrabbedNetObject.thisEntityID,//entityID,
 
-                interactionType = (int)INTERACTIONS.DROP,
-            });
+            interactionType = (int)INTERACTIONS.DROP,
+        });
+    }
+
+    private void EndStretch()
+    {
+        if (secondControllerOfStretchGesture == this)
+        {
+            //reattach to other hand
+            ImpressStretchManager.Instance.secondObjectGrabbed.SetParent(firstControllerOfStretchGesture.thisHandTransform, true);
+        }
+        else if (firstControllerOfStretchGesture == this)
+        {
+            ImpressStretchManager.Instance.firstObjectGrabbed.SetParent(secondControllerOfStretchGesture.thisHandTransform, true);
         }
 
-        private void EndStretch()
-        {
-            if (secondControllerOfStretchGesture == this)
-            {
-                //reattach to other hand
-                ImpressStretchManager.Instance.secondObjectGrabbed.SetParent(firstControllerOfStretchGesture.thisHandTransform, true);
-            }
-            else if (firstControllerOfStretchGesture == this)
-            {
-                ImpressStretchManager.Instance.firstObjectGrabbed.SetParent(secondControllerOfStretchGesture.thisHandTransform, true);
-            }
+        ImpressStretchManager.Instance.onStretchEnd.Invoke();
+    }
 
-            ImpressStretchManager.Instance.onStretchEnd.Invoke();
+    private void EndGrabForOneObjectInOneHand()
+    {
+        if (secondControllerOfStretchGesture == this)
+        {
+            ImpressStretchManager.Instance.secondObjectGrabbed.SetParent(ImpressStretchManager.Instance.originalParentOfSecondHandTransform, true);
+        }
+        else if (firstControllerOfStretchGesture == this)
+        {
+            ImpressStretchManager.Instance.firstObjectGrabbed.SetParent(ImpressStretchManager.Instance.originalParentOfFirstHandTransform, true);
         }
 
-        private void EndGrabForOneObjectInOneHand()
-        {
-            if (secondControllerOfStretchGesture == this)
-            {
-                ImpressStretchManager.Instance.secondObjectGrabbed.SetParent(ImpressStretchManager.Instance.originalParentOfSecondHandTransform, true);
-            }
-            else if (firstControllerOfStretchGesture == this)
-            {
-                ImpressStretchManager.Instance.firstObjectGrabbed.SetParent(ImpressStretchManager.Instance.originalParentOfFirstHandTransform, true);
-            }
+        ThrowPhysicsObject();
+    }
 
-            ThrowPhysicsObject();
+    private static void RestoreStretchParentsIfNeeded()
+    {
+        if (ImpressStretchManager.Instance.firstObjectGrabbed)
+        {
+            ImpressStretchManager.Instance.firstObjectGrabbed.SetParent(ImpressStretchManager.Instance.originalParentOfFirstHandTransform, true);
         }
 
-        private static void RestoreStretchParentsIfNeeded()
+        if (ImpressStretchManager.Instance.secondObjectGrabbed)
         {
-            if (ImpressStretchManager.Instance.firstObjectGrabbed)
+            ImpressStretchManager.Instance.secondObjectGrabbed.SetParent(ImpressStretchManager.Instance.originalParentOfSecondHandTransform, true);
+        }
+    }
+
+    private void SendPhysicsEndGrab(NetworkEntityIdentificationComponentData netIDComp)
+    {
+        //if droping a physics object update it for all.
+        if (!currentGrabbedObjectRigidBody)
+        {
+            return;
+        }
+
+        if (!NetworkedPhysicsManager.Instance.physics_networkedEntities.Contains(currentGrabbedNetObject))
+        {
+            NetworkedPhysicsManager.Instance.physics_networkedEntities.Add(currentGrabbedNetObject);
+        }
+
+        if (Entity_Type.physicsObject != netIDComp.current_Entity_Type)
+        {
+            return;
+        }
+
+        //if (entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
+        //{
+        //    return;
+        //}
+
+        //entityManager.AddComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
+    }
+
+    private void ResetStretchParameters()
+    {
+        if (secondControllerOfStretchGesture == this)
+        {
+            ImpressStretchManager.Instance.secondObjectGrabbed = null;
+        }
+        else
+        {
+            ImpressStretchManager.Instance.firstObjectGrabbed = null;
+        }
+
+        ImpressStretchManager.Instance.didStartStretching = false;
+    }
+
+    public void ThrowPhysicsObject()
+    {
+        if (!currentGrabbedObjectRigidBody)
+        {
+            return;
+        }
+
+        currentGrabbedObjectRigidBody.isKinematic = false;
+
+        currentGrabbedObjectRigidBody.AddForce(velocity * throwForce, ForceMode.Impulse);
+    }
+
+    //pick up our closest collider and obtain its references
+    private Transform GetNearestUnlockedNetObject(Collider[] colliders)
+    {
+        float minDistance = float.MaxValue;
+
+        float distance;
+
+        Collider nearestTransform = null;
+
+        foreach (Collider col in colliders)
+        {
+            if (!col.CompareTag(TagList.interactable)) //&& !col.CompareTag(TagList.drawing))
             {
-                ImpressStretchManager.Instance.firstObjectGrabbed.SetParent(ImpressStretchManager.Instance.originalParentOfFirstHandTransform, true);
+                continue;
             }
 
-            if (ImpressStretchManager.Instance.secondObjectGrabbed)
+
+            if (!col.gameObject.activeInHierarchy)
             {
-                ImpressStretchManager.Instance.secondObjectGrabbed.SetParent(ImpressStretchManager.Instance.originalParentOfSecondHandTransform, true);
+                continue;
+            }
+
+            distance = (col.ClosestPoint(thisHandTransform.position) - thisHandTransform.position).sqrMagnitude;
+
+            if (distance > 0.01f)
+            {
+                continue;
+            }
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+
+                nearestTransform = col;
             }
         }
 
-        private void SendPhysicsEndGrab(NetworkEntityIdentificationComponentData netIDComp)
+        if (nearestTransform == null)
         {
-            //if droping a physics object update it for all.
-            if (!currentGrabbedObjectRigidBody)
-            {
-                return;
-            }
-
-            if (!NetworkedPhysicsManager.Instance.physics_networkedEntities.Contains(currentGrabbedNetObject))
-            {
-                NetworkedPhysicsManager.Instance.physics_networkedEntities.Add(currentGrabbedNetObject);
-            }
-
-            if (Entity_Type.physicsObject != netIDComp.current_Entity_Type)
-            {
-                return;
-            }
-
-            //if (entityManager.HasComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity))
-            //{
-            //    return;
-            //}
-
-            //entityManager.AddComponent<SendNetworkUpdateTag>(currentGrabbedNetObject.entity);
+            return null;
         }
 
-        private void ResetStretchParameters()
+        currentGrabbedObjectRigidBody = null;
+
+        currentGrabbedNetObject = null;
+
+        currentGrabbedGroupObject = null;
+
+
+
+        SetNearestParentWhenChangingGrabbingHand(nearestTransform);
+
+        return GetUnlockedNetworkedObjectTransformIfExists(nearestTransform);
+    }
+
+    private Transform GetUnlockedNetworkedObjectTransformIfExists(Collider nearestTransform)
+    {
+        //  entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        if (nearestTransform.TryGetComponent(out NetworkedGameObject netObj))
         {
-            if (secondControllerOfStretchGesture == this)
-            {
-                ImpressStretchManager.Instance.secondObjectGrabbed = null;
-            }
-            else
-            {
-                ImpressStretchManager.Instance.firstObjectGrabbed = null;
-            }
-
-            ImpressStretchManager.Instance.didStartStretching = false;
-        }
-
-        public void ThrowPhysicsObject()
-        {
-            if (!currentGrabbedObjectRigidBody)
-            {
-                return;
-            }
-
-            currentGrabbedObjectRigidBody.isKinematic = false;
-
-            currentGrabbedObjectRigidBody.AddForce(velocity * throwForce, ForceMode.Impulse);
-        }
-
-        //pick up our closest collider and obtain its references
-        private Transform GetNearestUnlockedNetObject(Collider[] colliders)
-        {
-            float minDistance = float.MaxValue;
-
-            float distance;
-
-            Collider nearestTransform = null;
-
-            foreach (Collider col in colliders)
-            {
-                //if (!col.CompareTag(TagList.interactable) && !col.CompareTag(TagList.drawing))
-                //{
-                //    continue;
-                //}
-                
-
-                if (!col.gameObject.activeInHierarchy)
-                {
-                    continue;
-                }
-
-                distance = (col.ClosestPoint(thisHandTransform.position) - thisHandTransform.position).sqrMagnitude;
-
-                if (distance > 0.01f)
-                {
-                    continue;
-                }
-
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-
-                    nearestTransform = col;
-                }
-            }
-
-            if (nearestTransform == null)
-            {
-                return null;
-            }
-
-            currentGrabbedObjectRigidBody = null;
-
-            currentGrabbedNetObject = null;
-
-          currentGrabbedGroupObject = null;
-
-       
-
-            SetNearestParentWhenChangingGrabbingHand(nearestTransform);
-
-            return GetUnlockedNetworkedObjectTransformIfExists(nearestTransform);
-        }
-
-        private Transform GetUnlockedNetworkedObjectTransformIfExists(Collider nearestTransform)
-        {
-      //  entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            if (nearestTransform.TryGetComponent(out NetworkedGameObject netObj))
-            {
             if (netObj.isTransformLocked)
                 return null;
             //if (entityManager.HasComponent<TransformLockTag>(netObj.entity))
@@ -981,95 +983,95 @@ using Komodo.Runtime;
 
             currentGrabbedNetObject = netObj;
 
-              //  InitializeNetworkedPhysicsObjectIfNeeded();
-            }
+            //  InitializeNetworkedPhysicsObjectIfNeeded();
+        }
 
 
-                if (nearestTransform.TryGetComponent(out Group group))
-                {
-          //  Debug.Log("INTERNAL GROUP");
+        if (nearestTransform.TryGetComponent(out Group group))
+        {
+             Debug.Log("INTERNAL GROUP");
 
-                    currentGrabbedGroupObject = group;
+            currentGrabbedGroupObject = group;
 
-                }
+        }
 
 
 
         return nearestTransform.transform;
+    }
+
+    private void SetNearestParentWhenChangingGrabbingHand(Collider nearestTransform)
+    {
+        Transform nearestParent = nearestTransform.transform.parent;
+
+        //set shared parent to reference when changing hands - set this ref when someone is picking up first object and
+        //whenever someone has on object on left hand then grabs that same object with the right hand, releases right hand to grab new object
+        //with the left hand grab this new object - however, the shared parent is still the left
+        //set last object to be picked up as the shared parent
+
+        if (!nearestParent)
+        {
+            return;
         }
 
-        private void SetNearestParentWhenChangingGrabbingHand(Collider nearestTransform)
+        if (nearestParent == firstControllerOfStretchGesture.thisHandTransform || nearestParent == secondControllerOfStretchGesture.thisHandTransform || nearestParent == ImpressStretchManager.Instance.midpoint || nearestParent == ImpressStretchManager.Instance.endpoint1 || ImpressStretchManager.Instance.stretchParent == nearestParent)
         {
-            Transform nearestParent = nearestTransform.transform.parent;
-
-            //set shared parent to reference when changing hands - set this ref when someone is picking up first object and
-            //whenever someone has on object on left hand then grabs that same object with the right hand, releases right hand to grab new object
-            //with the left hand grab this new object - however, the shared parent is still the left
-            //set last object to be picked up as the shared parent
-
-            if (!nearestParent)
-            {
-                return;
-            }
-
-            if (nearestParent == firstControllerOfStretchGesture.thisHandTransform || nearestParent == secondControllerOfStretchGesture.thisHandTransform || nearestParent == ImpressStretchManager.Instance.midpoint || nearestParent == ImpressStretchManager.Instance.endpoint1 || ImpressStretchManager.Instance.stretchParent == nearestParent)
-            {
-                return;
-            }
-
-            var parent = nearestTransform.transform.parent;
-
-            if (firstControllerOfStretchGesture == this)
-            {
-                ImpressStretchManager.Instance.originalParentOfFirstHandTransform = parent;
-            }
-
-            if (secondControllerOfStretchGesture == this)
-            {
-                ImpressStretchManager.Instance.originalParentOfSecondHandTransform = parent;
-            }
+            return;
         }
 
-        private void InitializeNetworkedPhysicsObjectIfNeeded()
+        var parent = nearestTransform.transform.parent;
+
+        if (firstControllerOfStretchGesture == this)
         {
-            //Entity_Type netObjectType = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).current_Entity_Type;
-
-            //if (netObjectType != Entity_Type.physicsObject)
-            //{
-            //    return;
-            //}
-
-            currentGrabbedObjectRigidBody = currentGrabbedNetObject.GetComponent<Rigidbody>();
-
-            if (currentGrabbedObjectRigidBody == null)
-            {
-                Debug.LogWarning("No Rigid body on physics object Entity Type");
-            }
+            ImpressStretchManager.Instance.originalParentOfFirstHandTransform = parent;
         }
 
-        public void OnEnable()
+        if (secondControllerOfStretchGesture == this)
         {
-            //webXRController.OnControllerActive += SetControllerVisible;
-            //webXRController.OnHandActive += SetHandJointsVisible;
-            //webXRController.OnHandUpdate += OnHandUpdate;
-        }
-
-        public void OnDisable()
-        {
-            //webXRController.OnControllerActive -= SetControllerVisible;
-            //webXRController.OnHandActive -= SetHandJointsVisible;
-            //webXRController.OnHandUpdate -= OnHandUpdate;
-
-            //send call to release object as last call
-            if (hoveredObjectTransform && currentGrabbedNetObject)
-            {
-                SendInteractionEndGrabAlternateVersion();
-            }
-
-            if (GameStateManager.IsAlive)
-            {
-                GameStateManager.Instance.DeRegisterUpdatableObject(this);
-            }
+            ImpressStretchManager.Instance.originalParentOfSecondHandTransform = parent;
         }
     }
+
+    private void InitializeNetworkedPhysicsObjectIfNeeded()
+    {
+        //Entity_Type netObjectType = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(currentGrabbedNetObject.entity).current_Entity_Type;
+
+        //if (netObjectType != Entity_Type.physicsObject)
+        //{
+        //    return;
+        //}
+
+        currentGrabbedObjectRigidBody = currentGrabbedNetObject.GetComponent<Rigidbody>();
+
+        if (currentGrabbedObjectRigidBody == null)
+        {
+            Debug.LogWarning("No Rigid body on physics object Entity Type");
+        }
+    }
+
+    public void OnEnable()
+    {
+        //webXRController.OnControllerActive += SetControllerVisible;
+        //webXRController.OnHandActive += SetHandJointsVisible;
+        //webXRController.OnHandUpdate += OnHandUpdate;
+    }
+
+    public void OnDisable()
+    {
+        //webXRController.OnControllerActive -= SetControllerVisible;
+        //webXRController.OnHandActive -= SetHandJointsVisible;
+        //webXRController.OnHandUpdate -= OnHandUpdate;
+
+        //send call to release object as last call
+        if (hoveredObjectTransform && currentGrabbedNetObject)
+        {
+            SendInteractionEndGrabAlternateVersion();
+        }
+
+        if (GameStateManager.IsAlive)
+        {
+            GameStateManager.Instance.DeRegisterUpdatableObject(this);
+        }
+    }
+}
 

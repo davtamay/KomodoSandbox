@@ -3,10 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 // using Unity.Entities;
 using Komodo.Utilities;
+using UnityEditor;
 
 //namespace Komodo.Runtime
 //{
-    public class NetworkedObjectsManager : SingletonComponent<NetworkedObjectsManager>
+
+public enum MODEL_TYPE
+{
+    UNKNOWN = 0,
+    URL = 1,
+    Primitive = 2,
+    Drawing = 3
+
+}
+public class NetworkedObjectsManager : SingletonComponent<NetworkedObjectsManager>
     {
         public static NetworkedObjectsManager Instance
         {
@@ -339,7 +349,8 @@ using Komodo.Utilities;
         /// <param name="gObject"></param>
         /// <param name="modelListIndex"> This is the model index in list</param>
         /// <param name="customEntityID"></param>
-        public NetworkedGameObject CreateNetworkedGameObject(GameObject gObject, int modelListIndex = -1, int customEntityID = 0, bool doNotLinkWithButtonID = false)
+        /// <param name="modelType"</param> URL = 1, Primitive = 2, Drawing = 3
+        public NetworkedGameObject CreateNetworkedGameObject(GameObject gObject, int modelListIndex = -1, int customEntityID = 0, bool doNotLinkWithButtonID = false, MODEL_TYPE modelType = MODEL_TYPE.UNKNOWN, bool isNetCall = false)
         {
 
           //  Debug.Log("ITS A CUSTOMEENITYID OF 0, so child netobject element is included");
@@ -347,8 +358,39 @@ using Komodo.Utilities;
             //add a Net component to the object
             NetworkedGameObject netObject = gObject.AddComponent<NetworkedGameObject>();
 
+        netObject.thisModelType = modelType;
 
         netObject.thisEntityID = customEntityID;
+
+
+        //handle syncing state for decomposed object positions, 
+        //freezes up extnal user when calling, SendSyncPoseMessage, should just do one call only to update server stored positions
+        
+
+        //if (isNetCall)
+        //{
+        //    if(modelType == MODEL_TYPE.URL)
+        //    {
+        //        Position position = new Position
+        //        {
+        //            clientId = NetworkUpdateHandler.Instance.client_id,
+
+        //            guid = netObject.thisEntityID,
+
+        //            entityType = (int)Entity_Type.objects,//entityData.current_Entity_Type,
+
+        //            rot = netObject.transform.rotation,
+
+        //            pos = netObject.transform.position,
+
+        //            //since using parenting for objects, we need to translate local to global scalling when having it in your hand, when releasing we need to return such objects scalling from global to local scale
+        //            scaleFactor = netObject.transform.lossyScale.x,
+        //        };
+               
+        //      //  NetworkUpdateHandler.Instance.SendSyncPoseMessage(position);
+
+        //    }
+        //}
 
         // Debug.Log("DRAGON BUTTON INDEX : " + modelListIndex);
         //to look a decomposed set of objects we need to keep track of what Index we are iterating over regarding or importing models to create sets
@@ -385,9 +427,17 @@ using Komodo.Utilities;
 
             subObjects.Add(netObject);
 
+     
+
             netSubObjectLists[modelListIndex] = subObjects;
 
-            return InstantiateNetworkedGameObject(netObject, customEntityID, modelListIndex);
+            NetworkedGameObject netObj = InstantiateNetworkedGameObject(netObject, customEntityID, modelListIndex);
+
+            
+
+
+            
+            return netObj; 
         }
 
         protected NetworkedGameObject InstantiateNetworkedGameObject(NetworkedGameObject netObject, int entityId, int modelListIndex)
@@ -474,7 +524,7 @@ using Komodo.Utilities;
                 return false;
             }
 
-     //       networkedObjectFromEntityId[id].gameObject.SetActive(false);
+            networkedObjectFromEntityId[id].gameObject.SetActive(false);
 
             return true;
         }

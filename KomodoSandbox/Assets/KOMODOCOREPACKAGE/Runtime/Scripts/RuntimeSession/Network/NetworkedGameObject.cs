@@ -28,12 +28,17 @@ using Komodo.Utilities;
 
         private Rigidbody thisRigidBody;
 
+        public MODEL_TYPE thisModelType;
+        
+
         //entity used to access our data through entityManager
         public Entity entity;
 
         private EntityManager entityManager;
 
         public bool isTransformLocked;
+
+          
 
         public void SetTransformLockedStated (bool isLocked)
         {

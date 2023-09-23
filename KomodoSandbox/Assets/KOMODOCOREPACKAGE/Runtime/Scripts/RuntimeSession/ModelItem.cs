@@ -33,7 +33,7 @@ using UnityEngine.Events;
 
      
 
-        public async Task Initialize(string url, int butttonIndex, bool isWhole = true, bool isDownloadPlaceHolder = false, Action<string, int> onPlaceHolderUsed = null, UnityAction onAssetClicked = null, UnityAction onAssetLoaded = null, bool isFromModelLibrary = false, bool net_call = true)
+        public async Task Initialize(string url, int butttonIndex, bool isDownloadPlaceHolder = false, Action<string, int> onPlaceHolderUsed = null, UnityAction onAssetClicked = null, UnityAction onAssetLoaded = null, bool isFromModelLibrary = false, bool net_call = true)
         {
             
             nameDisplay.Initialize("");
@@ -87,7 +87,7 @@ using UnityEngine.Events;
                     else
                     {
                         model = newInstance.AddComponent<AddToModelList>();
-                        model.isWholeObject = isWhole;
+                      //  model.isWholeObject = isWhole;
                         model.SetIndex(butttonIndex);
 
                         importInstance = newInstance.AddComponent<KomodoGLTFAssetV5>();
@@ -189,7 +189,7 @@ using UnityEngine.Events;
 
                     if (!isFromModelLibrary)
                     {
-                        model.isWholeObject = isWhole;//!isWholeObject.isOn;
+                      //  model.isWholeObject = isWhole;//!isWholeObject.isOn;
                         model.thisUrl = inputURL.text;
 
                     }

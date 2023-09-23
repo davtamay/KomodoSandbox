@@ -464,7 +464,7 @@ using UnityEngine.UI;
              _primitiveID = myGUID.GetHashCode();//100000000 + 10000000 + (NetworkUpdateHandler.Instance.client_id * 10000) + _strokeIndex;
 
 
-            var netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive, customEntityID: _primitiveID);
+            var netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive, customEntityID: _primitiveID, modelType: MODEL_TYPE.Primitive);
     
           
 
@@ -570,7 +570,7 @@ using UnityEngine.UI;
 
             var primitive = GameObject.CreatePrimitive(primitiveToInstantiate);
 
-            NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive, customEntityID: newData.guid);
+            NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive, customEntityID: newData.guid, modelType: MODEL_TYPE.Primitive);
 
            // entityManager.AddComponentData(nAGO.entity, new PrimitiveTag { });
 

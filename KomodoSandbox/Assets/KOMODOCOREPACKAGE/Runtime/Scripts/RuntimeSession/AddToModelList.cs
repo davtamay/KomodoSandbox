@@ -24,7 +24,7 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
     public Vector3 position;
     public Vector3 euler_rotation;
 
-    public bool isWholeObject = true;
+//    public bool isWholeObject = true;
 
     [ShowOnly]
     public int indexInList;
@@ -147,7 +147,7 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
 
         //we initiate this in the post process of our gltfimport;
         Debug.Log("SETUP GO, " + indexInList  + "   " + "with whole object" + mID.isWholeObject);
-        GameObject komodoImportedModel = ModelImportPostProcessor.Instance.SetUpGameObject(indexInList, mID, gameObject);
+        GameObject komodoImportedModel = ModelImportPostProcessor.Instance.SetUpGameObject(indexInList, mID, gameObject, isNetCall: isNetCall);
         //ModelImportInitializer.Instance.modelButtonList.InstantiateButton(mID.name, index);  
 
         komodoImportedModel.transform.SetParent(root.transform, false);

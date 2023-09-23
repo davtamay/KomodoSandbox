@@ -47,8 +47,8 @@ public class ImpressMainClientUpdater : SingletonComponent<ImpressMainClientUpda
 
     public void AddUpdatable(Group netObject)
     {
-        Debug.Log(netObject.netObjectList.Count);
-        foreach (NetworkedGameObject item in  GroupManager.Instance.clientIDToGroup[NetworkUpdateHandler.Instance.client_id].netObjectList)// netObject.netObjectList)
+        Debug.Log("group objects "+netObject.netObjectList.Count);
+        foreach (NetworkedGameObject item in netObject.netObjectList)// netObject.netObjectList)
         {
             Debug.Log($"{item.name}", item.gameObject);
             MainClientUpdater.Instance.AddUpdatable(item);

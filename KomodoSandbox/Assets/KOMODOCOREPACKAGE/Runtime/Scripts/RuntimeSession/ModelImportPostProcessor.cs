@@ -61,7 +61,7 @@ using Komodo.Utilities;
         /// <param name="loadedObject"> our loaded object</param>
         /// <param name="setupFlags"> setup instructions</param>
         /// <returns></returns>
-        public GameObject SetUpGameObject(int menuButtonIndex, ModelImportData modelData, GameObject loadedObject, ModelImportSettings setupFlags = null)
+        public GameObject SetUpGameObject(int menuButtonIndex, ModelImportData modelData, GameObject loadedObject, ModelImportSettings setupFlags = null, bool isNetCall = false)
         {
             const float defaultFitToScale = 2;
             const bool defaultDoSetUpColliders = true;
@@ -92,7 +92,7 @@ using Komodo.Utilities;
                 //set up reference to use with network
 
 
-                nRGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(newParent.gameObject, menuButtonIndex, modelData.guid);
+                nRGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(newParent.gameObject, menuButtonIndex, modelData.guid, modelType: MODEL_TYPE.URL , isNetCall: isNetCall);
 
             }
 
@@ -435,7 +435,7 @@ using Komodo.Utilities;
                     newParent.localPosition = filter.mesh.bounds.center;
 
                     //does not work in multiplayer since there is no customentityid set 
-                    if (isNetworked) NetworkedObjectsManager.Instance.CreateNetworkedGameObject(newParent.gameObject, menuButtonIndex, rootID + 1);
+                    if (isNetworked) NetworkedObjectsManager.Instance.CreateNetworkedGameObject(newParent.gameObject, menuButtonIndex, rootID + 1, modelType: MODEL_TYPE.URL);
                 }
                 else if (hasSkinnedRenderer) // NOTE(david): animated objects are considered to have skinned mesh renderers and given whole collider
                 {
