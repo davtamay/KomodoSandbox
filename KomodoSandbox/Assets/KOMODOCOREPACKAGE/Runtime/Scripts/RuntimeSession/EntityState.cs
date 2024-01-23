@@ -31,6 +31,7 @@ using UnityEngine;
 public struct DrawEntityState{
 
     // LineEnd = 11
+    public int guid;
     public int strokeType;
     public float lineWidth;
     public Vector4 color;

@@ -25,7 +25,8 @@ using Komodo.Runtime;
         //new
         public void Awake()
         {
-            base.Awake();
+        Debug.Log("\"MY NAME\"");
+        base.Awake();
 
             GlobalMessageManager.Instance.Subscribe("drawWidth", (str) => ReceiveImpressDrawUpdate(str));
         }

@@ -12,7 +12,19 @@
 
 // Replace these with your own server's URLs.
 
-var RELAY_BASE_URL = "https://localhost:3000";//"https://appsocket.net:3000";//"https://localhost:3000";//"http://appsocket.net:3000"//"http://relay.appsocket.net"//http://appsocket.net:3000";//"3.232.172.204:3000";//"http://localhost:3000";
+//var RELAY_BASE_URL = "https://appsocket.net:3000";//"https://localhost:3000";//"http://appsocket.net:3000"//"http://relay.appsocket.net"//http://appsocket.net:3000";//"3.232.172.204:3000";//"http://localhost:3000";
+//var RELAY_BASE_URL = "https://localhost:3000";
+
+
+var RELAY_BASE_URL;
+
+if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    RELAY_BASE_URL = "https://localhost:3000";
+} else {
+    RELAY_BASE_URL = "https://appsocket.net:3000"; // Default to production URL
+}
+
+
 var API_BASE_URL = "http://localhost:4040";
 var VR_BASE_URL = "http://localhost:8123"; //TODO -- change this to a better default
 
@@ -25,6 +37,25 @@ var chat = null;
  * FUNCTIONALITY
  * ---------------------------------------------------------------------------------
  */
+
+// var config = function() {
+
+//     return new Promise(function(resolve, reject) {
+//            const request = indexedDB.open('myDatabase', 1);
+//            request.onupgradeneeded = function(event) {
+//                const db = event.target.result;
+//                const objectStore = db.createObjectStore('myStore', { keyPath: 'id' });
+//                objectStore.createIndex('name', 'name', { unique: false });
+//            };
+//            request.onsuccess = function(event) {
+//                resolve(event.target.result);
+//            };
+//            request.onerror = function(event) {
+//                reject(event.target.error);
+//            };
+//        });
+
+// };
 
 /**
  * Get the URL parameters
@@ -123,6 +154,93 @@ var details = {
     start_time: "",
     users: []
 };
+
+
+
+var setItem2 = function(key, value) {
+    // try {
+
+    //    key = UTF8ToString(key);
+    //    value = UTF8ToString(value);
+
+   return new Promise(function(resolve, reject) {
+       config2().then(function(db) {
+           const transaction = db.transaction('myStore', 'readwrite');
+           const objectStore = transaction.objectStore('myStore');
+           const putRequest = objectStore.put({ guid: key, data: value });
+           putRequest.onsuccess = function(event) {
+               resolve();
+           };
+           putRequest.onerror = function(event) {
+               reject(event.target.error);
+           };
+       }).catch(function(error) {
+           reject(error);
+       });
+   });
+ 
+   };
+
+
+var config2 = function() {
+
+    return new Promise(function(resolve, reject) {
+    
+        const request = indexedDB.open('myDatabase', 1);
+        
+        request.onupgradeneeded = function(event) {
+          
+           // console.log("Indexdb UPGRADED", db);
+    
+             db = event.target.result;
+            const objectStore = db.createObjectStore('myStore', { keyPath: 'guid', autoIncrement: false });
+          //  objectStore.createIndex('data', 'data', { unique: true });
+        };
+    
+        request.onsuccess = function(event) {
+            db = event.target.result;
+    
+         //   console.log("Indexdb REACHED", db);
+    
+            resolve(event.target.result);
+        };
+    
+        request.onerror = function(event) {
+            reject(event.target.error);
+        };
+    });
+    };
+    config2().then(function(db){console.log("db",db);});
+
+// var db;
+// var config = function() {
+
+// return new Promise(function(resolve, reject) {
+
+//     const request = indexedDB.open('myDatabase', 1);
+    
+//     request.onupgradeneeded = function(event) {
+      
+//        // console.log("Indexdb UPGRADED", db);
+
+//         const db = event.target.result;
+//         const objectStore = db.createObjectStore('myStore', { keyPath: 'id' });
+//         objectStore.createIndex('name', 'name', { unique: false });
+//     };
+
+//     request.onsuccess = function(event) {
+//         db = event.target.result;
+
+//         console.log("Indexdb REACHED", db);
+
+//         resolve(event.target.result);
+//     };
+
+//     request.onerror = function(event) {
+//         reject(event.target.error);
+//     };
+// });
+// };
 
 // fetch lab details from portal api
 // var url = API_BASE_URL + "/labs/" + session_id.toString();

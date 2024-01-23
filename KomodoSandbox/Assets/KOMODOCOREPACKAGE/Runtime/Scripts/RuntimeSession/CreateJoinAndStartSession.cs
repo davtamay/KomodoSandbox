@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Net.Sockets;
 using TMPro;
 using UnityEngine;
@@ -75,7 +76,7 @@ using UnityEngine.UI;
 
             clientInfo.session_id = NetworkUpdateHandler.Instance.session_id;
 
-            string info = JsonUtility.ToJson(clientInfo);
+           // string info = JsonUtility.ToJson(clientInfo);
 
 #if UNITY_WEBGL && !UNITY_EDITOR
 
@@ -103,14 +104,9 @@ using UnityEngine.UI;
         public static int selectedSession = 1;
         public void SelectSession(int session)
         {
-           
-//#if UNITY_WEBGL && !UNITY_EDITOR
-//            SocketIOJSLib.SetSessionId(session);
-//#endif
             selectedSession = session;
 
             GoToNewSession();
-            ///  NetworkUpdateHandler.Instance.session_id = session;
         }
       
         TMP_Text[] textList;
@@ -217,14 +213,22 @@ using UnityEngine.UI;
 
         }
 
+         public bool isFirstConnection = true;
         public void GoToNewSession()
         {
-            //NetworkUpdateHandler.Instance.wasSessionChanged= true;
+        //NetworkUpdateHandler.Instance.wasSessionChanged= true;
+
+        if (isFirstConnection)
+        {
+            isFirstConnection = false;
+        }
+        else
+        {
             SocketIOAdapter.Instance.LeaveSyncSession();
             SocketIOAdapter.Instance.LeaveChatSession();
-            //LeaveSyncSession();
-
-            //LeaveChatSession();
+        }
+        
+         
 
             SessionChangeInfo schangeInfo;
             schangeInfo.id = NetworkUpdateHandler.Instance.client_id;

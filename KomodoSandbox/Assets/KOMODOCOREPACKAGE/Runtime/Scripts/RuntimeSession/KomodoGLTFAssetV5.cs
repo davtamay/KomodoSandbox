@@ -45,6 +45,7 @@ public class KomodoGLTFAssetV5 : GltfAssetBase
     }
 
     public bool isNetCall;
+    
     //public Vector3 pos;
     //public Quaternion rot;
     ///// <summary>
@@ -105,6 +106,7 @@ public class KomodoGLTFAssetV5 : GltfAssetBase
     [SerializeField]
     InstantiationSettings instantiationSettings;
 
+    public int guid;
     /// <summary>
     /// Latest scene's instance.
     /// </summary>
@@ -148,13 +150,18 @@ public class KomodoGLTFAssetV5 : GltfAssetBase
 
 
     }
-    public async void TryImport(string tryUrl)
+    public async void TryImport(ModelData md, string tryUrl)
     {
+       Url = md.modelURL;
+   //    modelItem.isNet_Call;//net_call;
+        guid = md.guid;
 
-
-        if(!thisModelInfo)
+        if (!thisModelInfo)
         thisModelInfo = GetComponent<AddToModelList>();
 
+        url = tryUrl;
+
+        thisModelInfo.modelData = md;
        // if (TiltBrushAndGLTFastLoader.isTiltBrushFile(tryUrl))
        //     TiltBrushAndGLTFastLoader.LoadFileWithTiltBrushToolkit(tryUrl);
        //else
@@ -211,9 +218,11 @@ public class KomodoGLTFAssetV5 : GltfAssetBase
                 }
             }
 #endif
-        Debug.Log("IMPORT WAS A : " + success);
+        Debug.Log("IMPORT WAS A : " + success + " URL:" + url);
+         
         if(success)
-        thisModelInfo.Setup(success, url, isNetCall);
+        thisModelInfo.Setup(success, url, isNetCall,
+        thisModelInfo.modelData);
 
         base.PostInstantiation(instantiator, success);
     }

@@ -15,6 +15,8 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
     //[System.Serializable]
     private ModelImportData mID;
 
+    public ModelItem modelItemReference;
+
 
     public string name;
     //  public int id;
@@ -24,6 +26,8 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
     public Vector3 position;
     public Vector3 euler_rotation;
 
+
+    public ModelData modelData;
 //    public bool isWholeObject = true;
 
     [ShowOnly]
@@ -51,19 +55,28 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
 
     }
 
-
     public void SetFailed(string message)
     {
         Debug.Log(message);
-
-      //  onFinishLoading?.Invoke(message);
+        StartCoroutine(modelItemReference.ReturnToFunctionalInputUseAfterSeconds(2, "Check URL", null));
     }
-    //public void Setup(bool wasSuccesful)
+
+    //public async void SetFailed(string message)
     //{
+    //    Debug.Log(message);
 
 
-    //    SetupAfterList(wasSuccesful);
+    //    await modelItemReference.ReturnToFunctionalInputUseAfterSeconds(2, "Check URL", null);
+    //    //onImportAttempted += async (Message) =>
+    //    //{
+
+    //    //    await modelItemReference.ReturnToFunctionalInputUseAfterSeconds(2, Message, null);
+
+    //    //};
+
+    //    //  onFinishLoading?.Invoke(message);
     //}
+
 
     public static class TaskUtils
     {
@@ -80,18 +93,53 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
 
         }
     }
-    public  void Setup(bool wasSuccesful, string url, bool isNetCall = true)
+    public  void Setup(bool wasSuccesful, string url, bool isNetCall = true, ModelData mD = default)
     {
-        thisUrl = url;
-       // if(InstantiateAssetCards.Instance.urlToModelAssetCardDictionary.ContainsKey(url))
-        var modelData = InstantiateAssetCards.Instance.urlToModelAssetCardDictionary[url].modelData;
+     //   thisUrl = url;
 
-        // yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished );
+       // ModelData modelData = modelData;//GetComponentInChildren<ModelAssetCard>(true).modelData;
+
+        //   if (string.IsNullOrEmpty(url))
+     //   Debug.Log("URL::: " + url);
+
+
+        ////check if there is already a card based on the url
+        //if (InstantiateAssetCards.Instance.urlToModelAssetCardDictionary.ContainsKey(url))
+        //{
+        //    //own
+        ////if(guid == 0)
+        ////    guid = Guid.NewGuid().GetHashCode();
+
+
+        //  //  modelData = InstantiateAssetCards.Instance.urlToModelAssetCardDictionary[url].modelData;
+        // //   modelData.guid = guid;//Guid.NewGuid().GetHashCode();
+        //    Debug.Log("FOUND ASSET CARD");
+        //}
+        ////getting from others
+        //else
+        //{
+        //    //ModelAssetCard mac = GetComponentInChildren<ModelAssetCard>(true);
+        ////    modelData.scale = 1;
+          
+            
+        ////    modelData = mac.modelData;
+        //    //add custom Model 
+        //    //modelData = new ModelData();
+        //    //modelData.modelURL = url;
+        //    //modelData.scale = 1;
+        //    //modelData.guid = guid;//Guid.NewGuid().GetHashCode();
+
+        //    //modelData.pos = mac.modelData.pos;
+
+        //    //InstantiateAssetCards.Instance.urlToModelAssetCardDictionary.Add(url, InstantiateAssetCards.Instance.MakeCard(modelData, false));
+
+
+        //}
+
 
         if (!wasSuccesful)
         {
             onImportAttempted?.Invoke("Import Failed");
-        //    onFinishLoading?.Invoke("Import Failed");
             return;
         }
 
@@ -104,16 +152,17 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
         // await TaskUtils.WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
 
         mID = new ModelImportData();
-        mID.name = modelData.modelName;//name;
+        mID.name = mD.modelName;//name;
        // modelData.guid = indexInList;
         mID.buttonID = indexInList;
-        mID.url = modelData.modelURL;//url;
+        mID.url = mD.modelURL;//url;
 
+        mID.scale= mD.scale;
+        mID.guid = mD.guid;
 
-        mID.guid = modelData.guid;
-
-        //thisUrl = url;
-        mID.scale = modelData.scale;
+        Debug.Log("SCALE ON SETUP : " + mD.scale);
+ 
+       // mID.scale = modelData.scale;
         mID.position = modelData.pos;
         mID.euler_rotation = euler_rotation;
         mID.isWholeObject = modelData.isWholeObject;
@@ -133,15 +182,13 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
         }
         else
         {
-            UIManager.Instance.entityIDtoButtonIDDictionary.Add(modelData.guid, indexInList);
+            if (!UIManager.Instance.entityIDtoButtonIDDictionary.ContainsKey(modelData.guid))
+                UIManager.Instance.entityIDtoButtonIDDictionary.Add(modelData.guid, indexInList);
 
             if (!UIManager.Instance.buttonIDtoEntityIDDictionary.ContainsKey(indexInList))
                 UIManager.Instance.buttonIDtoEntityIDDictionary.Add(indexInList, modelData.guid);
 
         }
-
-
-
 
 
 
@@ -173,19 +220,32 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
                     break;
                 }
             }
-
+       
             NotifyOthersOfClick(komodoImportedModel.transform.position, komodoImportedModel.transform.rotation);
 
         }
         else
         {
+            Debug.Log("MODIFYING TRANSFORMS");
+
+            // SessionStateManager.Instance.ApplyPosition(new Position {pos = modelData.pos, rot = modelData.rot, scaleFactor = modelData});
+     
             komodoImportedModel.transform.position = modelData.pos;
             komodoImportedModel.transform.rotation = modelData.rot;
+
+            //if (Mathf.Approximately(0, modelData.scale))
+            //    modelData.scale = 1;
+
+            //Debug.Log("SCALE:  " + modelData.scale);
+            UnityExtensionMethods.SetGlobalScale(komodoImportedModel.transform, Vector3.one * modelData.scale);
+            //  komodoImportedModel.transform.localScale = modelData.scale;
+            // komodoImportedModel.transform
 
         }
 
         GameStateManager.Instance.isAssetImportFinished = true;
         onFinishLoading?.Invoke("", indexInList);
+
        
     }
 
@@ -197,6 +257,7 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
         Debug.Log("SEND URL: " + data.modelURL);
         data.pos= pos;
         data.rot= rot;
+       // data.scale = 1;
 
         Debug.Log("Sending: " + data.guid);
         //    ModelData data = new ModelData { modelName = name, modelURL = thisUrl, scale = scale, pos =pos, rot = rot};

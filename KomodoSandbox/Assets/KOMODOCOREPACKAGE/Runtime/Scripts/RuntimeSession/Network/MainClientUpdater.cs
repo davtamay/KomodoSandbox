@@ -170,8 +170,8 @@ using Komodo.Utilities;
 
     private Vector3 previousHeadPosition;
         private Quaternion previousHeadRotation;
-        private float positionThreshold = 0.32f; // Adjust the threshold value as needed
-        private float rotationThreshold = 0.32f; // Adjust the threshold value as needed
+        public float positionThreshold = 0.32f; // Adjust the threshold value as needed
+    public float rotationThreshold = 0.32f; // Adjust the threshold value as needed
 
 
         private Vector3 previousLHandPosition;
@@ -341,7 +341,7 @@ using Komodo.Utilities;
 
                 entityType = ComputeEntityType(entityType),
 
-                scaleFactor = ComputeScaleFactor(entityType),
+                scale = ComputeScaleFactor(entityType),
 
                 rot = rotation,
 
@@ -376,7 +376,7 @@ using Komodo.Utilities;
                 pos = eContainer.transform.position,
 
                 //since using parenting for objects, we need to translate local to global scalling when having it in your hand, when releasing we need to return such objects scalling from global to local scale
-                scaleFactor = eContainer.transform.lossyScale.x,
+                scale = eContainer.transform.lossyScale.x,
             };
 
             netUpdateHandler.SendSyncPoseMessage(position);

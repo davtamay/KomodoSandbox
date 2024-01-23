@@ -1,241 +1,146 @@
-// University of Illinois/NCSA
-// Open Source License
-// http://otm.illinois.edu/disclose-protect/illinois-open-source-license
-
-// Copyright (c) 2020 Grainger Engineering Library Information Center.  All rights reserved.
-
-// Developed by: IDEA Lab
-//               Grainger Engineering Library Information Center - University of Illinois Urbana-Champaign
-//               https://library.illinois.edu/enx
-
-// Permission is hereby granted, free of charge, to any person obtaining a copy of
-// this software and associated documentation files (the "Software"), to deal with
-// the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-// of the Software, and to permit persons to whom the Software is furnished to
-// do so, subject to the following conditions:
-// * Redistributions of source code must retain the above copyright notice,
-//   this list of conditions and the following disclaimers.
-// * Redistributions in binary form must reproduce the above copyright notice,
-//   this list of conditions and the following disclaimers in the documentation
-//   and/or other materials provided with the distribution.
-// * Neither the names of IDEA Lab, Grainger Engineering Library Information Center,
-//   nor the names of its contributors may be used to endorse or promote products
-//   derived from this Software without specific prior written permission.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-// CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
-// SOFTWARE.
-
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Entities;
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using Komodo.AssetImport;
 using System;
+using System.Collections;
+using UnityEngine;
 using UnityEngine.Events;
-using System.Threading.Tasks;
 
-//namespace Komodo.Runtime
-//{
-    public class ModelButtonList : ButtonList
+public class ModelButtonList : ButtonList
+{
+    public ModelDataTemplate modelData;
+    public GameObject placeHolderInputTemplate;
+    public UnityAction<ModelItem> onPlaceholderModelItemChanged;
+
+    public void Instantiate(UnityAction onModelClick, UnityAction onModelLoaded)
     {
-        public ModelDataTemplate modelData;
-        public GameObject placeHolderInputTemplate;
+        StartCoroutine(InstantiateList(onModelClick, onModelLoaded));
+    }
 
-        private EntityManager entityManager;
-
-        public bool isInitiateOnStart = true;
-
-        //private ModelItem currentPlaceholderModelItem;
-        //public ModelItem GetCurrentPlaceholderModelItem () => currentPlaceholderModelItem;
-
-        public UnityAction<ModelItem> onPlaceholderModelItemChanged;
-        //public  void Awake()
-        //{ 
-
-
-        //}
-        //public void Start()
-        //{
-        //    if (isInitiateOnStart)
-        //        Instantiate(null,null);
-        //}
-
-        public void Instantiate(UnityAction onModelClick, UnityAction onModelLoaded)
+    //ONLY DOWNLOAD BUTTON DOES THIS
+    private IEnumerator InstantiateList(UnityAction onModelClick, UnityAction onModelLoaded)
+    {
+      
+        if (!ModelImportInitializer.IsAlive)
         {
-
-            InstantiateList(onModelClick, onModelLoaded);
-
+            gameObject.SetActive(false);
+            yield break;
         }
-        public async void InstantiateList(UnityAction onModelClick, UnityAction onModelLoaded)
+        else
         {
-            //entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-
-            //check if we should set up models
-            if (!ModelImportInitializer.IsAlive)
-            {
-                gameObject.SetActive(false);
-
-                return;
-            }
-            else
-            {
-                gameObject.SetActive(true);
-            }
-
-            //create input box for importing custom imports
-
-            //onPlaceholderModelItemChanged?.Invoke(await InstantiatePlaceHolderButton( new ModelData(), -1, true, true, onModelClick, onModelLoaded));
-            ModelItem modelItem = await InstantiatePlaceHolderButton(new ModelData(), -1, true, onModelClick, onModelLoaded);
-            onPlaceholderModelItemChanged?.Invoke(modelItem);
-
-            //yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
-
-            //InitializeButtons();
-
-            //NotifyIsReady();
-
-
-
+            gameObject.SetActive(true);
         }
 
-        //public struct ModelDetails
+        Debug.Log("DDSDSDS");
+
+        yield return StartCoroutine(InstantiatePlaceHolderForAssetCard(new ModelData(), -1, true, onModelClick, onModelLoaded, false, true, (m) => { onPlaceholderModelItemChanged?.Invoke(m); }));
+
+
+
+        //  yield return StartCoroutine(InstantiatePlaceHolderButton(new ModelData(), -1, true, onModelClick, onModelLoaded));
+    }
+
+    public IEnumerator InstantiateNewAssetToList(ModelData modelData, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true)
+    {
+        //if (net_call)
         //{
-        //   public string url;
-        //   public string name;
-        //    public float scale;
-        //    public bool isWhole,
-
-
-        //    public UnityAction onAssetClicked;
-        //    public UnityAction onAssetLoadedCallback, 
-
-        //    bool isFromModelLibrary, bool net_call = true, Vector3 pos = default, Quaternion rot = default
-
-        //}
-        public async Task<ModelItem> InstantiateNewAssetToList(ModelData modelData, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true)
-        {
-            //this means we cant depend on the button index since it is based on the user index --> need to only use guid
             var buttonIndex = ModelImportInitializer.Instance.GetRoot().transform.childCount;
+            yield return StartCoroutine(InstantiatePlaceHolderButtonForNewInstance(modelData, buttonIndex, false, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, net_call, (m) =>
+            {
 
-            //   ModelItem modelItem = InstantiatePlaceHolderButton(url, ModelImportInitializer.Instance.GetRoot().transform.childCount, false, modelData.scale, isWhole, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, net_call, pos, rot);
-            ModelItem modelItem = await InstantiatePlaceHolderButton(modelData, buttonIndex, false, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, net_call);
+                m.modelData = modelData;
+                m.inputURL.text = modelData.modelURL;
+                m.nameDisplay.Set(name);
+                m.isNet_Call = net_call;
+                m.guid = modelData.guid;
 
-            modelItem.inputURL.text = modelData.modelURL;
+                if (Mathf.Approximately(0, modelData.scale))
+                    modelData.scale = 1;
 
-            modelItem.nameDisplay.Set(name);
+                Debug.Log("scale within anonimous: " + modelData.scale);
 
-            modelItem.downloadButton.onClick.Invoke();
+                m.downloadButton.onClick.Invoke();
 
-            return modelItem;
+                //   m.
+            }));
+        //}
+        //else
+        //{
+        //    //receiving call from others to instantiate
+        //    InstantiateAssetCards.Instance.InitializeNewInstanceFromCard(modelData, mo, modelData.modelURL, butttonIndex, onPlaceHolderUsed, onAssetClicked, onAssetLoaded, isFromModelLibrary)
+        //}
+    }
 
-        }
+    private IEnumerator InstantiatePlaceHolderButtonForNewInstance(ModelData modelData, int buttonIndex, bool addNewPlaceHolderAfterClick, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool netCall, Action<ModelItem> callback)
+    {
+        GameObject item = Instantiate(placeHolderInputTemplate, transformToPlaceButtonUnder);
+       
 
-
-
-
-
-        protected override void InitializeButtons()
+        if (item.TryGetComponent(out ModelItem modelItem))
         {
-            //   Debug.Log("initializing buttons");
-            if (!transformToPlaceButtonUnder)
+            Action<string, int> addPlaceHolderAfterUsed = (s, i) =>
             {
-                transformToPlaceButtonUnder = transform;
-            }
+                if (addNewPlaceHolderAfterClick)
+                    StartCoroutine(InstantiatePlaceHolderButtonForNewInstance(modelData, -1, true, onAssetClicked, onAssetLoadedCallback, false, netCall, (m) => {
 
-            if (!modelData)
-            {
-                throw new UnassignedReferenceException("modelData on ModelButtonList");
-            }
-
-            if (modelData.models == null)
-            {
-                throw new System.Exception("expected modelData to have models, but it was null");
-            }
+                        onPlaceholderModelItemChanged?.Invoke(m);
 
 
-            for (int i = 0; i < modelData.models.Count; i++)
-            {
+                    }));
+            };
 
-                if (UIManager.IsAlive)
-                {
-                    GameObject item = Instantiate(buttonTemplate, transformToPlaceButtonUnder);
+          StartCoroutine(  InstantiateAssetCards.Instance.InitializeNewInstanceFromCardCoroutine(modelData,  modelItem, modelData.modelURL, buttonIndex, true, addPlaceHolderAfterUsed, onAssetClicked: onAssetClicked, onAssetLoaded: onAssetLoadedCallback));
+            // modelItem.Initialize( modelData.modelURL, buttonIndex, true, addPlaceHolderAfterUsed, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary);
+            callback.Invoke(modelItem);
 
-                    if (item.TryGetComponent(out ModelItem modelItem))
-                    {
-                        string name = modelData.models[i].name;
-                        Debug.Log("initializing buttons :" + modelItem);
-                        if (name == null)
-                        {
-                            Debug.LogError($"modelData.models[{i}].name was null. Proceeding anyways.");
-
-                            name = "null";
-                        }
-
-                        //    modelItem.Initialize(i, modelData.models[i].name);
-                    }
-                    else
-                    {
-                        throw new MissingComponentException("modelItem on GameObject (from ModelButtonTemplate)");
-                    }
-                }
-            }
+            yield return null;
+            // Additional logic after initialization, if needed.
         }
-        //  public void InstantiateNewAssetToList(ModelData modelData, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true)
-        // public void InstantiateNewAssetToList(string url, string name, float scale, bool isWhole, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool net_call = true, Vector3 pos = default, Quaternion rot = default)
-
-
-        public async Task<ModelItem> InstantiatePlaceHolderButton(ModelData modelData, int buttonIndex, bool addNewPlaceHolderAfterClick, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary = false, bool netCall = true)
+        else
         {
-            var tcs = new TaskCompletionSource<ModelItem>();
-
-            GameObject item = Instantiate(placeHolderInputTemplate, transformToPlaceButtonUnder);
-
-            if (item.TryGetComponent(out ModelItem modelItem))
-            {
-                //create new custom import box after inputing and adding custom asset
-                Action<string, int> addPlaceHolderAfterUsed = async (s, i) =>
-                {
-                    if (addNewPlaceHolderAfterClick)
-                        onPlaceholderModelItemChanged?.Invoke(await InstantiatePlaceHolderButton(modelData, -1, true, onAssetClicked, onAssetLoadedCallback, false, netCall));
-                };
-
-
-
-               await modelItem.Initialize(modelData.modelURL, buttonIndex, true, addPlaceHolderAfterUsed, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, netCall);
-
-                // modelItem.Initialize(buttonIndex, modelItem.inputURL.text, scale, isWhole, true, addPlaceHolderAfterUsed, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary, netCall, pos, rot);
-                tcs.SetResult(modelItem);
-               
-                return tcs.Task.Result;
-            }
-            else
-            {
-                throw new MissingComponentException("modelItem on GameObject (from ModelButtonTemplate)");
-            }
-
-        
-
-
-        }
-
-
-
-        protected override void NotifyIsReady()
-        {
-            base.NotifyIsReady();
-
-            if (UIManager.IsAlive)
-            {
-                UIManager.Instance.isModelButtonListReady = true;
-            }
+            throw new MissingComponentException("modelItem on GameObject (from ModelButtonTemplate)");
         }
     }
-//}
+
+    private IEnumerator InstantiatePlaceHolderForAssetCard(ModelData modelData, int buttonIndex, bool addNewPlaceHolderAfterClick, UnityAction onAssetClicked, UnityAction onAssetLoadedCallback, bool isFromModelLibrary, bool netCall, Action<ModelItem> callback)
+    {
+        GameObject item = Instantiate(placeHolderInputTemplate, transformToPlaceButtonUnder);
+
+
+        if (item.TryGetComponent(out ModelItem modelItem))
+        {
+            Action<string, int> addPlaceHolderAfterUsed = (s, i) =>
+            {
+                if (addNewPlaceHolderAfterClick)
+                    StartCoroutine(InstantiatePlaceHolderForAssetCard(modelData, -1, true, onAssetClicked, onAssetLoadedCallback, false, netCall, (m) => {
+
+                        onPlaceholderModelItemChanged?.Invoke(m);
+
+
+                    }));
+            };
+
+
+       StartCoroutine(     InstantiateAssetCards.Instance.InitializeCheckForNewAssetCard(modelItem, modelData.modelURL, buttonIndex, true, addPlaceHolderAfterUsed,onAssetClicked: onAssetClicked,onAssetLoaded: onAssetLoadedCallback));//(modelItem, modelData.modelURL, butttonIndex, isDownloadPlaceHolder, onPlaceHolderUsed, onAssetClicked, onAssetLoaded);
+
+          //  modelItem.Initialize(modelData.modelURL, buttonIndex, true, addPlaceHolderAfterUsed, onAssetClicked, onAssetLoadedCallback, isFromModelLibrary);
+            callback.Invoke(modelItem);
+
+            yield return null;
+            // Additional logic after initialization, if needed.
+        }
+        else
+        {
+            throw new MissingComponentException("modelItem on GameObject (from ModelButtonTemplate)");
+        }
+    }
+
+
+    protected override void NotifyIsReady()
+    {
+        base.NotifyIsReady();
+
+        if (UIManager.IsAlive)
+        {
+            UIManager.Instance.isModelButtonListReady = true;
+        }
+    }
+}

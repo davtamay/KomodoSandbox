@@ -39,7 +39,7 @@ namespace Komodo.Runtime
                 clientId = clientID,
                 guid = MainClientUpdater.Instance.ComputeEntityID(clientID, entityType),
                 entityType = MainClientUpdater.Instance.ComputeEntityType(entityType),
-                scaleFactor = MainClientUpdater.Instance.ComputeScaleFactor(entityType),
+                scale = MainClientUpdater.Instance.ComputeScaleFactor(entityType),
                 rot = rotation,
                 pos = position,
             };

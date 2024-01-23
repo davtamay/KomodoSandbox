@@ -17,6 +17,192 @@
 
     // Init sync connections
 
+
+    //localforage functionality
+//  localforage: {
+//     config: function(options) {
+//       localforage.config(options);
+//     },
+//     getItem: function(key, callback) {
+//       localforage.getItem(key).then(function(value) {
+//         callback(value);
+//       }).catch(function(error) {
+//         console.log('Error retrieving data from LocalForage:', error);
+//       });
+//     },
+//     setItem: function(key, value, callback) {
+//       localforage.setItem(key, value).then(function() {
+//         callback();
+//       }).catch(function(error) {
+//         console.log('Error saving data to LocalForage:', error);
+//       });
+//     },
+//     removeItem: function(key, callback) {
+//       localforage.removeItem(key).then(function() {
+//         callback();
+//       }).catch(function(error) {
+//         console.log('Error removing data from LocalForage:', error);
+//       });
+//     }
+//   },
+//     config: function() {
+
+//  return new Promise(function(resolve, reject) {
+//         const request = indexedDB.open('myDatabase', 1);
+//         request.onupgradeneeded = function(event) {
+//             const db = event.target.result;
+//             const objectStore = db.createObjectStore('myStore', { keyPath: 'id' });
+//             objectStore.createIndex('name', 'name', { unique: false });
+//         };
+//         request.onsuccess = function(event) {
+//             resolve(event.target.result);
+//         };
+//         request.onerror = function(event) {
+//             reject(event.target.error);
+//         };
+//     });
+//     },
+//     //   var configOptions = {
+
+
+//     //        name: 'myDatabase',
+//     // version: 1.0,
+//     // size: 500 * 1024 * 1024, // 500MB
+//     // driver: [localforage.INDEXEDDB, localforage.WEBSQL, localforage.LOCALSTORAGE],
+//     // storeName: 'myStore',
+//     // description: 'My custom database'
+
+
+    
+//     //       //  driver: localforage.WEBSQL, // Use WebSQL for better performance
+//     //         // name: 'myApp', // Name of the database
+//     //         // version: 1.0, // Version of the database
+//     //         // storeName: 'myStore', // Name of the object store
+//     //         };
+        
+//     //   localforage.config(configOptions);
+//     },
+    getItem:  function(key) {
+     // try {
+        key = UTF8ToString(key);
+         return new Promise(function(resolve, reject) {
+
+            
+        config2().then(function(db) {
+            const transaction = db.transaction('myStore', 'readonly');
+            const objectStore = transaction.objectStore('myStore');
+            const getRequest = objectStore.get(key);
+            getRequest.onsuccess = function(event) {
+                const value = event.target.result;
+
+                //this is valid so lets send it back to unity? calling this fuction does not give it
+                console.log('gET key:',value);
+
+                if(value != null)//send from indexDB
+                     window.gameInstance.SendMessage(window.socketIOAdapterName, 'OnReceiveDrawStrokeFromStorage', value.data);//JSON.stringify(value.data));//JSON.stringify(value));
+                else //Request server to send it to client
+                     window.sync.emit('request_drawStroke', {session_id: window.session_id, guid: key});
+                    // window.gameInstance.SendMessage(window.socketIOAdapterName, 'OnReceiveDrawStrokeFromStorage', JSON.stringify({guid : key}));
+
+
+
+                resolve(value);
+            };
+            getRequest.onerror = function(event) {
+                 console.log('gET key error:', event.target.error);
+                reject(event.target.error);
+            };
+        }).catch(function(error) {
+               console.log('gET key:',"reject");
+            reject(error);
+        });
+    });
+    //     const value = await localforage.getItem(key);
+        
+    //     return value;
+    //   } catch (error) {
+    //     throw new Error('Error retrieving data from LocalForage: ' + error);
+    //   }
+    },
+    setItem:  function(key, value) {
+     // try {
+
+        key = UTF8ToString(key);
+        value = UTF8ToString(value);
+
+        setItem2(key, value);
+    // return new Promise(function(resolve, reject) {
+    //     config2().then(function(db) {
+    //         const transaction = db.transaction('myStore', 'readwrite');
+    //         const objectStore = transaction.objectStore('myStore');
+    //         const putRequest = objectStore.put({ guid: key, data: value });
+    //         putRequest.onsuccess = function(event) {
+    //             resolve();
+    //         };
+    //         putRequest.onerror = function(event) {
+    //             reject(event.target.error);
+    //         };
+    //     }).catch(function(error) {
+    //         reject(error);
+    //     });
+    // });
+  
+    },
+
+    keys:  function() {
+    
+     return new Promise(function(resolve, reject) {
+        config2().then(function(db) {
+            const transaction = db.transaction('myStore', 'readonly');
+            const objectStore = transaction.objectStore('myStore');
+            const keysRequest = objectStore.getAllKeys();
+            keysRequest.onsuccess = function(event) {
+                const keys = event.target.result;
+                  console.log('All keys:', keys);
+                resolve(keys);
+            };
+            keysRequest.onerror = function(event) {
+                  console.log('All keys:', "Error");
+                reject(event.target.error);
+                
+            };
+        }).catch(function(error) {
+            reject(error);
+        });
+    });
+    
+    //    try {
+    //     const keys = await localforage.keys();
+    //     console.log('All keys:', keys);
+    //     return keys;
+    // } catch (error) {
+    //     throw new Error('Error getting keys from LocalForage: ' + error);
+    // }
+
+    },
+    removeItem: async function(key) {
+      try {
+        key = UTF8ToString(key);
+        await localforage.removeItem(key);
+      } catch (error) {
+        throw new Error('Error removing data from LocalForage: ' + error);
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     SetSocketIOAdapterName:  function (nameBuffer) {
         if (nameBuffer == null) {
             console.error("SetSocketIOAdapterName: nameBuffer was null");
@@ -215,6 +401,22 @@
             window.gameInstance.SendMessage(socketIOAdapter, 'OnReceiveStateCatchup', JSON.stringify(data));
         });
 
+
+
+
+
+        // Handle when the server gives us a GUID catch-up event.
+        sync.on('session_guids', function(data) {
+            console.log("[SocketIO " + syncSocketId + "] received guids catch-up event:", data);
+
+            window.gameInstance.SendMessage(socketIOAdapter, 'OnReceiveSessionGUIDs', JSON.stringify(data));
+        });
+
+
+
+
+        
+
         // Handle when we are (or someone else is) successfully joined to a session.
         sync.on('joined', function(client_id) {
             console.log("[SocketIO " + syncSocketId + "] Joined: Client" + client_id);
@@ -324,6 +526,11 @@
         //     //delete e['returnValue'];
         // });
 
+          window.sync.on('draw_save_to_storage', function(data) {
+console.log("draw_save_to_storage" + JSON.stringify(data));
+            setItem2(data.guid,JSON.stringify( data));
+           // window.gameInstance.SendMessage(socketIOAdapter, 'OnCaptureStarted');
+        });
 
 
 
@@ -357,6 +564,18 @@ console.log("GOT CLIENT NAMES" + JSON.stringify(data) );
         window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientInSessionNames', JSON.stringify(data))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
         
          });
+
+
+
+
+        window.sync.on('provide_drawStroke', function (data) {
+
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'OnReceiveDrawStrokeData', JSON.stringify(data))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
+        
+         });
+         
+
+         
          
 //          window.sync.on('get_clientID', function (client_id) {
           
@@ -684,6 +903,14 @@ console.log("GOT CLIENT NAMES" + JSON.stringify(data) );
   
     },
 
+
+    RequestDrawStrokeFromServer: function(guid) {
+
+        console.log("REQUESTING DRAW STROKE FROM SERVER");
+        window.sync.emit('request_drawStroke', {session_id: window.session_id, guid: guid});//, info); //buffer
+  
+    },
+
 //need to invoke this from unity for onbeforeunload to work
      ListenForClientIdFromServer: function() {
 
@@ -764,6 +991,18 @@ ProvideClientDataToServer: function(data){
     //     window.gameInstance.SendMessage(window.socketIOAdapterName, 'GetAllSession_IDs', JSON.stringify(sessionInfos))//sessionInfos)//UTF8ToString(sessions))//sessions);//UTF8ToString(sessions));// sessions);
     //      });
     // },
+
+
+
+
+    // Function to check internet connectivity status
+  CheckInternetConnectivity: function () {
+
+     var isOnline = navigator.onLine ? 1 : 0;
+
+        gameInstance.SendMessage(window.socketIOAdapterName, 'OnInternetConnectivityStatus', isOnline);
+     
+    },
 
 
     RequestToEnteredNewSession :function(data){

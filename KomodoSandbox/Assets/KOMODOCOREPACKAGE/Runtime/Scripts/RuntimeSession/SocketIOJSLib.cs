@@ -45,8 +45,8 @@ using System.Threading.Tasks;
         [DllImport("__Internal")]
         public static extern int GetIsTeacherFlagFromBrowser();
 
-
-
+    [DllImport("__Internal")]
+    public static extern void RequestDrawStrokeFromServer(int guid);
 
 
         //[DllImport("__Internal")]
@@ -108,28 +108,31 @@ using System.Threading.Tasks;
         [DllImport("__Internal")]
         public static extern void RequestToEnteredNewSession(string sessionInfo);
 
-        //[DllImport("__Internal")]
-        //public static extern void ReceiveClientInSessionNames(string names);
+    [DllImport("__Internal")]
+    public static extern void CheckInternetConnectivity();
 
-        // [DllImport("__Internal")]
-        // private static extern void InitSocketIOReceivePosition(float[] array, int size);
+    //[DllImport("__Internal")]
+    //public static extern void ReceiveClientInSessionNames(string names);
 
-        // [DllImport("__Internal")]
-        // private static extern void SocketIOSendPosition(float[] array, int size);
+    // [DllImport("__Internal")]
+    // private static extern void InitSocketIOReceivePosition(float[] array, int size);
 
-        // [DllImport("__Internal")]
-        // private static extern void SocketIOSendInteraction(int[] array, int size);
+    // [DllImport("__Internal")]
+    // private static extern void SocketIOSendPosition(float[] array, int size);
 
-        // [DllImport("__Internal")]
-        // private static extern void InitSocketIOReceiveInteraction(int[] array, int size);
+    // [DllImport("__Internal")]
+    // private static extern void SocketIOSendInteraction(int[] array, int size);
 
-        // [DllImport("__Internal")]
-        // private static extern void InitReceiveDraw(float[] array, int size);
+    // [DllImport("__Internal")]
+    // private static extern void InitSocketIOReceiveInteraction(int[] array, int size);
 
-        // [DllImport("__Internal")]
-        // private static extern void SendDraw(float[] array, int size);
+    // [DllImport("__Internal")]
+    // private static extern void InitReceiveDraw(float[] array, int size);
 
-        [DllImport("__Internal")]
+    // [DllImport("__Internal")]
+    // private static extern void SendDraw(float[] array, int size);
+
+    [DllImport("__Internal")]
         public static extern int EnableVRButton();
 
         [DllImport("__Internal")]

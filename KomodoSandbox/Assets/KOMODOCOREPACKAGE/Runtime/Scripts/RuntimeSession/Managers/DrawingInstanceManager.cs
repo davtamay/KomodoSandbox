@@ -3,6 +3,7 @@ using Unity.Entities;
 using System.Collections.Generic;
 using System;
 using Komodo.Utilities;
+using UnityEditor;
 
 //namespace Komodo.Runtime
 //{
@@ -184,6 +185,9 @@ using Komodo.Utilities;
             pivot.transform.SetParent(externalStrokeParent, true);
 
 
+     
+
+
         Debug.Log("MADE NEW DRAW :" + strokeID);
              GameStateManager.Instance.isAssetImportFinished = true;
         }
@@ -278,6 +282,9 @@ using Komodo.Utilities;
             renderer.SetPosition(renderer.positionCount - 1, data.pos);
 
             InitializeFinishedLineFromOtherClient(data.guid, renderer);
+
+
+          //  StorageJSLib.setItem(data.guid.ToString(), new DrawEntityState { guid });
         }
 
         protected void DeleteLine (Draw data)

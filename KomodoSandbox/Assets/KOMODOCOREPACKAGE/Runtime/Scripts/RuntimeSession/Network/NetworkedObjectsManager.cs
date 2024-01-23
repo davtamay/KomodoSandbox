@@ -47,8 +47,11 @@ public class NetworkedObjectsManager : SingletonComponent<NetworkedObjectsManage
 
         public void Register (int entityID, NetworkedGameObject netObject)
         {
+      //  if (!networkedObjectFromEntityId.ContainsKey(entityID))
             networkedObjectFromEntityId.Add(entityID, netObject);
-        }
+        //else
+        //    networkedObjectFromEntityId[entityID] = netObject;
+    }
 
         // public Entity GetEntity(int index)
         // {
@@ -62,7 +65,7 @@ public class NetworkedObjectsManager : SingletonComponent<NetworkedObjectsManage
 
         public NetworkedGameObject GetNetworkedGameObject(int buttonId)
         {
-            Debug.LogWarning($"buttonId {buttonId} -- count: " +  ModelImportInitializer.Instance.networkedGameObjects.Count );
+          //  Debug.LogWarning($"buttonId {buttonId} -- count: " +  ModelImportInitializer.Instance.networkedGameObjects.Count );
 
             if (buttonId >= 0 && buttonId < ModelImportInitializer.Instance.networkedGameObjects.Count)
             {
@@ -165,7 +168,7 @@ public class NetworkedObjectsManager : SingletonComponent<NetworkedObjectsManage
 
             netObjTransform.rotation = positionData.rot;
 
-            UnityExtensionMethods.SetGlobalScale(netObjTransform, Vector3.one * positionData.scaleFactor);
+            UnityExtensionMethods.SetGlobalScale(netObjTransform, Vector3.one * positionData.scale);
 
             return true;
         }
@@ -365,11 +368,11 @@ public class NetworkedObjectsManager : SingletonComponent<NetworkedObjectsManage
 
         //handle syncing state for decomposed object positions, 
         //freezes up extnal user when calling, SendSyncPoseMessage, should just do one call only to update server stored positions
-        
+
 
         //if (isNetCall)
         //{
-        //    if(modelType == MODEL_TYPE.URL)
+        //    if (modelType == MODEL_TYPE.URL)
         //    {
         //        Position position = new Position
         //        {
@@ -384,10 +387,14 @@ public class NetworkedObjectsManager : SingletonComponent<NetworkedObjectsManage
         //            pos = netObject.transform.position,
 
         //            //since using parenting for objects, we need to translate local to global scalling when having it in your hand, when releasing we need to return such objects scalling from global to local scale
+        //         //   scaleFactor = netObject.transform.localScale.x, //.lossyScale.x,
         //            scaleFactor = netObject.transform.lossyScale.x,
         //        };
-               
-        //      //  NetworkUpdateHandler.Instance.SendSyncPoseMessage(position);
+                
+        //        //just notify and store new decomposed assets in the server
+        //        new KomodoMessage("decomposedAsset",JsonUtility.ToJson(position), -2 ).Send();
+                
+        //        //  NetworkUpdateHandler.Instance.SendSyncPoseMessage(position);
 
         //    }
         //}

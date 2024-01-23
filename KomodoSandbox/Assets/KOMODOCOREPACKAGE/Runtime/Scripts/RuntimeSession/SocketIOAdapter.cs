@@ -5,6 +5,7 @@ using Komodo.Utilities;
 using Newtonsoft.Json;
 using NUnit.Framework.Internal;
 using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 
 //namespace Komodo.Runtime
 //{
@@ -49,6 +50,7 @@ using System.Xml.Linq;
                 Debug.LogError("SocketIOAdapter: No netUpdateHandler was found in the scene.");
             }
 
+
             SetName();
             //OpenConnectionAndJoin();
             OpenSyncConnection();
@@ -58,6 +60,7 @@ using System.Xml.Linq;
         public IEnumerator Start()
         {
 
+        //setup function to pick up 
 #if UNITY_WEBGL && !UNITY_EDITOR
             SocketIOJSLib.ListenForClientIdFromServer();
 #endif
@@ -66,11 +69,11 @@ using System.Xml.Linq;
 
             yield return null;
 
-
             // SendStateCatchUpRequest();
             createJoinAndStart.RequestClientID();
 
         }
+
         public void GetClient_ID(int clientID)
         {
 
@@ -80,8 +83,8 @@ using System.Xml.Linq;
             ClientSpawnManager.Instance.Net_IntantinateClients();
 
 
-            JoinSyncSession();
-            JoinChatSession();
+            //JoinSyncSession();
+            //JoinChatSession();
 
             // SendStateCatchUpRequest();
 
@@ -106,6 +109,7 @@ using System.Xml.Linq;
             // SocketIOJSLib.ListenForPageUnload(clientID);
         }
 
+    bool isFirstSession = true;
         public void EnteredNewSession(string sessionState)
         {
 
@@ -125,12 +129,25 @@ using System.Xml.Linq;
             JoinChatSession();
 
 
-            //   SessionStateManager.Instance.SetSessionState(state);
 
-            //ClientSpawnManager.Instance.RemoveAllClients();
+        ClientSpawnManager.Instance.SendSyncPose();
 
-            // SessionStateManager.Instance.ApplyCatchup();
+
+        //   SessionStateManager.Instance.SetSessionState(state);
+
+        //ClientSpawnManager.Instance.RemoveAllClients();
+
+        // SessionStateManager.Instance.ApplyCatchup();
+
+        //only do catchup after 
+        if (!isFirstSession)
+        {
             SendStateCatchUpRequest();
+        }
+        else
+            isFirstSession= false;
+        
+       
 
 
             SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
@@ -521,13 +538,72 @@ using System.Xml.Linq;
             connectionAdapter.DisplaySessionInfo(info);
         }
 
-        public bool isFirstCatchup;
+
+        public void OnReceiveSessionGUIDs(string packedData)
+        {
+        if (string.IsNullOrEmpty(packedData) || packedData == "{}")
+            return;
+
+          var guidsInfo = JsonConvert.DeserializeObject<Dictionary<int, int>>(packedData);
+
+          SessionStateManager.Instance.ReceiveGUIDsFromServer(guidsInfo);
+
+
+        }
+
+    public void OnReceiveDrawStrokeFromStorage(string packedData)
+    {
+        var drawData = JsonConvert.DeserializeObject<DrawEntityState>(packedData);
+
+        Debug.Log("INDEXDB SETTING ITEM: " + drawData.guid + "PackedData : " + packedData);
+
+        for (int e = 0; e < drawData.posArray.Length - 1; e++)
+        {
+            var drawModel = new Draw(1, drawData.guid, (int)Entity_Type.Line, drawData.lineWidth, drawData.posArray[e], drawData.color);
+            DrawingInstanceManager.Instance.ReceiveDrawUpdate(JsonUtility.ToJson(drawModel));
+        }
+
+        //do ending to create the model to grab
+        var drawModelEnd = new Draw(1, drawData.guid, (int)Entity_Type.LineEnd, drawData.lineWidth, drawData.posArray[drawData.posArray.Length - 1], drawData.color);
+        DrawingInstanceManager.Instance.ReceiveDrawUpdate(JsonUtility.ToJson(drawModelEnd));
+
+
+    }
+
+    public void OnReceiveDrawStrokeData(string packedData)
+    {
+        //   public Dictionary<int, int> guidsInSceneDictionary = new Dictionary<int, int>();
+        var drawData = JsonConvert.DeserializeObject<DrawEntityState>(packedData);
+
+        
+        //cache it in indexdb
+        StorageJSLib.setItem(drawData.guid.ToString(), packedData);
+
+        Debug.Log("SERVER SETTING ITEM: " + drawData.guid + "PackedData : " + packedData);
+
+        for (int e = 0; e < drawData.posArray.Length - 1; e++)
+        {
+            var drawModel = new Draw(1, drawData.guid, (int)Entity_Type.Line, drawData.lineWidth, drawData.posArray[e], drawData.color);
+            DrawingInstanceManager.Instance.ReceiveDrawUpdate(JsonUtility.ToJson(drawModel));
+        }
+
+        //do ending to create the model to grab
+        var drawModelEnd = new Draw(1, drawData.guid, (int)Entity_Type.LineEnd, drawData.lineWidth, drawData.posArray[drawData.posArray.Length - 1], drawData.color);
+        DrawingInstanceManager.Instance.ReceiveDrawUpdate(JsonUtility.ToJson(drawModelEnd));
+
+
+        //  SessionStateManager.Instance.ReceiveGUIDsFromServer(guidsInfo);
+
+
+    }
+
+
+
+    public bool isFirstCatchup;
         public void OnReceiveStateCatchup(string packedData)
         {
             ClientSpawnManager.Instance.RemoveAllClients();
 
-
-        // Newtonsoft.Json.jsom
              var state = JsonConvert.DeserializeObject<SessionState>(packedData);//JsonUtility.FromJson<SessionState>(packedData);
 
             SessionStateManager.Instance.SetSessionState(state);
@@ -539,7 +615,7 @@ using System.Xml.Linq;
 
             if (!isFirstCatchup)
             {
-                ClientSpawnManager.Instance.AddOwnClient();
+                ClientSpawnManager.Instance.AddOwnClient(state.clients);
                 isFirstCatchup = true;
             }
         }
@@ -569,9 +645,9 @@ using System.Xml.Linq;
 
         public void OnOtherClientJoined(int client_id)
         {
-            SendStateCatchUpRequest();
+         //   SendStateCatchUpRequest();
             //   Debug.Log($"OTHER CLIENT JOIN({client_id})");
-            //  ClientSpawnManager.Instance.AddNewClient(client_id);
+              ClientSpawnManager.Instance.AddNewClient(client_id);
         }
 
         public void OnOtherClientLeft(int client_id)

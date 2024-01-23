@@ -8,7 +8,7 @@ using UnityEngine;
         public int clientId;
         public int guid;
         public int entityType;
-        public float scaleFactor;
+        public float scale;
         public Quaternion rot;
         public Vector3 pos;
 
@@ -17,7 +17,7 @@ using UnityEngine;
             this.clientId = clientId;
             this.guid = entityId;
             this.entityType = entityType;
-            this.scaleFactor = scaleFactor;
+            this.scale = scaleFactor;
             this.rot = rot;
             this.pos = pos;
         }

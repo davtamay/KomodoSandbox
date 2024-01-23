@@ -33,6 +33,8 @@ using UnityEngine.UI;
             SelectOrDeselect(doShow);
 
             UpdateUI(doShow);
+
+            
         }
 
         public void UpdateUI (bool doShow)
@@ -72,8 +74,10 @@ using UnityEngine.UI;
 
             this.index = index;
 
-           // Toggle(false);
-        }
+
+        toggle.SetIsOnWithoutNotify(true);
+        // Toggle(false);
+    }
 
         public void OnPointerClick (PointerEventData data)
         {

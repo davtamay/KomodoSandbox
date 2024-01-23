@@ -130,9 +130,9 @@ namespace WebGLSupport
 
         private IInputField Setup()
         {
-            if (GetComponent<InputField>()) return new WrappedInputField(GetComponent<InputField>());
+            if (GetComponentInChildren<InputField>(true)) return new WrappedInputField(GetComponentInChildren<InputField>(true));
 #if TMP_WEBGL_SUPPORT
-            if (GetComponent<TMPro.TMP_InputField>()) return new WrappedTMPInputField(GetComponent<TMPro.TMP_InputField>());
+            if (GetComponentInChildren<TMPro.TMP_InputField>(true)) return new WrappedTMPInputField(GetComponentInChildren<TMPro.TMP_InputField>(true));
 #endif // TMP_WEBGL_SUPPORT
             throw new Exception("Can not Setup WebGLInput!!");
         }

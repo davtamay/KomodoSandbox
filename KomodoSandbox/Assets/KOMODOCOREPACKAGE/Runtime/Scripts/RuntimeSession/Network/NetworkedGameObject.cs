@@ -102,19 +102,6 @@ using Komodo.Utilities;
 
 
 
-            //if(uniqueEntityID == -1)
-            //{
-            //    NetworkedObjectsManager.Instance.net_GO_pendingRegistrationList.Enqueue(this);
-            //    SocketIOJSLib.RequestUUIDFromServer();
-            //}
-            //else
-            //{
-            //    Register(uniqueEntityID);
-            //}
-
-
-
-
 //            //set custom id if we are not given a specified id when instantiating this network associated object
             int EntityID = (uniqueEntityID == -1) ? NetworkedObjectsManager.Instance.GenerateUniqueEntityID() : uniqueEntityID;
 
@@ -125,27 +112,6 @@ using Komodo.Utilities;
             
             Register(EntityID);
 
-            //            thisEntityID = EntityID;
-
-            //#if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
-            ////do nothing
-            //#else
-            //            //entityManager.SetName(Entity, gameObject.name);
-            //#endif
-            //            if (buttonIndex == -1)
-            //            buttonIndex = importIndex;
-
-
-            //            NetworkedObjectsManager.Instance.Register(EntityID, this);
-
-            //                //TODO: evaluate how good this solution is.
-            //            //check to see if the gameObject is the main object or a subobject. If it's a main object, link it to the button.
-            //            if (this.name == buttonIndex.ToString())
-            //            {
-            //                NetworkedObjectsManager.Instance.LinkNetObjectToButton(EntityID, this);
-            //            }
-
-            //            isRegistered = true;
         }
 
         public void Register(int uniqueEntityID)

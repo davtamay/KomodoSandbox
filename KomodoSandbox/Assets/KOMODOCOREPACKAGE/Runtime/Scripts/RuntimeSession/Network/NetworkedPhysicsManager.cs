@@ -78,7 +78,7 @@ using Komodo.Utilities;
 
                 NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.guid].transform.rotation = positionData.rot;
 
-                UnityExtensionMethods.SetGlobalScale(NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.guid].transform, Vector3.one * positionData.scaleFactor);
+                UnityExtensionMethods.SetGlobalScale(NetworkedObjectsManager.Instance.networkedObjectFromEntityId[positionData.guid].transform, Vector3.one * positionData.scale);
             }
             else
             {
@@ -162,7 +162,7 @@ using Komodo.Utilities;
                 entityType = (int)entityIDContainer.current_Entity_Type,
                 rot = eContainer.transform.rotation,
                 pos = eContainer.transform.position,
-                scaleFactor = eContainer.transform.lossyScale.x,
+                scale = eContainer.transform.lossyScale.x,
             };
 
             netUpdateHandler.SendSyncPoseMessage(coords);
