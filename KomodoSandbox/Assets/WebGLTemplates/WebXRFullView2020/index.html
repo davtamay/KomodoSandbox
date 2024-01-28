@@ -28,6 +28,28 @@
         <div id="unity-build-title">{{{ PRODUCT_NAME }}}</div> -->
       </div>
     </div>
+
+    
+    
+   <!-- WebRTC Controls at the bottom -->
+
+   
+   <div id="webrtc-container">
+       <div id="webrtc-controls">
+           <h2>WebRTC Test</h2>
+           <div>Current client: <span id="currentClientName"></span></div>
+           <video id="localVideo" autoplay controls muted style="position: relative; z-index: 1000; width: 300px; height: 200px;"></video>
+           <video id="remoteVideo" autoplay style="position: relative; z-index: 1000; width: 300px; height: 200px;"></video>
+        <br/>
+        <button style="position: relative; z-index: 1000;" id="startButton">Start Call</button>
+        <button style="position: relative; z-index: 1000;"  id="stopButton">Stop Call</button>
+        <button style="position: relative; z-index: 1000;"  id="answer">Answer Call</button>
+        <button style="position: relative; z-index: 1000;"  id="clients">Show Clients</button>
+        <button style="position: relative; z-index: 1000;"  id="callButton">Call Selected Client</button>
+    </div>
+</div>
+<script src="webrtc.js"></script>
+
     <script>
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
@@ -110,6 +132,13 @@
       }, false);
     </script>
 
+<script>
+  // Global variables for WebGL texture
+  var ct_canvas, gl, textureObj, videoElement, ctx, textureID;
+
+  // Additional JavaScript code and functions...
+</script>
+
 <script src="gl-matrix-min.js"></script>
 <script src="webxr.js"></script>
 
@@ -120,5 +149,3 @@
 
 
 
-  </body>
-</html>
