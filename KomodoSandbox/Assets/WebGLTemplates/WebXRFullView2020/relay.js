@@ -24,6 +24,12 @@ if (window.location.hostname === "localhost" || window.location.hostname === "12
     RELAY_BASE_URL = "https://appsocket.net:3000"; // Default to production URL
 }
 
+// if (window.location.hostname.includes("appsocket")){ //=== "localhost" || window.location.hostname === "127.0.0.1") {
+//     RELAY_BASE_URL = "https://appsocket.net:3000"; // Default to production URL
+// } else {
+//     RELAY_BASE_URL = "https://192.168.1.67:3000";
+// }
+
 
 var API_BASE_URL = "http://localhost:4040";
 var VR_BASE_URL = "http://localhost:8123"; //TODO -- change this to a better default

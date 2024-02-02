@@ -9,135 +9,133 @@ using Newtonsoft.Json.Linq;
 
 //namespace Komodo.Runtime
 //{
-    public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
+public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
+{
+    //Reminder -- socket-funcs.jslib can only send zero arguments, one string, or one number via the SendMessage function.
+
+    public static SocketIOAdapter Instance
     {
-        //Reminder -- socket-funcs.jslib can only send zero arguments, one string, or one number via the SendMessage function.
+        get { return (SocketIOAdapter)_Instance; }
 
-        public static SocketIOAdapter Instance
+        set { _Instance = value; }
+    }
+    private ConnectionAdapter connectionAdapter;
+
+    private SocketIOEditorSimulator socketSim;
+
+    private NetworkUpdateHandler netUpdateHandler;
+
+    public CreateJoinAndStartSession createJoinAndStart;
+
+
+    [System.Serializable]
+    public struct SessionDetails
+    {
+        public int session_id;
+        public int clientCount;
+    }
+
+    [System.Serializable]
+    public struct ClientData
+    {
+        public int id;
+        public string name;
+    }
+    void Awake()
+    {
+        connectionAdapter = (ConnectionAdapter)FindObjectOfType(typeof(ConnectionAdapter));
+
+        if (connectionAdapter == null)
         {
-            get { return (SocketIOAdapter)_Instance; }
-
-            set { _Instance = value; }
-        }
-        private ConnectionAdapter connectionAdapter;
-
-        private SocketIOEditorSimulator socketSim;
-
-        private NetworkUpdateHandler netUpdateHandler;
-
-        public CreateJoinAndStartSession createJoinAndStart;
-
-        void Awake()
-        {
-            connectionAdapter = (ConnectionAdapter)FindObjectOfType(typeof(ConnectionAdapter));
-
-            if (connectionAdapter == null)
-            {
-                Debug.LogError("SocketIOAdapter: No object of type ConnectionAdapter was found in the scene.");
-            }
-
-            socketSim = SocketIOEditorSimulator.Instance;
-
-            if (socketSim == null)
-            {
-                Debug.LogError("SocketIOAdapter: No SocketIOEditorSimulator.Instance was found in the scene.");
-            }
-
-            netUpdateHandler = NetworkUpdateHandler.Instance;
-
-            if (netUpdateHandler == null)
-            {
-                Debug.LogError("SocketIOAdapter: No netUpdateHandler was found in the scene.");
-            }
-
-
-            SetName();
-            //OpenConnectionAndJoin();
-            OpenSyncConnection();
-            OpenChatConnection();
+            Debug.LogError("SocketIOAdapter: No object of type ConnectionAdapter was found in the scene.");
         }
 
-        public IEnumerator Start()
+        socketSim = SocketIOEditorSimulator.Instance;
+
+        if (socketSim == null)
         {
+            Debug.LogError("SocketIOAdapter: No SocketIOEditorSimulator.Instance was found in the scene.");
+        }
+
+        netUpdateHandler = NetworkUpdateHandler.Instance;
+
+        if (netUpdateHandler == null)
+        {
+            Debug.LogError("SocketIOAdapter: No netUpdateHandler was found in the scene.");
+        }
+
+
+        SetName();
+        //OpenConnectionAndJoin();
+        OpenSyncConnection();
+        OpenChatConnection();
+    }
+
+    public IEnumerator Start()
+    {
 
         //setup function to pick up 
 #if UNITY_WEBGL && !UNITY_EDITOR
             SocketIOJSLib.ListenForClientIdFromServer();
 #endif
-            SetSyncEventListeners();
-            SetChatEventListeners();
+        SetSyncEventListeners();
+        SetChatEventListeners();
 
-            yield return null;
+        yield return null;
 
-            // SendStateCatchUpRequest();
-            createJoinAndStart.RequestClientID();
+        // SendStateCatchUpRequest();
+        createJoinAndStart.RequestClientID();
 
-        }
+    }
 
-        public void GetClient_ID(int clientID)
-        {
+    public void GetClient_ID(int clientID)
+    {
 
-            NetworkUpdateHandler.Instance.client_id = clientID;
-            NetworkUpdateHandler.Instance.session_id = 1;
+        NetworkUpdateHandler.Instance.client_id = clientID;
+        NetworkUpdateHandler.Instance.session_id = 1;
 
-            ClientSpawnManager.Instance.Net_IntantinateClients();
+        ClientSpawnManager.Instance.Net_IntantinateClients();
 
+        //ui name label
+        string nameLabel = NetworkUpdateHandler.Instance.GetPlayerNameFromClientID(clientID);
+        UIManager.Instance.clientTagSetup.CreateTextFromString(nameLabel, clientID, true);
 
-            //JoinSyncSession();
-            //JoinChatSession();
+        MainClientUpdater.Instance.Net_StartSendingPlayerUpdatesToServer();
 
-            // SendStateCatchUpRequest();
+        SocketIOJSLib.RequestAllSessionIdsFromServer();
 
+        NetworkUpdateHandler.Instance.Net_InitSyncLiteners();
 
-            //ui name label
-            string nameLabel = NetworkUpdateHandler.Instance.GetPlayerNameFromClientID(clientID);
-            UIManager.Instance.clientTagSetup.CreateTextFromString(nameLabel, clientID, true);
+        //maybe we didnt receive catch up yet so will fail to get that info
+        SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
 
-
-
-            MainClientUpdater.Instance.Net_StartSendingPlayerUpdatesToServer();
-
-          //  SocketIOJSLib.RequestLobbySessionFromServer();
-
-            SocketIOJSLib.RequestAllSessionIdsFromServer();
-
-            NetworkUpdateHandler.Instance.Net_InitSyncLiteners();
-
-
-            //maybe we didnt receive catch up yet so will fail to get that info
-            SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
-            // SocketIOJSLib.ListenForPageUnload(clientID);
-        }
+        //turn on webrtc
+        ShareMediaConnection.ConnectToWebRTC(nameLabel);
+    }
 
     bool isFirstSession = true;
-        public void EnteredNewSession(string sessionState)
-        {
+    public void EnteredNewSession(string sessionState)
+    {
 
 
-            var state = JsonUtility.FromJson<SessionState>(sessionState);
+        var state = JsonUtility.FromJson<SessionState>(sessionState);
 
-            //LeaveSyncSession();
+        //LeaveSyncSession();
 
-            //LeaveChatSession();
+        //LeaveChatSession();
 
 
-            NetworkUpdateHandler.Instance.session_id = CreateJoinAndStartSession.selectedSession;
-            //ClientSpawnManager.Instance.RemoveAllClients();
+        NetworkUpdateHandler.Instance.session_id = CreateJoinAndStartSession.selectedSession;
+        //ClientSpawnManager.Instance.RemoveAllClients();
 
-            JoinSyncSession();
+        JoinSyncSession();
 
-            JoinChatSession();
+        JoinChatSession();
 
 
 
         ClientSpawnManager.Instance.SendSyncPose();
 
-
-        //   SessionStateManager.Instance.SetSessionState(state);
-
-        //ClientSpawnManager.Instance.RemoveAllClients();
-
-        // SessionStateManager.Instance.ApplyCatchup();
 
         //only do catchup after 
         if (!isFirstSession)
@@ -145,411 +143,404 @@ using Newtonsoft.Json.Linq;
             SendStateCatchUpRequest();
         }
         else
-            isFirstSession= false;
-        
-       
+            isFirstSession = false;
 
 
-            SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
+        SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
 
-        }
+    }
 
 
-        // Set the window.socketIOAdapterName variable in JS so that SendMessage calls in jslib are guaranteed to talk to the gameObject that has this script on it.
-        public void SetName()
-        {
+    // Set the window.socketIOAdapterName variable in JS so that SendMessage calls in jslib are guaranteed to talk to the gameObject that has this script on it.
+    public void SetName()
+    {
 #if !UNITY_EDITOR && UNITY_WEBGL
 
              string nameOnWindow = SocketIOJSLib.SetSocketIOAdapterName(gameObject.name);
 #else
 
-            string nameOnWindow = SocketIOEditorSimulator.Instance.SetSocketIOAdapterName(gameObject.name);
+        string nameOnWindow = SocketIOEditorSimulator.Instance.SetSocketIOAdapterName(gameObject.name);
 #endif
 
-            if (nameOnWindow != gameObject.name)
-            {
-                Debug.LogError($"SocketIOAdapter: window.socketIOAdapterName: Expected: {gameObject.name}, Actual: {nameOnWindow}");
-
-                connectionAdapter.DisplaySocketIOAdapterError($"window.socketIOAdapterName: Expected: {gameObject.name}, Actual: {nameOnWindow}");
-            }
-        }
-
-
-        [System.Serializable]
-        public struct SessionDetails
+        if (nameOnWindow != gameObject.name)
         {
-            public int session_id;
-            public int clientCount;
+            Debug.LogError($"SocketIOAdapter: window.socketIOAdapterName: Expected: {gameObject.name}, Actual: {nameOnWindow}");
+
+            connectionAdapter.DisplaySocketIOAdapterError($"window.socketIOAdapterName: Expected: {gameObject.name}, Actual: {nameOnWindow}");
         }
+    }
 
-        public void UpdateClientCountInSessionText(string sessionText)
-        {
-            Debug.Log(sessionText);
-            var data = JsonUtility.FromJson<SessionDetails>(sessionText);
 
-            NetworkUpdateHandler.Instance.UpdateClientSize(data.session_id, data.clientCount);
 
-        }
 
-        public void OpenConnectionAndJoin()
-        {
-            //OpenSyncConnection();
+    public void UpdateClientCountInSessionText(string sessionText)
+    {
+        Debug.Log(sessionText);
+        var data = JsonUtility.FromJson<SessionDetails>(sessionText);
 
-            //OpenChatConnection();
+        NetworkUpdateHandler.Instance.UpdateClientSize(data.session_id, data.clientCount);
 
-            //SetSyncEventListeners();
+    }
 
-            //SetChatEventListeners();
+    public void OpenConnectionAndJoin()
+    {
+        //OpenSyncConnection();
 
-            //JoinSyncSession();
+        //OpenChatConnection();
 
-            //JoinChatSession();
+        //SetSyncEventListeners();
 
-            //SendStateCatchUpRequest();
+        //SetChatEventListeners();
 
-            //EnableVRButton();
-        }
+        //JoinSyncSession();
 
-        public void Leave()
-        {
-            LeaveSyncSession();
+        //JoinChatSession();
 
-            LeaveChatSession();
-        }
+        //SendStateCatchUpRequest();
 
-        public void LeaveAndCloseConnection()
-        {
-            LeaveSyncSession();
+        //EnableVRButton();
+    }
 
-            LeaveChatSession();
+    public void Leave()
+    {
+        LeaveSyncSession();
 
-            ClientSpawnManager.Instance.RemoveAllClients();
+        LeaveChatSession();
+    }
 
-            CloseSyncConnection();
+    public void LeaveAndCloseConnection()
+    {
+        LeaveSyncSession();
 
-            CloseChatConnection();
-        }
+        LeaveChatSession();
 
-        public void LeaveAndRejoin()
-        {
-            LeaveSyncSession();
+        ClientSpawnManager.Instance.RemoveAllClients();
 
-            LeaveChatSession();
+        CloseSyncConnection();
 
-            ClientSpawnManager.Instance.RemoveAllClients();
+        CloseChatConnection();
+    }
 
-            JoinSyncSession();
+    public void LeaveAndRejoin()
+    {
+        LeaveSyncSession();
 
-            JoinChatSession();
+        LeaveChatSession();
 
-            SendStateCatchUpRequest();
+        ClientSpawnManager.Instance.RemoveAllClients();
 
-            EnableVRButton();
-        }
+        JoinSyncSession();
 
-        public void CloseConnectionAndRejoin()
-        {
-            LeaveSyncSession();
+        JoinChatSession();
 
-            LeaveChatSession();
+        SendStateCatchUpRequest();
 
-            ClientSpawnManager.Instance.RemoveAllClients();
+        EnableVRButton();
+    }
 
-            CloseSyncConnection();
+    public void CloseConnectionAndRejoin()
+    {
+        LeaveSyncSession();
 
-            CloseChatConnection();
+        LeaveChatSession();
 
-            OpenSyncConnection();
+        ClientSpawnManager.Instance.RemoveAllClients();
 
-            OpenChatConnection();
+        CloseSyncConnection();
 
-            SetSyncEventListeners();
+        CloseChatConnection();
 
-            SetChatEventListeners();
+        OpenSyncConnection();
 
-            JoinSyncSession();
+        OpenChatConnection();
 
-            JoinChatSession();
+        SetSyncEventListeners();
 
-            SendStateCatchUpRequest();
+        SetChatEventListeners();
 
-            EnableVRButton();
-        }
+        JoinSyncSession();
 
-        public void OpenSyncConnection()
-        {
-            int result;
+        JoinChatSession();
+
+        SendStateCatchUpRequest();
+
+        EnableVRButton();
+    }
+
+    public void OpenSyncConnection()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.OpenSyncConnection();
 #else
-            result = -1;//socketSim.OpenSyncConnection();
+        result = -1;//socketSim.OpenSyncConnection();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("OpenSyncConnection failed.");
-            // }
-        }
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("OpenSyncConnection failed.");
+        // }
+    }
 
-        public void OpenChatConnection()
-        {
-            int result;
+    public void OpenChatConnection()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.OpenChatConnection();
 #else
-            //            result = socketSim.OpenChatConnection();
+        //            result = socketSim.OpenChatConnection();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("OpenChatConnection failed.");
-            // }
-        }
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("OpenChatConnection failed.");
+        // }
+    }
 
-        public void SetSyncEventListeners()
-        {
-            int result;
+    public void SetSyncEventListeners()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.SetSyncEventListeners();
 #else
-            //            result = socketSim.SetSyncEventListeners();
+        //            result = socketSim.SetSyncEventListeners();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("SetSyncEventListeners failed.");
-            // }
-        }
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("SetSyncEventListeners failed.");
+        // }
+    }
 
-        public void SetChatEventListeners()
-        {
-            int result;
+    public void SetChatEventListeners()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.SetChatEventListeners();
 #else
-            //        result = socketSim.SetChatEventListeners();
+        //        result = socketSim.SetChatEventListeners();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("SetChatEventListeners failed.");
-            // }
-        }
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("SetChatEventListeners failed.");
+        // }
+    }
 
-        public void JoinSyncSession()
-        {
-            int result;
+    public void JoinSyncSession()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.JoinSyncSession(NetworkUpdateHandler.Instance.session_id);
 #else
-            //            result = socketSim.JoinSyncSession();
+        //            result = socketSim.JoinSyncSession();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("JoinSyncSession failed.");
-            // }
-        }
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("JoinSyncSession failed.");
+        // }
+    }
 
-        public void JoinChatSession()
-        {
-            int result;
+    public void JoinChatSession()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.JoinChatSession(NetworkUpdateHandler.Instance.session_id);
 #else
-            //            result = socketSim.JoinChatSession();
+        //            result = socketSim.JoinChatSession();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("JoinChatSession failed.");
-            // }
-        }
-        public void LeaveSyncSession()
-        {
-            int result;
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("JoinChatSession failed.");
+        // }
+    }
+    public void LeaveSyncSession()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.LeaveSyncSession();
 #else
-            //            result = socketSim.LeaveSyncSession();
+        //            result = socketSim.LeaveSyncSession();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("LeaveSyncSession failed.");
-            // }
-        }
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("LeaveSyncSession failed.");
+        // }
+    }
 
-        public void LeaveChatSession()
-        {
-            int result;
+    public void LeaveChatSession()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.LeaveChatSession();
 #else
-            //            result = socketSim.LeaveChatSession();
+        //            result = socketSim.LeaveChatSession();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("LeaveChatSession failed.");
-            // }
-        }
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("LeaveChatSession failed.");
+        // }
+    }
 
-        public void SendStateCatchUpRequest()
-        {
-            int result;
+    public void SendStateCatchUpRequest()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.SendStateCatchUpRequest();
 #else
-            //   result = socketSim.SendStateCatchUpRequest();
+        //   result = socketSim.SendStateCatchUpRequest();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("SendStateCatchUpRequest failed.");
-            // }
-        }
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("SendStateCatchUpRequest failed.");
+        // }
+    }
 
-        public void EnableVRButton()
-        {
-            int result;
+    public void EnableVRButton()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.EnableVRButton();
 #else
-            //result = socketSim.EnableVRButton();
+        //result = socketSim.EnableVRButton();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("EnableVRButton failed.");
-            // }
-        }
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("EnableVRButton failed.");
+        // }
+    }
 
-        public void CloseSyncConnection()
-        {
-            int result;
+    public void CloseSyncConnection()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.CloseSyncConnection();
 #else
-            //            result = socketSim.CloseSyncConnection();
+        //            result = socketSim.CloseSyncConnection();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("CloseSyncConnection failed.");
-            // }
-        }
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("CloseSyncConnection failed.");
+        // }
+    }
 
-        public void CloseChatConnection()
-        {
-            int result;
+    public void CloseChatConnection()
+    {
+        int result;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
              result = SocketIOJSLib.CloseChatConnection();
 #else
-            //            result = socketSim.CloseChatConnection();
+        //            result = socketSim.CloseChatConnection();
 #endif
-            // if (result != SocketIOJSLib.SUCCESS)
-            // {
-            //     connectionAdapter.DisplaySocketIOAdapterError("CloseChatConnection failed.");
-            // }
-        }
+        // if (result != SocketIOJSLib.SUCCESS)
+        // {
+        //     connectionAdapter.DisplaySocketIOAdapterError("CloseChatConnection failed.");
+        // }
+    }
 
-        public void OnConnect(string socketId)
-        {
-            connectionAdapter.SetSocketID(socketId);
+    public void OnConnect(string socketId)
+    {
+        connectionAdapter.SetSocketID(socketId);
 
-            connectionAdapter.DisplayConnected();
-        }
+        connectionAdapter.DisplayConnected();
+    }
 
-        public void OnServerName(string serverName)
-        {
-            connectionAdapter.SetServerName(serverName);
+    public void OnServerName(string serverName)
+    {
+        connectionAdapter.SetServerName(serverName);
 
-            connectionAdapter.DisplayConnected();
-        }
+        connectionAdapter.DisplayConnected();
+    }
 
-        public struct DisconectData
-        {
-            public string reason;
-            public int clientID;
-        }
-        public void OnDisconnect(string data)//reason)
-        {
-            //var disconnecteddata = JsonUtility.FromJson<DisconectData>(data);
+    public struct DisconectData
+    {
+        public string reason;
+        public int clientID;
+    }
+    public void OnDisconnect(string data)//reason)
+    {
+        //var disconnecteddata = JsonUtility.FromJson<DisconectData>(data);
 
-            //ClientSpawnManager.Instance.RemoveClient(disconnecteddata.clientID);
-            connectionAdapter.DisplayDisconnect(data);
-        }
+        //ClientSpawnManager.Instance.RemoveClient(disconnecteddata.clientID);
+        connectionAdapter.DisplayDisconnect(data);
+    }
 
-        public void OnError(string error)
-        {
-            connectionAdapter.SetError(error);
-        }
+    public void OnError(string error)
+    {
+        connectionAdapter.SetError(error);
+    }
 
-        public void OnConnectError(string error)
-        {
-            connectionAdapter.DisplayConnectError(error);
-        }
+    public void OnConnectError(string error)
+    {
+        connectionAdapter.DisplayConnectError(error);
+    }
 
-        public void OnConnectTimeout()
-        {
-            connectionAdapter.DisplayConnectTimeout();
-        }
+    public void OnConnectTimeout()
+    {
+        connectionAdapter.DisplayConnectTimeout();
+    }
 
-        public void OnReconnectSucceeded()
-        {
-            connectionAdapter.DisplayReconnectSucceeded();
-        }
+    public void OnReconnectSucceeded()
+    {
+        connectionAdapter.DisplayReconnectSucceeded();
+    }
 
-        public void OnReconnectAttempt(string packedString)
-        {
-            string[] unpackedString = packedString.Split(',');
+    public void OnReconnectAttempt(string packedString)
+    {
+        string[] unpackedString = packedString.Split(',');
 
-            string socketId = unpackedString[0];
+        string socketId = unpackedString[0];
 
-            string attemptNumber = unpackedString[1];
+        string attemptNumber = unpackedString[1];
 
-            connectionAdapter.DisplayReconnectAttempt(socketId, attemptNumber);
-        }
+        connectionAdapter.DisplayReconnectAttempt(socketId, attemptNumber);
+    }
 
-        public void OnReconnectError(string error)
-        {
-            connectionAdapter.DisplayReconnectError(error);
-        }
+    public void OnReconnectError(string error)
+    {
+        connectionAdapter.DisplayReconnectError(error);
+    }
 
-        public void OnReconnectFailed()
-        {
-            connectionAdapter.DisplayReconnectFailed();
-        }
+    public void OnReconnectFailed()
+    {
+        connectionAdapter.DisplayReconnectFailed();
+    }
 
-        public void OnPing()
-        {
-            connectionAdapter.DisplayPing();
-        }
+    public void OnPing()
+    {
+        connectionAdapter.DisplayPing();
+    }
 
-        public void OnPong(int latency)
-        {
-            connectionAdapter.DisplayPong(latency);
-        }
+    public void OnPong(int latency)
+    {
+        connectionAdapter.DisplayPong(latency);
+    }
 
-        public void OnSessionInfo(string info)
-        {
-            connectionAdapter.DisplaySessionInfo(info);
-        }
+    public void OnSessionInfo(string info)
+    {
+        connectionAdapter.DisplaySessionInfo(info);
+    }
 
 
-        public void OnReceiveSessionGUIDs(string packedData)
-        {
+    public void OnReceiveSessionGUIDs(string packedData)
+    {
         if (string.IsNullOrEmpty(packedData) || packedData == "{}")
             return;
 
-          var guidsInfo = JsonConvert.DeserializeObject<Dictionary<int, int>>(packedData);
+        var guidsInfo = JsonConvert.DeserializeObject<Dictionary<int, int>>(packedData);
 
-          SessionStateManager.Instance.ReceiveGUIDsFromServer(guidsInfo);
+        SessionStateManager.Instance.ReceiveGUIDsFromServer(guidsInfo);
 
 
-        }
+    }
 
     public void OnReceiveDrawStrokeFromStorage(string packedData)
     {
@@ -575,7 +566,7 @@ using Newtonsoft.Json.Linq;
         //   public Dictionary<int, int> guidsInSceneDictionary = new Dictionary<int, int>();
         var drawData = JsonConvert.DeserializeObject<DrawEntityState>(packedData);
 
-        
+
         //cache it in indexdb
         StorageJSLib.setItem(drawData.guid.ToString(), packedData);
 
@@ -600,120 +591,119 @@ using Newtonsoft.Json.Linq;
 
 
     public bool isFirstCatchup;
-        public void OnReceiveStateCatchup(string packedData)
+    public void OnReceiveStateCatchup(string packedData)
+    {
+        ClientSpawnManager.Instance.RemoveAllClients();
+
+        var state = JsonConvert.DeserializeObject<SessionState>(packedData);//JsonUtility.FromJson<SessionState>(packedData);
+
+        SessionStateManager.Instance.SetSessionState(state);
+
+        StartCoroutine(SessionStateManager.Instance.ApplyCatchup());
+
+        SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
+
+
+        if (!isFirstCatchup)
         {
-            ClientSpawnManager.Instance.RemoveAllClients();
-
-             var state = JsonConvert.DeserializeObject<SessionState>(packedData);//JsonUtility.FromJson<SessionState>(packedData);
-
-            SessionStateManager.Instance.SetSessionState(state);
-
-           StartCoroutine(  SessionStateManager.Instance.ApplyCatchup());
-
-            SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
-
-
-            if (!isFirstCatchup)
-            {
-                ClientSpawnManager.Instance.AddOwnClient(state.clients);
-                isFirstCatchup = true;
-            }
+            ClientSpawnManager.Instance.AddOwnClient(state.clients);
+            isFirstCatchup = true;
         }
+    }
 
-        public void OnClientJoined(int client_id)
-        {
-            ClientSpawnManager.Instance.AddNewClient2(client_id);
+    public void OnClientJoined(int client_id)
+    {
+        ClientSpawnManager.Instance.AddNewClient2(client_id);
 
-            connectionAdapter.DisplayOtherClientJoined(client_id);
-        }
+        connectionAdapter.DisplayOtherClientJoined(client_id);
+    }
 
-        public void OnOwnClientJoined(int session_id)
-        {
-            connectionAdapter.SetSessionName(session_id);
+    public void OnOwnClientJoined(int session_id)
+    {
+        connectionAdapter.SetSessionName(session_id);
 
-            connectionAdapter.DisplayOwnClientJoined(session_id);
+        connectionAdapter.DisplayOwnClientJoined(session_id);
 
-            ClientSpawnManager.Instance.DisplayOwnClientIsConnected();
-        }
+        ClientSpawnManager.Instance.DisplayOwnClientIsConnected();
+    }
 
-        public void OnFailedToJoin(int session_id)
-        {
-            connectionAdapter.DisplayFailedToJoin(session_id);
+    public void OnFailedToJoin(int session_id)
+    {
+        connectionAdapter.DisplayFailedToJoin(session_id);
 
-            ClientSpawnManager.Instance.DisplayOwnClientIsDisconnected();
-        }
+        ClientSpawnManager.Instance.DisplayOwnClientIsDisconnected();
+    }
 
-        public void OnOtherClientJoined(int client_id)
-        {
-         //   SendStateCatchUpRequest();
-            //   Debug.Log($"OTHER CLIENT JOIN({client_id})");
-              ClientSpawnManager.Instance.AddNewClient(client_id);
-        }
+    public void OnOtherClientJoined(int client_id)
+    {
+        //   SendStateCatchUpRequest();
+        //   Debug.Log($"OTHER CLIENT JOIN({client_id})");
+        ClientSpawnManager.Instance.AddNewClient(client_id);
+    }
 
-        public void OnOtherClientLeft(int client_id)
-        {
-            Debug.Log($"OTHER CLIENT LEFT({client_id})");
-            ClientSpawnManager.Instance.RemoveClient(client_id);
-        }
+    public void OnOtherClientLeft(int client_id)
+    {
+        Debug.Log($"OTHER CLIENT LEFT({client_id})");
+        ClientSpawnManager.Instance.RemoveClient(client_id);
+    }
 
-        public void OnOwnClientLeft(int session_id)
-        {
-            connectionAdapter.SetSessionName(session_id);
+    public void OnOwnClientLeft(int session_id)
+    {
+        connectionAdapter.SetSessionName(session_id);
 
-            connectionAdapter.DisplayOwnClientLeft(session_id);
+        connectionAdapter.DisplayOwnClientLeft(session_id);
 
-            ClientSpawnManager.Instance.DisplayOwnClientIsDisconnected();
-        }
+        ClientSpawnManager.Instance.DisplayOwnClientIsDisconnected();
+    }
 
-        public void OnFailedToLeave(int session_id)
-        {
-            Debug.Log($"OnFaildToLeave{session_id}");
-            connectionAdapter.DisplayFailedToLeave(session_id);
+    public void OnFailedToLeave(int session_id)
+    {
+        Debug.Log($"OnFaildToLeave{session_id}");
+        connectionAdapter.DisplayFailedToLeave(session_id);
 
-            ClientSpawnManager.Instance.DisplayOwnClientIsConnected();
-        }
+        ClientSpawnManager.Instance.DisplayOwnClientIsConnected();
+    }
 
-        public void OnOwnClientDisconnected(int client_id)
-        {
-            // Don't do anything for now, because in theory we should not hear about a client disconnecting after it has left the session.
-            Debug.Log($"OnOwnClientDisconnected({client_id})");
-        }
+    public void OnOwnClientDisconnected(int client_id)
+    {
+        // Don't do anything for now, because in theory we should not hear about a client disconnecting after it has left the session.
+        Debug.Log($"OnOwnClientDisconnected({client_id})");
+    }
 
-        public void OnOtherClientDisconnected(int client_id)
-        {
-            Debug.Log($"OTHER DISCONECTED({client_id})");
-            connectionAdapter.DisplayOtherClientDisconnected(client_id);
+    public void OnOtherClientDisconnected(int client_id)
+    {
+        Debug.Log($"OTHER DISCONECTED({client_id})");
+        connectionAdapter.DisplayOtherClientDisconnected(client_id);
 
-            ClientSpawnManager.Instance.RemoveClient(client_id);
-        }
+        ClientSpawnManager.Instance.RemoveClient(client_id);
+    }
 
-        public void OnMessage(string typeAndMessage)
-        {
-            // Debug.Log("Receiving Messages");
-            netUpdateHandler.ProcessMessage(typeAndMessage);
-        }
+    public void OnMessage(string typeAndMessage)
+    {
+        // Debug.Log("Receiving Messages");
+        netUpdateHandler.ProcessMessage(typeAndMessage);
+    }
 
-        public void OnSendMessageFailed(string reason)
-        {
-            connectionAdapter.DisplaySendMessageFailed(reason);
-        }
+    public void OnSendMessageFailed(string reason)
+    {
+        connectionAdapter.DisplaySendMessageFailed(reason);
+    }
 
-        public void Get_UUID(int uuid)
-        {
+    public void Get_UUID(int uuid)
+    {
+        var net_Obj = NetworkedObjectsManager.Instance.net_GO_pendingRegistrationList.Dequeue();
+        net_Obj.Register(uuid);
+        Debug.Log(uuid);
 
+    }
 
-           var net_Obj =  NetworkedObjectsManager.Instance.net_GO_pendingRegistrationList.Dequeue();
-            net_Obj.Register(uuid);
-            Debug.Log(uuid);
+    public void ReceiveClientCall(int id)
+    {
 
-        }
+        UIManager.Instance.clientTagSetup.ReceivedCall(id);
+    }
 
-        [System.Serializable]
-        public struct ClientData
-        {
-            public int id;
-            public string name;
-        }
+      
 
         public void ReceiveClientInSessionNames(string clientNames)
         {

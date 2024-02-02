@@ -100,8 +100,6 @@ using Komodo.Utilities;
                 buttonIndex = importIndex;
 
 
-
-
 //            //set custom id if we are not given a specified id when instantiating this network associated object
             int EntityID = (uniqueEntityID == -1) ? NetworkedObjectsManager.Instance.GenerateUniqueEntityID() : uniqueEntityID;
 
