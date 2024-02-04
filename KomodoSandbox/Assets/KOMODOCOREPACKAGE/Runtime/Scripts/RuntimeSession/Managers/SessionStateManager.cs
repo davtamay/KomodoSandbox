@@ -412,10 +412,10 @@ public class SessionStateManager : SingletonComponent<SessionStateManager>
 
 
             //update main list for client;
-            if (NetworkUpdateHandler.Instance.clientIDToName.ContainsKey(item.Key))
-                NetworkUpdateHandler.Instance.clientIDToName[item.Key] = item.Value;
+            if (ClientSpawnManager.Instance.usernameFromClientId.ContainsKey(item.Key))
+                ClientSpawnManager.Instance.usernameFromClientId[item.Key] = item.Value;
             else
-                NetworkUpdateHandler.Instance.clientIDToName.Add(item.Key, item.Value);
+                ClientSpawnManager.Instance.usernameFromClientId.Add(item.Key, item.Value);
 
 
             ClientSpawnManager.Instance.ProcessSpeechToTextSnippet(snippet);

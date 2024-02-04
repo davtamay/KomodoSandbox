@@ -132,7 +132,7 @@ public struct ToggleState
 
 
     public GameObject mainMenu;
-    public GameObject shareMenu;
+   // public GameObject shareMenu;
 
         public void Awake()
         {

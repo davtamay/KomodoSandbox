@@ -1,5 +1,7 @@
 
 using Komodo.Utilities;
+using NUnit.Framework;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using TMPro;
 using UnityEngine;
@@ -53,13 +55,15 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     [DllImport("__Internal")]
     public static extern void ShareScreen(int value);
 
+
+
     [DllImport("__Internal")]
     public static extern void SetMicrophone();
 
     [DllImport("__Internal")]
     public static extern void SetVideo();
    
-
+    public List<Transform> videoTransformList = new List<Transform>();
     public void ToggleMicrophone(bool value)
     {
         SetMicrophone();
@@ -89,6 +93,32 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     public void Start()
     {
         GlobalMessageManager.Instance.Subscribe("chat", (str) => ReceiveChatUpdate(str));
+
+        foreach (var item in videoTransformList)
+        {
+            var references = item.GetComponentInChildren<WebRTCVideoReferences>(true);
+            references.hangUpButton.onClick.AddListener(() =>
+            {
+                Hangup();
+            });
+
+            references.micMuteToggle.onValueChanged.AddListener((val) =>
+            {
+                ToggleMicrophone(val);
+            });
+
+            references.showVideoFeedToggle.onValueChanged.AddListener((val) =>
+            {
+                ToggleVideo(val);
+            });
+
+            references.shareScreenToggle.onValueChanged.AddListener((val) =>
+            {
+                ShareScreenToggle(val);
+            });
+
+            
+        }
 
       //  ShareCameraClientButton.onClick.AddListener(delegate { InvokeMediaShare(); });
     }
@@ -157,7 +187,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         snippet.stringType = (int)STRINGTYPE.SPEECH_TO_TEXT;
         ClientSpawnManager.Instance.ProcessSpeechToTextSnippet(snippet);
 
-        string clientName = NetworkUpdateHandler.Instance.GetPlayerNameFromClientID(deserializedData.client_id);
+        string clientName = ClientSpawnManager.Instance.GetPlayerNameFromClientID(deserializedData.client_id);
         CreateNewText(clientName, deserializedData.text);
 
     }

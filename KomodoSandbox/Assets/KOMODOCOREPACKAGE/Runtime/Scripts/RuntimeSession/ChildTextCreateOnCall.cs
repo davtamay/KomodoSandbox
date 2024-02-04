@@ -80,18 +80,25 @@ public class ChildTextCreateOnCall : MonoBehaviour
 
             references.MakeCallButton.onClick.AddListener(() =>
             {
-                Debug.Log($"Calling client:{ clientID}");
-                ShareMediaConnection.CallClient(ClientSpawnManager.Instance.GetUsername(clientID));
+                string name = ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID);
+            //    Debug.Log($"Calling Client:{ clientID}");
+                Debug.Log("GET PLAYER FROM ID : " + name);
+                ShareMediaConnection.CallClient(name);
 
             });
             references.AcceptCallButton.onClick.AddListener(() =>
             {
 
-                ShareMediaConnection.AnswerClientOffer(ClientSpawnManager.Instance.GetUsername(clientID));
+                ShareMediaConnection.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID));
             });
 
+            references.cancelCall.onClick.AddListener(() =>
+            {
 
+                ShareMediaConnection.Instance.Hangup();
 
+            });
+          
 
 
             newObj.transform.SetParent(transformToAddTextUnder, false);
@@ -127,9 +134,10 @@ public class ChildTextCreateOnCall : MonoBehaviour
 
     public void ReceivedCall(int fromClientID)
     {
-        string nameOfClient = ClientSpawnManager.Instance.GetUsername(fromClientID);
+        string nameOfClient = ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID);
 
         customReceiveText.text = $"Receiving Call From: \n {nameOfClient} ";
+
 
         CallReceivePanel.SetActive(true);
 
@@ -164,6 +172,17 @@ public class ChildTextCreateOnCall : MonoBehaviour
     }
 
 
+    public void ReceivedOfferAnswer(int fromClientID)
+    {
+        Debug.Log("RECEIVEDOFFER FROM ANSWER");
+        CallReceivePanel.SetActive(false);
+        ShareMediaConnection.Instance.videoTransformList[0].gameObject.SetActive(true);
+    }
+    public void EndCall(string roomName)
+    {
+        Debug.Log("ENDED CALL FOR ROOMNAME");
+        ShareMediaConnection.Instance.videoTransformList[0].gameObject.SetActive(false);
+    }
 
 
 

@@ -463,33 +463,33 @@ using TMPro;
             _Tick();
         }
 
-        public Dictionary<int, string> clientIDToName = new Dictionary<int, string>();
-        public string GetPlayerNameFromClientID(int clientID)
-        {
-            if(clientIDToName.ContainsKey(clientID))
-                return clientIDToName[clientID];
-            else
-                return "Client " + clientID;
+       // public Dictionary<int, string> clientIDToName = new Dictionary<int, string>();
+        //public string GetPlayerNameFromClientID(int clientID)
+        //{
+        //    if(ClientSpawnManager.Instance.usernameFromClientId.ContainsKey(clientID))
+        //        return ClientSpawnManager.Instance.usernameFromClientId[clientID];
+        //    else
+        //        return "Client " + clientID;
 
-            // #if UNITY_WEBGL && !UNITY_EDITOR 
-            //             string SessionDetailsString = SocketIOJSLib.GetSessionDetails();
-            // #else
-            //             string SessionDetailsString = SocketIOEditorSimulator.GetSessionDetails();
-            // #endif
-            //             var Details = JsonUtility.FromJson<SessionDetails>(SessionDetailsString);
+        //    // #if UNITY_WEBGL && !UNITY_EDITOR 
+        //    //             string SessionDetailsString = SocketIOJSLib.GetSessionDetails();
+        //    // #else
+        //    //             string SessionDetailsString = SocketIOEditorSimulator.GetSessionDetails();
+        //    // #endif
+        //    //             var Details = JsonUtility.FromJson<SessionDetails>(SessionDetailsString);
 
-            //             foreach (User user in Details.users)
-            //             {
-            //                 if (clientID != user.student_id)
-            //                 {
-            //                     continue;
-            //                 }
+        //    //             foreach (User user in Details.users)
+        //    //             {
+        //    //                 if (clientID != user.student_id)
+        //    //                 {
+        //    //                     continue;
+        //    //                 }
 
-            //                 return user.first_name + "  " + user.last_name;
-            //             }
+        //    //                 return user.first_name + "  " + user.last_name;
+        //    //             }
 
-        //    return "Client " + clientID;
-        }
+        ////    return "Client " + clientID;
+        //}
 
         // Use the inspector to call this method.
         [ContextMenu("TestProcessMessage")]

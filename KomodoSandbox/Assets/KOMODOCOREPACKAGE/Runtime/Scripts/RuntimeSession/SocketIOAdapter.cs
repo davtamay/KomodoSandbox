@@ -97,7 +97,7 @@ public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
         ClientSpawnManager.Instance.Net_IntantinateClients();
 
         //ui name label
-        string nameLabel = NetworkUpdateHandler.Instance.GetPlayerNameFromClientID(clientID);
+        string nameLabel = ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID);
         UIManager.Instance.clientTagSetup.CreateTextFromString(nameLabel, clientID, true);
 
         MainClientUpdater.Instance.Net_StartSendingPlayerUpdatesToServer();
@@ -703,9 +703,20 @@ public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
         UIManager.Instance.clientTagSetup.ReceivedCall(id);
     }
 
-      
+    public void ReceiveClientAnswer(int id)
+    {
 
-        public void ReceiveClientInSessionNames(string clientNames)
+        UIManager.Instance.clientTagSetup.ReceivedOfferAnswer(id);
+    }
+    public void ReceiveCallEnded(string roomName)
+    {
+
+        UIManager.Instance.clientTagSetup.EndCall(roomName);
+    }
+
+
+
+    public void ReceiveClientInSessionNames(string clientNames)
         {
             //    Debug.Log(clientNames);
             SessionStateManager.Instance.ApplyNamesForClientsInSession(clientNames);
@@ -760,6 +771,8 @@ public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
             snippet.target = data.id;
             snippet.text = data.name;
             snippet.stringType = (int)STRINGTYPE.CLIENT_NAME;
+
+        Debug.Log("ReceivedOtherClientInfo : " + data.name);
 
 
             ClientSpawnManager.Instance.ProcessSpeechToTextSnippet(snippet);

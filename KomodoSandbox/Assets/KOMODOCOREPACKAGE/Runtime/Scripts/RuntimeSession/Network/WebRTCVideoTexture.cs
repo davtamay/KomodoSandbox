@@ -43,9 +43,9 @@ public class WebRTCVideoTexture : MonoBehaviour
         int width = int.Parse(dims[0]);
         int height = int.Parse(dims[1]);
 
-       //transform.localScale = new Vector3(-width * 0.0001f,1, height * 0.0001f);
+        //transform.localScale = new Vector3(-width * 0.0001f,1, height * 0.0001f);
 
-        GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
+        rawImageToAssign.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
 
         Debug.Log($"Dimensions w: {-width} +  h: {height}");
 

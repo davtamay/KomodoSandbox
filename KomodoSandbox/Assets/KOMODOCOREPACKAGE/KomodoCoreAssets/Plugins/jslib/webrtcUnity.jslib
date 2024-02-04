@@ -7,7 +7,7 @@
           console.log(clientName + " is connecting to WebRTC.");
           console.log(UTF8ToString(clientName) + "utf8 is connecting to WebRTC.");
           
-          ConnectToWebRTCSocket(window.client_id, UTF8ToString(clientName));
+          ConnectToWebRTCSocket( UTF8ToString(clientName));
         //window.sync.emit('connectToWebRTC', window.client_id, clientName);
      },
 
@@ -26,7 +26,7 @@
      },
 
        HangUpClient: function() {
-         endCall();
+         endCall(1);
         // hangUp(UTF8ToString(userName));
        },
 

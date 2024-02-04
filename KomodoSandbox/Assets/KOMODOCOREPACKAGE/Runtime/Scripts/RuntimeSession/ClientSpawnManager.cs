@@ -111,7 +111,7 @@ public class ClientSpawnManager : SingletonComponent<ClientSpawnManager>
 
     //To have a reference to client Avatar, name and hand animator components 
     private Dictionary<int, int> avatarIndexFromClientId = new Dictionary<int, int>();
-    private Dictionary<int, string> usernameFromClientId = new Dictionary<int, string>();
+    public Dictionary<int, string> usernameFromClientId = new Dictionary<int, string>();
     public Dictionary<int, Animator> animatorFromClientId = new Dictionary<int, Animator>();
 
     private string mainClientName = "Unset Name";
@@ -244,21 +244,6 @@ public class ClientSpawnManager : SingletonComponent<ClientSpawnManager>
         return result;
     }
 
-    public string GetUsername(int clientId)
-    {
-        string result;
-
-        bool success = usernameFromClientId.TryGetValue(clientId, out result);
-
-        if (!success)
-        {
-            Debug.LogWarning($"Value was not found in client's usernames dictionary for key {clientId}.");
-            result = string.Empty;
-           // throw new System.Exception($"Value was not found in client's usernames dictionary for key {clientId}.");
-        }
-
-        return result;
-    }
 
     public Animator GetAnimator(int clientId)
     {
@@ -438,7 +423,7 @@ public class ClientSpawnManager : SingletonComponent<ClientSpawnManager>
 
         clientIDs.Add(clientID);
 
-        string nameLabel = NetworkUpdateHandler.Instance.GetPlayerNameFromClientID(clientID);
+        string nameLabel =  GetPlayerNameFromClientID(clientID);
 
         // Skip avatars that are already on, and your own client's spot. We need this loop because 
         // if someone in the middle of the list disconnected, we should reuse their avatar index.
@@ -518,7 +503,7 @@ public class ClientSpawnManager : SingletonComponent<ClientSpawnManager>
 
         clientIDs.Add(clientID);
 
-        string nameLabel = NetworkUpdateHandler.Instance.GetPlayerNameFromClientID(clientID);
+        string nameLabel = GetPlayerNameFromClientID(clientID);
 
         if (clientIDs.Count >= clientReserveCount)
         {
@@ -950,10 +935,10 @@ public class ClientSpawnManager : SingletonComponent<ClientSpawnManager>
                 clientUsernameDisplays[clientAvatarIndex].text = newText.text;
 
                 //new 9-13-23
-                if (NetworkUpdateHandler.Instance.clientIDToName.ContainsKey(newText.target))
-                    NetworkUpdateHandler.Instance.clientIDToName[newText.target] = newText.text;
+                if (usernameFromClientId.ContainsKey(newText.target))
+                    usernameFromClientId[newText.target] = newText.text;
                 else
-                    NetworkUpdateHandler.Instance.clientIDToName.Add(newText.target, newText.text);
+                    usernameFromClientId.Add(newText.target, newText.text);
 
 
                 if (clientUsernameMenuDisplay.ContainsKey(newText.target))
@@ -1000,7 +985,19 @@ public class ClientSpawnManager : SingletonComponent<ClientSpawnManager>
         }
         return string.Concat(chunks);
     }
+    public string GetPlayerNameFromClientID(int clientID)
+    {
+        if (usernameFromClientId.ContainsKey(clientID))
+            return usernameFromClientId[clientID];
+        else
+        {
+            string name = "Client " + clientID;
+            usernameFromClientId.Add(clientID, name);
+            return name;
+        }
 
+     
+    }
     //to avoid changing text too quickly before being viable
     public IEnumerator SetTextTimer(int textIndex, string textD, float seconds = 5)
     {
