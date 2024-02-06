@@ -49,6 +49,13 @@
          ShareVideoToggle();
        },
 
+       RejectClientOffer: function(clientID) {
+      
+        rejectOffer(clientID);
+      
+       },
+
+
 
 
      SetupWebRTCTexture: function(id) {

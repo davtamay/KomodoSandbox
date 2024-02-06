@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Komodo.Utilities;
 using Newtonsoft.Json;
-using NUnit.Framework.Internal;
-using System.Xml.Linq;
-using Newtonsoft.Json.Linq;
+
 
 //namespace Komodo.Runtime
 //{
@@ -110,7 +108,7 @@ public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
         SocketIOJSLib.RequestClientNames(NetworkUpdateHandler.Instance.session_id);
 
         //turn on webrtc
-        ShareMediaConnection.ConnectToWebRTC(nameLabel);
+        SocketIOJSLib.ConnectToWebRTC(nameLabel);
     }
 
     bool isFirstSession = true;
@@ -636,14 +634,15 @@ public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
 
     public void OnOtherClientJoined(int client_id)
     {
-        //   SendStateCatchUpRequest();
         //   Debug.Log($"OTHER CLIENT JOIN({client_id})");
         ClientSpawnManager.Instance.AddNewClient(client_id);
     }
 
     public void OnOtherClientLeft(int client_id)
     {
+
         Debug.Log($"OTHER CLIENT LEFT({client_id})");
+        ShareMediaConnection.Instance.RemoveClientConnections(client_id);
         ClientSpawnManager.Instance.RemoveClient(client_id);
     }
 
@@ -696,24 +695,18 @@ public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
         Debug.Log(uuid);
 
     }
+    
+    //WEBRTC
 
-    public void ReceiveClientCall(int id)
-    {
 
-        UIManager.Instance.clientTagSetup.ReceivedCall(id);
-    }
+    public void ReceiveClientCall(int id)=>
+        ShareMediaConnection.Instance.ReceivedCall(id);
+    public void ReceiveClientAnswer(int id)=>
+        ShareMediaConnection.Instance.ReceivedOfferAnswer(id);
+    public void ReceiveCallEnded(string roomName)=>
+        ShareMediaConnection.Instance.EndCall(roomName);
 
-    public void ReceiveClientAnswer(int id)
-    {
-
-        UIManager.Instance.clientTagSetup.ReceivedOfferAnswer(id);
-    }
-    public void ReceiveCallEnded(string roomName)
-    {
-
-        UIManager.Instance.clientTagSetup.EndCall(roomName);
-    }
-
+ 
 
 
     public void ReceiveClientInSessionNames(string clientNames)

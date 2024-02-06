@@ -1,5 +1,8 @@
 let localStream;
 let peerConnection;
+
+let peerConnections = new Map();
+
 let socket;
 let isMicrophoneMuted = false; // Tracks the microphone state
 let isVideoShared = true; // Assuming video starts as shared
@@ -49,7 +52,7 @@ let isScreenSharing = false;
 
 //remove this when adding to unity
 // document.addEventListener('DOMContentLoaded', () => {
-//     ConnectToWebRTCSocket(0, "Rob-" + Math.floor(Math.random() * 100000));
+//     ConnectToWebRTCSocket("Rob-" + Math.floor(Math.random() * 100000));
 // });
 
 function ConnectToWebRTCSocket(name) {
@@ -155,22 +158,22 @@ function setupSocketListeners() {
 
     socket.on('clientDisconnected', (userName) => {
         // Handle the call end event
-       // console.log(`clientDisconnected : ${userName}`);
-       // clientDisconnected(userName);
-
        
         
         endCall(0);
     });
 
-    socket.on('acceptClientOffer', (data) => {
-        // Handle the call end event
+    socket.on('acceptClientOffer', (existingOffer, offererClientID) => {
 
+        acceptClientOffer({existingOffer, offererClientID});
+   
+    });
 
-        acceptClientOffer(data.offer, data.isAnswerer);
-    //    addAnswer(offer);
-    //     console.log(`acceptClientOffer : ${offer}`);
-    //     answerOffer(offer);
+    socket.on('rejectedClientOffer', (data) => {
+
+        console.log(`rejectedClientOffer : ${data}`);
+      //  removeOffer(data);
+   
     });
 
 
@@ -179,47 +182,21 @@ function setupSocketListeners() {
 
 }
 
-async function acceptClientOffer(offer, isAnswerer) {
+async function acceptClientOffer(offer) {
 
-    if(!isAnswerer){
-    socket.emit('offerAnswered', offer.offererUserName);
-    await answerOffer(offer);
-    }else{
-        if (window && window.gameInstance && window.socketIOAdapterName)
-        window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientAnswer', data.offererClientID);
-    }
-
-    // if(isAnswerer)
-    // await peerConnection.setLocalDescription(offer);
-
-    // console.log(`acceptClientOffer : ${offer}`);
- 
-    // await answerOffer(offer);
-
-    // Write the answer to the offer
-    // offer.answer = answer;
-
-    // // Add the answered offer
-    // await addAnswer(offer);
+  //  if(!isAnswerer){
+    socket.emit('offerAnswered', offer.existingOffer.offererUserName);
+    socket.emit('offerAnswered', offer.existingOffer.answererUserName);
+    await answerOffer(offer.existingOffer);
+    // }else{
+    // }
+    
+    //if(offer.isAnswerer)
+    if (window && window.gameInstance && window.socketIOAdapterName)
+    window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientAnswer', offer.offererClientID);
+    
 }
-// function addClientElement(userName) {
 
-
-//     // Proceed with the rest of the function
-//     const clientsEl = document.getElementById('clients');
-//     if (clientsEl) {
-
-//                 const newClientEl = document.createElement('div');
-//                 newClientEl.innerHTML = `<button id=call-${userName} style="position: relative; z-index: 1000;" class="btn btn-success col-1">Call ${userName}</button>`;
-//                 newClientEl.addEventListener('click', () => {
-//                     call(client);
-//                 });
-//                 clientsEl.appendChild(newClientEl);
-
-//     } else {
-//         console.error('Element with ID "clients" not found');
-//     }
-// }
 
 
 function updateClientElements(clients) {
@@ -318,7 +295,7 @@ if(isCaller){
 }
 
     if (peerConnection) {
-        peerConnection.close();
+      //  peerConnection.close();
         //peerConnection = null;
         localStream.getTracks().forEach(track => track.stop());
 
@@ -330,41 +307,30 @@ if(isCaller){
 //    remove
 }
 
-// function endAllConnections() {
-
-//    // isInCall = false;
-//     clientsInCall.forEach(name => {
-//         document.getElementById(`call-${name}`).style.display = 'block';
-
-
-
-//      });
-
-//     if (peerConnection) {
-//         peerConnection.close();
-//        // peerConnection = null;
-//         localStream.getTracks().forEach(track => track.stop());
-
-//         clientsInCall = [];
-
-//         // Reset the room name
-//         roomName = null;
-//     }
-
-// }
 
 function clientDisconnected(userName) {
-
-        // if(!isInCall)
-        // return;
-        
+    
         console.log(`clientDisconnected : ${clientsInCall}`);
-
-   
+ 
         endCall(0);
-
-
 }
+
+function rejectOffer(clientID) {
+    // Construct a rejection message
+    const rejectionMessage = {
+        type: 'offer-rejection',
+      //  offererUserName: offererUserName,
+       // offererSocketID: offererSocketID,
+        offererClientID: clientID,
+        answererUserName: userName,
+        reason: 'Busy' // Optional, you can provide a reason
+    };
+
+    // Send the rejection message to the signaling server
+    socket.emit('requestRejectOffer', rejectionMessage);
+}
+
+
 
 
 
@@ -410,7 +376,8 @@ if (answerEl) {
 
 async function answerOffer(offer) {
     await fetchUserMedia();
-    await createPeerConnection(offer);
+    await createPeerConnection( offer);
+
     const answer = await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
 
@@ -427,6 +394,46 @@ async function answerOffer(offer) {
    // return answer;
 }
 
+// async function answerOffer(offer) {
+//     const peerId = offer.offererUserName; // Identifier for the peer who sent the offer
+
+//     await fetchUserMedia();
+
+//     // Ensure we have a peer connection for the offer sender; create if necessary
+//     if (!peerConnections.has(peerId)) {
+//         await createPeerConnection(peerId, offer);
+//     }
+
+//     const peerConnection = peerConnections.get(peerId);
+
+//     // Create and set the local description with an answer
+//     const answer = await peerConnection.createAnswer();
+//     await peerConnection.setLocalDescription(answer);
+
+//     // Prepare the answer in the format expected by the signaling server
+//     const answerPayload = {
+//         offererUserName: offer.offererUserName, // Who made the offer
+//         answererUserName: userName, // Our identifier
+//         answer: answer // The answer created above
+//     };
+
+//     // Send the answer back through the signaling server
+//     socket.emit('answer', answerPayload);
+
+//     // Listen for ICE candidates from the signaling server
+//     socket.on('iceCandidate', async (data) => {
+//         if (data.to === userName && data.from === peerId) { // Ensure the candidate is for this answer and from the correct offerer
+//             try {
+//                 await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+//             } catch (error) {
+//                 console.error('Error adding received ICE candidate', error);
+//             }
+//         }
+//     });
+// }
+
+
+
 function addNewIceCandidate(iceCandidate) {
      if (iceCandidate && peerConnection && peerConnection.signalingState !== 'closed')
      peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidate));
@@ -435,6 +442,8 @@ function addNewIceCandidate(iceCandidate) {
 async function addAnswer(offer) {
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer.answer));
 }
+
+
 
 async function createPeerConnection(offerObj) {
     peerConnection = new RTCPeerConnection(peerConfiguration);
@@ -460,6 +469,23 @@ async function createPeerConnection(offerObj) {
         await peerConnection.setRemoteDescription(new RTCSessionDescription(offerObj.offer));
     }
 }
+
+
+function getRemoteVideoElement(peerId) {
+    let videoEl = document.getElementById(`remoteVideo_${peerId}`);
+    if (!videoEl) {
+        videoEl = document.createElement('video');
+        videoEl.id = `remoteVideo_${peerId}`;
+        videoEl.autoplay = true;
+        videoEl.playsInline = true; // Add playsInline for compatibility with mobile browsers
+        document.body.appendChild(videoEl); // Append to the body or a specific container
+    }
+    return videoEl;
+}
+
+
+
+
 // Flag to indicate screen sharing state
 async function fetchUserMedia(includeVideo = true) {
 
@@ -507,6 +533,7 @@ async function call(sendToUserName) {
         console.error('Error creating offer:', error);
     }
 }
+
 
 document.getElementById('startScreenSharingButton').addEventListener('click',
 async () => {
@@ -572,21 +599,6 @@ async function stopScreenSharing() {
     // Refresh originalStream for future use
     await fetchUserMedia();
 }
-
-// async function createAndSendOffer(remotePeerUserName) {
-//     try {
-//         const offer = await peerConnection.createOffer();
-//         await peerConnection.setLocalDescription(offer);
-//         // Use the remotePeerUserName as part of the offer message
-//         socket.emit('newOffer', { offer, offererUserName: userName, answererUserName: remotePeerUserName, type: 'offer' });
-//     } catch (error) {
-//         console.error('Error creating offer:', error);
-//     }
-// }
-
-// document.getElementById('startAudioCallButton').addEventListener('click', () => {
-//     fetchUserMedia(false); // Start an audio-only call
-// });
 
 document.getElementById('toggleMicrophoneButton').addEventListener('click', MuteMicToggle);
 

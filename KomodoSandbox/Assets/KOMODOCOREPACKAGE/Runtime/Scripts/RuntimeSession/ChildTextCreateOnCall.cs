@@ -18,8 +18,8 @@ public class ChildTextCreateOnCall : MonoBehaviour
 
     public ShareMediaConnection shareMediaConnection;
 
-    public GameObject CallReceivePanel;
-    public TMP_Text customReceiveText;
+    //public GameObject CallReceivePanel;
+    //public TMP_Text customReceiveText;
 
 
 
@@ -74,6 +74,7 @@ public class ChildTextCreateOnCall : MonoBehaviour
 
             newText.text = clientTextLabel;
 
+
             var references = newObj.GetComponent<ClientConnectionReferences>();
             references.clientID = clientID;
 
@@ -83,19 +84,19 @@ public class ChildTextCreateOnCall : MonoBehaviour
                 string name = ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID);
             //    Debug.Log($"Calling Client:{ clientID}");
                 Debug.Log("GET PLAYER FROM ID : " + name);
-                ShareMediaConnection.CallClient(name);
+                SocketIOJSLib.CallClient(name);
 
             });
             references.AcceptCallButton.onClick.AddListener(() =>
             {
 
-                ShareMediaConnection.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID));
+                SocketIOJSLib.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID));
             });
 
             references.cancelCall.onClick.AddListener(() =>
             {
-
-                ShareMediaConnection.Instance.Hangup();
+                SocketIOJSLib.HangUpClient();
+              //  ShareMediaConnection.Instance.Hangup();
 
             });
           
@@ -134,37 +135,39 @@ public class ChildTextCreateOnCall : MonoBehaviour
 
     public void ReceivedCall(int fromClientID)
     {
-        string nameOfClient = ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID);
+        ShareMediaConnection.Instance.ReceivedCall(fromClientID);
 
-        customReceiveText.text = $"Receiving Call From: \n {nameOfClient} ";
+        //string nameOfClient = ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID);
 
-
-        CallReceivePanel.SetActive(true);
-
-        var buttons = CallReceivePanel.GetComponentsInChildren<Button>(true);
-
-        buttons[0].onClick.RemoveAllListeners();
-        buttons[1].onClick.RemoveAllListeners();
-
-        //reject call
-        buttons[0].onClick.AddListener(() =>
-        {
-
-            CallReceivePanel.SetActive(false);
-        });
+        //customReceiveText.text = $"Receiving Call From: \n {nameOfClient} ";
 
 
-        //accept call
-        buttons[1].onClick.AddListener(() =>
-        {
+        //CallReceivePanel.SetActive(true);
 
-            ShareMediaConnection.AnswerClientOffer(nameOfClient);
-            // AcceptCallFromClient(nameOfClient);
-            CallReceivePanel.SetActive(false);
-            shareMediaConnection.SetClientForMediaShare(fromClientID);
-            shareMediaConnection.SetMediaShareType(2);// call
-            shareMediaConnection.shareMediaUI.SetActive(true);
-        });
+        //var buttons = CallReceivePanel.GetComponentsInChildren<Button>(true);
+
+        //buttons[0].onClick.RemoveAllListeners();
+        //buttons[1].onClick.RemoveAllListeners();
+
+        ////reject call
+        //buttons[0].onClick.AddListener(() =>
+        //{
+        //    SocketIOJSLib.RejectClientOffer(fromClientID);
+        //    CallReceivePanel.SetActive(false);
+        //});
+
+
+        ////accept call
+        //buttons[1].onClick.AddListener(() =>
+        //{
+
+        //    SocketIOJSLib.AnswerClientOffer(nameOfClient);
+        //    // AcceptCallFromClient(nameOfClient);
+        //    CallReceivePanel.SetActive(false);
+        //    shareMediaConnection.SetClientForMediaShare(fromClientID);
+        //    shareMediaConnection.SetMediaShareType(2);// call
+        //    shareMediaConnection.shareMediaUI.SetActive(true);
+        //});
 
 
 
@@ -172,17 +175,17 @@ public class ChildTextCreateOnCall : MonoBehaviour
     }
 
 
-    public void ReceivedOfferAnswer(int fromClientID)
-    {
-        Debug.Log("RECEIVEDOFFER FROM ANSWER");
-        CallReceivePanel.SetActive(false);
-        ShareMediaConnection.Instance.videoTransformList[0].gameObject.SetActive(true);
-    }
-    public void EndCall(string roomName)
-    {
-        Debug.Log("ENDED CALL FOR ROOMNAME");
-        ShareMediaConnection.Instance.videoTransformList[0].gameObject.SetActive(false);
-    }
+    //public void ReceivedOfferAnswer(int fromClientID)
+    //{
+    //    Debug.Log("RECEIVEDOFFER FROM ANSWER");
+    //    CallReceivePanel.SetActive(false);
+    //    ShareMediaConnection.Instance.videoTransformList[0].gameObject.SetActive(true);
+    //}
+    //public void EndCall(string roomName)
+    //{
+    //    Debug.Log("ENDED CALL FOR ROOMNAME");
+    //    ShareMediaConnection.Instance.videoTransformList[0].gameObject.SetActive(false);
+    //}
 
 
 
