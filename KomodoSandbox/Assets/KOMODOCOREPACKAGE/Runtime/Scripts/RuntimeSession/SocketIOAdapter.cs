@@ -703,10 +703,15 @@ public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
         ShareMediaConnection.Instance.ReceivedCall(id);
     public void ReceiveClientAnswer(int id)=>
         ShareMediaConnection.Instance.ReceivedOfferAnswer(id);
-    public void ReceiveCallEnded(string roomName)=>
-        ShareMediaConnection.Instance.EndCall(roomName);
+    public void ReceiveCallEnded(int id)=>
+        ShareMediaConnection.Instance.EndCall(id);
 
- 
+   
+
+
+
+
+
 
 
     public void ReceiveClientInSessionNames(string clientNames)

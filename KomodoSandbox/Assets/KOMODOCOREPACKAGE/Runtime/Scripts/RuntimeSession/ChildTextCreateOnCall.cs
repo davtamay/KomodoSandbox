@@ -32,6 +32,8 @@ public class ChildTextCreateOnCall : MonoBehaviour
         clientIDsToLabelGO = ClientSpawnManager.Instance.GetUsernameMenuDisplayDictionary();
         //  ReceivedCall(2);
 
+      //  CreateTextFromString("assas", 5, false);
+
 
     }
 
@@ -78,28 +80,47 @@ public class ChildTextCreateOnCall : MonoBehaviour
             var references = newObj.GetComponent<ClientConnectionReferences>();
             references.clientID = clientID;
 
+            Toggle toggle = references.selectedToggle();
 
-            references.MakeCallButton.onClick.AddListener(() =>
-            {
-                string name = ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID);
-            //    Debug.Log($"Calling Client:{ clientID}");
-                Debug.Log("GET PLAYER FROM ID : " + name);
-                SocketIOJSLib.CallClient(name);
-
+            toggle.onValueChanged.AddListener((v) => { 
+            
+                if (shareMediaConnection.clientIDToToggleStateDictionary.ContainsKey(clientID))//TryGetValue(clientID, out var newState))
+                {
+                    shareMediaConnection.clientIDToToggleStateDictionary[clientID] = v;
+                }
+                else
+                {
+                    shareMediaConnection.clientIDToToggleStateDictionary.Add(clientID, v);
+                }
+            
             });
-            references.AcceptCallButton.onClick.AddListener(() =>
-            {
+           
+            if (shareMediaConnection.clientIDToToggleDictionary.ContainsKey(clientID))
+                shareMediaConnection.clientIDToToggleDictionary[clientID] = toggle;
+            else
 
-                SocketIOJSLib.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID));
-            });
+            shareMediaConnection.clientIDToToggleDictionary.Add(clientID, toggle);
+            //references.MakeCallButton.onClick.AddListener(() =>
+            //{
+            //    string name = ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID);
+            ////    Debug.Log($"Calling Client:{ clientID}");
+            //    Debug.Log("GET PLAYER FROM ID : " + name);
+            //    SocketIOJSLib.CallClient(name);
 
-            references.cancelCall.onClick.AddListener(() =>
-            {
-                SocketIOJSLib.HangUpClient();
-              //  ShareMediaConnection.Instance.Hangup();
+            //});
+            //references.AcceptCallButton.onClick.AddListener(() =>
+            //{
 
-            });
-          
+            //    SocketIOJSLib.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID));
+            //});
+
+            //references.cancelCall.onClick.AddListener(() =>
+            //{
+            //    SocketIOJSLib.HangUpClient();
+            //  //  ShareMediaConnection.Instance.Hangup();
+
+            //});
+
 
 
             newObj.transform.SetParent(transformToAddTextUnder, false);

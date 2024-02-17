@@ -58,9 +58,30 @@
 
 
 
-     SetupWebRTCTexture: function(id) {
+     SetupWebRTCTexture: function(id, name) {
 
-     videoElement = document.getElementById('remoteVideo');
+      let textureName = UTF8ToString(name);
+      let videoElement = document.getElementById("remoteVideo_" + textureName);
+    
+
+    if (!videoElement) {
+         console.log(`createdRemoteVideoElement : ` + "remoteVideo_" + textureName);
+        videoElement = document.createElement('video');
+        videoElement.id = "remoteVideo_" + textureName;//textureName;
+        videoElement.autoplay = true;
+        videoElement.playsInline = true;
+      videoElement.style.position = 'absolute';
+      videoElement.style.visibility = 'hidden';
+      videoElement.style.pointerEvents = 'none';
+      
+        document.body.appendChild(videoElement); // Or append to a specific container
+
+  //  videoElements.push(videoElement);
+
+        
+    }
+   
+
 
      videoElement.onloadedmetadata = function() {
 
@@ -82,8 +103,12 @@
 
         // Get the WebGL texture object from the Emscripten texture ID.
         textureObj = GL.textures[id];
-          textureID = id;
+        textureID = id;
 
+        videoElement.textureID = id;
+
+        videoElements.push(videoElement); 
+        
           console.log("WebGL texture created with ID:", id);
 
         // GLctx is the webgl context of the Unity canvas
@@ -96,12 +121,12 @@
         GLctx.texImage2D(GLctx.TEXTURE_2D, 0, GLctx.RGBA, GLctx.RGBA, GLctx.UNSIGNED_BYTE, ct_canvas);
 
 
- function texturePaint()
+ function texturePaint(v)
   {
 
-        ctx.drawImage(videoElement, 0, 0, 256, 256);
+        ctx.drawImage(v, 0, 0, 256, 256);
 
-        GLctx.bindTexture(GLctx.TEXTURE_2D, textureObj);
+        GLctx.bindTexture(GLctx.TEXTURE_2D,  GL.textures[v.textureID]);//textureObj);
         GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_WRAP_S, GLctx.CLAMP_TO_EDGE);
         GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_WRAP_T, GLctx.CLAMP_TO_EDGE);
         GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_MIN_FILTER, GLctx.LINEAR);
@@ -109,13 +134,33 @@
         GLctx.texSubImage2D(GLctx.TEXTURE_2D, 0, 0, 0, GLctx.RGBA, GLctx.UNSIGNED_BYTE, ct_canvas);
 
   }
-  function updateTexture(time, xrFrame) 
-  {
+ 
+  function updateTexture() 
+  { 
 
-      if (videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) 
-        texturePaint();
+    
 
+    
+    for(let v of videoElements)
+    {
+
+      if (v.readyState >= v.HAVE_CURRENT_DATA)
+      { 
+        console.log("video ready" + v.id)
+        texturePaint(v);
+      }
+
+    }
        requestAnimationFrame(updateTexture);
+
+    
+
+
+
+
+
+
+    
 
   }
 
@@ -130,8 +175,13 @@
         {
             xrManager.animate(xrFrame);
 
-          if (videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) 
-               texturePaint();
+                for(let v of videoElements)
+                {
+                  if (v.readyState >= v.HAVE_CURRENT_DATA) 
+                    texturePaint(v);
+                };
+          // if (videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) 
+          //      texturePaint();
 
             func(time);
                 
@@ -145,9 +195,9 @@
       }
     };
 
+        if (videoElements.length >= 0)
+          updateTexture();
  
-
-    updateTexture();
 
      }
   });

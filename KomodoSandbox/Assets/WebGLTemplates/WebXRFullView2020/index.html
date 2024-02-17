@@ -38,21 +38,21 @@
     <div id="webrtc-controls">
         <h2>WebRTC Test</h2>
         <div>Current client: <span id="currentClientName"></span></div>
-        <video id="localVideo" autoplay controls muted style="position: relative; z-index: 1000; width: 300px; height: 200px;"></video>
-        <video id="remoteVideo" autoplay style="display: none;"></video>
+        <video id="localVideo" autoplay controls muted style="pointer-events: none; position: relative; z-index: 1000; width: 300px; height: 200px; display: none;"></video>
+        <video id="remoteVideo" autoplay style="pointer-events: none; display: none;"></video>
      <br/>
      <button style="position: relative; z-index: 1000; display: none;" id="startButton">Start Call</button>
      <button style="position: relative; z-index: 1000; display: none;"  id="stopButton">Stop Call</button>
-     <button style="position: relative; z-index: 1000;"  id="answer">Answer Call</button>
-     <button style="position: relative; z-index: 1000;"  id="clients">Show Clients</button>
-     <button style="display: none; position: relative; z-index: 1000;"  id="callButton">Call Selected Client</button>
+     <button style="position: relative; z-index: 1000; display: none; "  id="answer">Answer Call</button>
+     <button style="position: relative; z-index: 1000; display: none; "  id="clients">Show Clients</button>
+     <button style="display: none; position: relative ;  display: none; z-index: 1000;"  id="callButton">Call Selected Client</button>
      <br/>
-     <button style=" position: relative; z-index: 1000;" id="endButton">End Call</button>
-     <button style=" position: relative; z-index: 1000;" id="startScreenSharingButton" >Start Screen Sharing</button>
-     <button style=" position: relative; z-index: 1000;" id="stopScreenSharingButton" disabled>Stop Screen Sharing</button>
-     <button style=" position: relative; z-index: 1000;" id="toggleMicrophoneButton" class="btn unmuted">Mute Microphone</button>
+     <button style=" position: relative; z-index: 1000; display: none;" id="endButton">End Call</button>
+     <button style=" position: relative; z-index: 1000; display: none;" id="startScreenSharingButton" >Start Screen Sharing</button>
+     <button style=" position: relative; z-index: 1000; display: none;" id="stopScreenSharingButton" disabled>Stop Screen Sharing</button>
+     <button style=" position: relative; z-index: 1000;display: none;" id="toggleMicrophoneButton" class="btn unmuted">Mute Microphone</button>
  
-     <button id="toggleVideoButton" class="btn">Stop Sharing Video</button>
+     <button style=" position: relative; z-index: 1000; display: none;" id="toggleVideoButton" class="btn">Stop Sharing Video</button>
 
 
    </div>
