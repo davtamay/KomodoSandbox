@@ -701,8 +701,15 @@ public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
 
     public void ReceiveClientCall(int id)=>
         ShareMediaConnection.Instance.ReceivedCall(id);
+
+        //ReceiveClientAutomaticCallandAnswer
+    public void ReceiveClientCallAndAnswer(int id)=>
+    ShareMediaConnection.Instance.ReceiveCallAndAnswer(id);
+
+
     public void ReceiveClientAnswer(int id)=>
         ShareMediaConnection.Instance.ReceivedOfferAnswer(id);
+        
     public void ReceiveCallEnded(int id)=>
         ShareMediaConnection.Instance.EndCall(id);
 

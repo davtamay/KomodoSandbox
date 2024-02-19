@@ -91,6 +91,7 @@ public class ChildTextCreateOnCall : MonoBehaviour
                 else
                 {
                     shareMediaConnection.clientIDToToggleStateDictionary.Add(clientID, v);
+
                 }
             
             });
@@ -100,6 +101,9 @@ public class ChildTextCreateOnCall : MonoBehaviour
             else
 
             shareMediaConnection.clientIDToToggleDictionary.Add(clientID, toggle);
+
+
+            toggle.graphic.color = shareMediaConnection.selectClient;
             //references.MakeCallButton.onClick.AddListener(() =>
             //{
             //    string name = ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID);
@@ -196,17 +200,6 @@ public class ChildTextCreateOnCall : MonoBehaviour
     }
 
 
-    //public void ReceivedOfferAnswer(int fromClientID)
-    //{
-    //    Debug.Log("RECEIVEDOFFER FROM ANSWER");
-    //    CallReceivePanel.SetActive(false);
-    //    ShareMediaConnection.Instance.videoTransformList[0].gameObject.SetActive(true);
-    //}
-    //public void EndCall(string roomName)
-    //{
-    //    Debug.Log("ENDED CALL FOR ROOMNAME");
-    //    ShareMediaConnection.Instance.videoTransformList[0].gameObject.SetActive(false);
-    //}
 
 
 

@@ -76,13 +76,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         webRTCVideoSettings.hangUpButton.onClick.AddListener(() =>
             {
                 DisactivateCallPresentation();
-                //webRTCVideoSettings.gameObject.SetActive(false);
-
-                //foreach (var item in clientIDToVideoRefsDictionary)
-                //{
-                //    item.Value.gameObject.SetActive(false);
-                //}
-                //    clientIDToVideoRefsDictionary[clientID].gameObject.SetActive(false);
+              
                 SocketIOJSLib.HangUpClient();
             });
 
@@ -124,8 +118,11 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
         foreach (var item in clientIDToVideoRefsDictionary)
             item.Value.gameObject.SetActive(false);
-    }
 
+        foreach (var item in clientIDToToggleDictionary.Keys)
+            SetClientConnectedToggleState(item, false);
+
+    }
     public Dictionary<int, Toggle> clientIDToToggleDictionary = new Dictionary<int, Toggle>();
     public Dictionary<int, bool> clientIDToToggleStateDictionary = new Dictionary<int, bool>();
 
@@ -150,7 +147,6 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
     public List<int> clientsAdded = new List<int>();
 
-   // public List<int> offerClientsAdded = new List<int>();
     public void ReceivedCall(int fromClientID)
     {
         if (!clientsAdded.Contains(fromClientID))
@@ -164,7 +160,6 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
             return;
 
         }
-        
 
         CallReceivePanelReferences.clientId = fromClientID;
 
@@ -198,16 +193,45 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     }
 
 
+    public void ReceiveCallAndAnswer(int fromClientID)
+    {
+        if (!clientsAdded.Contains(fromClientID))
+        {
+            clientsAdded.Add(fromClientID);
+        }
+        else
+        {
+            Debug.Log("Returning. Tried Adding same client with id " + fromClientID);
+            return;
+
+        }
+
+        SocketIOJSLib.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
+
+    }
+
+    public Color selectClient = Color.grey;
+    public Color clientInCall = Color.green;
+    public void SetClientConnectedToggleState(int clientID, bool isActive )
+    {
+
+        if (clientIDToToggleDictionary.ContainsKey(clientID))
+        {
+            var clientToggle = clientIDToToggleDictionary[clientID];
+
+            clientToggle.interactable = !isActive;
+            clientToggle.SetIsOnWithoutNotify(isActive);
+
+            if(isActive)
+                clientToggle.graphic.color = clientInCall;
+            else
+                clientToggle.graphic.color = selectClient;
+
+        }
+    }
+
     public void SetupVideo(int fromClientID, bool receivedClientOffer = false)
     {
-        //if (receivedClientOffer)
-        //{
-        //    SocketIOJSLib.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
-        //    CallReceivePanelReferences.gameObject.SetActive(false);
-        //    return;
-        //}
-
-
         webRTCVideoSettings.gameObject.SetActive(true);
 
         
@@ -217,7 +241,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         {
 
 
-           
+            SetClientConnectedToggleState(fromClientID, true);
 
            //  SetClientForMediaShare(fromClientID);
             SetMediaShareType(2); // call
@@ -280,11 +304,10 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         Debug.Log("RECEIVEDOFFER FROM ANSWER");
       
             SetupVideo(clientID, false);
-            //videoFeedManager.
     }
     public void EndCall(int clientID)
     {
-        Debug.Log("ENDED CALL FOR ROOMNAME");
+      //  Debug.Log("ENDED CALL FOR ROOMNAME");
         if (clientIDToVideoRefsDictionary.ContainsKey(clientID))
         {
             clientIDToVideoRefsDictionary[clientID].gameObject.SetActive(false);
@@ -293,17 +316,23 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
             if(clientsAdded.Contains(clientID)) 
                clientsAdded.Remove(clientID);
-
         }
 
-       // DisactivateCallPresentation();
+        SetClientConnectedToggleState(clientID, false);
 
+        //foreach (var item in clientIDToToggleDictionary.Keys)
+        //{
+        //    SetClientConnectedToggleState(item, false);
+        //}
+        // DisactivateCallPresentation();
 
+        CheckIfAnyConnectionToSetToolsInactive();
         videoFeedManager.RemoveVideoFeed(clientID);
         // clientIDToVideoRefsDictionary
 
-        if (clientIDToToggleDictionary.ContainsKey(clientID))
-            clientIDToToggleDictionary[clientID].interactable = true;
+
+        //if (clientIDToToggleDictionary.ContainsKey(clientID))
+        //    clientIDToToggleDictionary[clientID].interactable = true;
     }
 
     public void RemoveClientConnections(int clientID)
@@ -320,13 +349,48 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
             clientIDToVideoRefsDictionary.Remove(clientID);
         }
 
-      //  DisactivateCallPresentation();
+       SetClientConnectedToggleState(clientID, false);
+
+
+        //  DisactivateCallPresentation();
 
         videoFeedManager.RemoveVideoFeed(clientID);
 
-        if(clientIDToToggleDictionary.ContainsKey(clientID))
-        clientIDToToggleDictionary[clientID].interactable = true;
+        //if(clientIDToToggleDictionary.ContainsKey(clientID))
+        //clientIDToToggleDictionary[clientID].interactable = true;
         // clientIDToVideoRefsDictionary
+      
+        
+        CheckIfAnyConnectionToSetToolsInactive();
+    }
+
+    void CheckIfAnyConnectionToSetToolsInactive()
+    {
+        bool allInactive = true;
+
+        // Loop over all GameObjects in the dictionary
+        foreach (WebRTCVideoReferences v in clientIDToVideoRefsDictionary.Values)
+        {
+            // If any GameObject is active, set allInactive to false and break the loop
+            if (v.gameObject.activeInHierarchy)
+            {
+                allInactive = false;
+                break;
+            }
+        }
+
+        // If all GameObjects are not active, set webRTCVideoSettings to inactive
+        if (allInactive)
+        {
+            webRTCVideoSettings.gameObject.SetActive(false);
+
+            foreach (var item in clientIDToToggleDictionary.Keys)
+            {
+                SetClientConnectedToggleState(item, false);
+            }
+
+
+        }
     }
 
     public Dictionary<GameObject, bool> poolVideoActiveStateDic = new Dictionary<GameObject, bool>();
