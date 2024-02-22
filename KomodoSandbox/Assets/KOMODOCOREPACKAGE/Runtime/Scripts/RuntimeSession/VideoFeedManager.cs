@@ -10,9 +10,14 @@ public class VideoFeedManager : MonoBehaviour
 
     public (int clientID, GameObject videoFeed) GetOrCreateVideoFeed(int clientID)
     {
-        GameObject videoFeed;
+        // Check if the video feed for the clientID already exists and return it if so
+        if (activeVideoFeeds.TryGetValue(clientID, out GameObject existingFeed))
+        {
+            return (clientID, existingFeed); // Return the existing feed without creating a new one
+        }
 
-        // Attempt to find an inactive feed first
+        // If no existing feed, attempt to find an inactive feed
+        GameObject videoFeed;
         if (inactiveFeeds.Count > 0)
         {
             videoFeed = inactiveFeeds[0];
@@ -20,17 +25,12 @@ public class VideoFeedManager : MonoBehaviour
         }
         else
         {
-            // Create new feed if no inactive ones are available
+            // Create a new feed if no inactive ones are available
             videoFeed = Instantiate(videoPrefab, videoGridParent);
         }
 
         videoFeed.SetActive(true);
-        
-        if(activeVideoFeeds.ContainsKey(clientID))
-          activeVideoFeeds[clientID] = videoFeed;
-        else
-            activeVideoFeeds.Add(clientID, videoFeed);
-
+        activeVideoFeeds[clientID] = videoFeed; // Add or update the feed associated with the clientID
 
         // Return both the clientID and the videoFeed as a tuple
         return (clientID, videoFeed);

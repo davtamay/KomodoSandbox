@@ -56,6 +56,22 @@
        },
 
 
+      RemoveWebRTCTexture: function(id, name) {
+        let textureObj = GL.textures[id];
+        GLctx.deleteTexture(textureObj);
+        console.log("WebGL texture deleted with ID:", id);
+
+        let videoElement = document.getElementById("remoteVideo_" + textureName);
+
+        // Find the index of the videoElement in the array
+        let index = videoElements.indexOf(videoElement);
+
+        if (index !== -1) {
+            videoElements.splice(index, 1);
+        }
+    
+      },
+
 
 
      SetupWebRTCTexture: function(id, name) {
@@ -85,7 +101,7 @@
 
      videoElement.onloadedmetadata = function() {
 
-        window.gameInstance.SendMessage('WebRTCVideo', 'ReceiveDimensions', `${videoElement.videoWidth},${videoElement.videoHeight}`);
+        window.gameInstance.SendMessage('WebRTCVideo', 'ReceiveDimensions', `${textureName},${videoElement.videoWidth},${videoElement.videoHeight}`);
     
      };
 

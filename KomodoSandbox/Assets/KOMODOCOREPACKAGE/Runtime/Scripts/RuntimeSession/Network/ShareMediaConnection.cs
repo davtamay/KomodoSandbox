@@ -60,6 +60,10 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     public Button shareScreenToSelectedClientsButton;
     public Button messageSelectedClientsButton;
     public Button callSelectedClients;
+
+
+    public Transform receiveCallParentPanel;
+    public GameObject receiveCallPrefab;
     public void Start()
     {
       
@@ -147,66 +151,154 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
     public List<int> clientsAdded = new List<int>();
 
+
+    //public void ReceivedCall(int fromClientID)
+    //{
+    //    if (!clientsAdded.Contains(fromClientID))
+    //    {
+    //        clientsAdded.Add(fromClientID);
+    //        // return;
+    //    }
+    //    else
+    //    {
+    //        Debug.Log("Returning. Tried Adding same client with id " + fromClientID);
+    //        return;
+
+    //    }
+
+    //    CallReceivePanelReferences.clientId = fromClientID;
+
+    //    string nameOfClient = ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID);
+
+    //    customReceiveText.text = $"Receiving Call From: \n {nameOfClient} ";
+
+    //    CallReceivePanelReferences.gameObject.SetActive(true);
+    //    CallReceivePanelReferences.receiveCallButton.onClick.RemoveAllListeners();
+    //    CallReceivePanelReferences.rejectCallButton.onClick.RemoveAllListeners();
+
+    //    //reject call
+    //    CallReceivePanelReferences.rejectCallButton.onClick.AddListener(() =>
+    //    {
+    //        SocketIOJSLib.RejectClientOffer(fromClientID);
+    //        CallReceivePanelReferences.gameObject.SetActive(false);
+    //    });
+
+       
+    //    //accept call
+    //    CallReceivePanelReferences.receiveCallButton.onClick.AddListener(() =>
+    //    {
+    //        SocketIOJSLib.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
+    //        SetupVideo(fromClientID, true);
+    //        CallReceivePanelReferences.gameObject.SetActive(false);
+
+    //    });
+
+
+
+    //}
+    private List<WebRTCReceiveCallReferences> pool = new List<WebRTCReceiveCallReferences>();
+
+
+    // Method to handle received calls
     public void ReceivedCall(int fromClientID)
     {
         if (!clientsAdded.Contains(fromClientID))
         {
-            clientsAdded.Add(fromClientID);
-            // return;
+            Debug.Log($"Returning. Tried Adding same client with id {fromClientID}");
+           // return;
         }
-        else
-        {
-            Debug.Log("Returning. Tried Adding same client with id " + fromClientID);
-            return;
-
-        }
-
-        CallReceivePanelReferences.clientId = fromClientID;
-
+    
         string nameOfClient = ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID);
 
-        customReceiveText.text = $"Receiving Call From: \n {nameOfClient} ";
 
-        CallReceivePanelReferences.gameObject.SetActive(true);
-        CallReceivePanelReferences.receiveCallButton.onClick.RemoveAllListeners();
-        CallReceivePanelReferences.rejectCallButton.onClick.RemoveAllListeners();
+        //   CallReceivePanelReferences.gameObject.SetActive(true);
+        //CallReceivePanelReferences.receiveCallButton.onClick.RemoveAllListeners();
+        //CallReceivePanelReferences.rejectCallButton.onClick.RemoveAllListeners();
 
-        //reject call
-        CallReceivePanelReferences.rejectCallButton.onClick.AddListener(() =>
-        {
-            SocketIOJSLib.RejectClientOffer(fromClientID);
-            CallReceivePanelReferences.gameObject.SetActive(false);
-        });
+        ////reject call
+        //CallReceivePanelReferences.rejectCallButton.onClick.AddListener(() =>
+        //{
+        //    SocketIOJSLib.RejectClientOffer(fromClientID);
+        //    CallReceivePanelReferences.gameObject.SetActive(false);
+        //});
 
        
-        //accept call
-        CallReceivePanelReferences.receiveCallButton.onClick.AddListener(() =>
-        {
-            // SetupVideo(fromClientID, true);
-            SocketIOJSLib.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
-            CallReceivePanelReferences.gameObject.SetActive(false);
+        ////accept call
+        //CallReceivePanelReferences.receiveCallButton.onClick.AddListener(() =>
+        //{
+        //    SocketIOJSLib.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
+        //    SetupVideo(fromClientID, true);
+        //    CallReceivePanelReferences.gameObject.SetActive(false);
 
-        });
+        //});
 
 
 
+
+        var panel = GetPanel();
+        panel.SetupPanel(fromClientID, nameOfClient, RejectCall, AcceptCall);
     }
+
+    private void RejectCall(int clientId)
+    {
+        SocketIOJSLib.RejectClientOffer(clientId);
+        ResetAndReturnPanel(clientId);
+    }
+
+    private void AcceptCall(int clientId)
+    {
+        SocketIOJSLib.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientId));
+        SetupVideo(clientId, true); // Assuming SetupVideo is a method defined elsewhere
+        ResetAndReturnPanel(clientId);
+    }
+
+    private void ResetAndReturnPanel(int clientId)
+    {
+        var panel = pool.Find(p => p.clientId == clientId);
+        if (panel != null)
+        {
+            panel.ResetPanel();
+            clientsAdded.Remove(clientId);
+        }
+    }
+
+
+    // Method to get a panel from the pool
+    public WebRTCReceiveCallReferences GetPanel()
+    {
+        foreach (var panel in pool)
+        {
+            if (!panel.gameObject.activeInHierarchy)
+            {
+                return panel;
+            }
+        }
+
+        // If no inactive panel is found, create a new one
+        var newPanelInstance = Instantiate(receiveCallPrefab, receiveCallParentPanel).GetComponent<WebRTCReceiveCallReferences>();
+        pool.Add(newPanelInstance);
+        return newPanelInstance;
+    }
+
+    
+
 
 
     public void ReceiveCallAndAnswer(int fromClientID)
     {
-        if (!clientsAdded.Contains(fromClientID))
-        {
-            clientsAdded.Add(fromClientID);
-        }
-        else
-        {
-            Debug.Log("Returning. Tried Adding same client with id " + fromClientID);
-            return;
+        //if (!clientsAdded.Contains(fromClientID))
+        //{
+        //    clientsAdded.Add(fromClientID);
+        //}
+        //else
+        //{
+        //    Debug.Log("Returning. Tried Adding same client with id " + fromClientID);
+        //    return;
 
-        }
+        //}
 
         SocketIOJSLib.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
+        SetupVideo(fromClientID, true);
 
     }
 
@@ -234,6 +326,8 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     {
         webRTCVideoSettings.gameObject.SetActive(true);
 
+        Debug.Log("****************received setup video from :" + fromClientID);
+
         
         (int videoIndexID, GameObject videoFeedGO) = videoFeedManager.GetOrCreateVideoFeed(fromClientID);
 
@@ -246,16 +340,13 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
            //  SetClientForMediaShare(fromClientID);
             SetMediaShareType(2); // call
 
-            var videoRefs = videoFeedGO.GetComponentInChildren<WebRTCVideoReferences>();
+            var videoRefs = videoFeedGO.GetComponentInChildren<WebRTCVideoReferences>(true);
 
             videoRefs.clientID = fromClientID;
             videoRefs.videoIndex = videoIndexID;
 
             videoFeedGO.SetActive(true);
 
-            ////videoRefs.micMuteToggle.SetIsOnWithoutNotify(true);
-            ////videoRefs.shareScreenToggle.SetIsOnWithoutNotify(false);
-            ////videoRefs.showVideoFeedToggle.SetIsOnWithoutNotify(true);
 
             if (clientIDToVideoRefsDictionary.ContainsKey(fromClientID))
                 clientIDToVideoRefsDictionary[fromClientID] = videoRefs;
@@ -268,10 +359,13 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
 
             // SetupVideoListeners(fromClientID, videoRefs);
+           // videoRefs.videoTexture.texture =
+                
+                
+                webRTCVideoTexture.ProvideWebRTCTexture(videoRefs.videoTexture, ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
 
-
-            webRTCVideoTexture.ProvideWebRTCTexture(videoRefs.videoTexture, ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
-        //    Debug.Log(videoRefs.gameObject.name);
+         //   webRTCVideoTexture.ProvideWebRTCTexture(videoRefs.videoTexture, ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
+          //  Debug.Log("CHECKING FOR NULL REFERENCE ISSUE WHEN MAKING CALL ABOVE MAYBE PROVIDE");
 
 
            

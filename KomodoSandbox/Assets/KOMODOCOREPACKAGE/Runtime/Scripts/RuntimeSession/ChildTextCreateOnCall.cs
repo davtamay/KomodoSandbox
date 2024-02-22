@@ -158,46 +158,46 @@ public class ChildTextCreateOnCall : MonoBehaviour
 
     }
 
-    public void ReceivedCall(int fromClientID)
-    {
-        ShareMediaConnection.Instance.ReceivedCall(fromClientID);
+    //public void ReceivedCall(int fromClientID)
+    //{
+    //    ShareMediaConnection.Instance.ReceivedCall(fromClientID);
 
-        //string nameOfClient = ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID);
+    //    //string nameOfClient = ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID);
 
-        //customReceiveText.text = $"Receiving Call From: \n {nameOfClient} ";
-
-
-        //CallReceivePanel.SetActive(true);
-
-        //var buttons = CallReceivePanel.GetComponentsInChildren<Button>(true);
-
-        //buttons[0].onClick.RemoveAllListeners();
-        //buttons[1].onClick.RemoveAllListeners();
-
-        ////reject call
-        //buttons[0].onClick.AddListener(() =>
-        //{
-        //    SocketIOJSLib.RejectClientOffer(fromClientID);
-        //    CallReceivePanel.SetActive(false);
-        //});
+    //    //customReceiveText.text = $"Receiving Call From: \n {nameOfClient} ";
 
 
-        ////accept call
-        //buttons[1].onClick.AddListener(() =>
-        //{
+    //    //CallReceivePanel.SetActive(true);
 
-        //    SocketIOJSLib.AnswerClientOffer(nameOfClient);
-        //    // AcceptCallFromClient(nameOfClient);
-        //    CallReceivePanel.SetActive(false);
-        //    shareMediaConnection.SetClientForMediaShare(fromClientID);
-        //    shareMediaConnection.SetMediaShareType(2);// call
-        //    shareMediaConnection.shareMediaUI.SetActive(true);
-        //});
+    //    //var buttons = CallReceivePanel.GetComponentsInChildren<Button>(true);
+
+    //    //buttons[0].onClick.RemoveAllListeners();
+    //    //buttons[1].onClick.RemoveAllListeners();
+
+    //    ////reject call
+    //    //buttons[0].onClick.AddListener(() =>
+    //    //{
+    //    //    SocketIOJSLib.RejectClientOffer(fromClientID);
+    //    //    CallReceivePanel.SetActive(false);
+    //    //});
+
+
+    //    ////accept call
+    //    //buttons[1].onClick.AddListener(() =>
+    //    //{
+
+    //    //    SocketIOJSLib.AnswerClientOffer(nameOfClient);
+    //    //    // AcceptCallFromClient(nameOfClient);
+    //    //    CallReceivePanel.SetActive(false);
+    //    //    shareMediaConnection.SetClientForMediaShare(fromClientID);
+    //    //    shareMediaConnection.SetMediaShareType(2);// call
+    //    //    shareMediaConnection.shareMediaUI.SetActive(true);
+    //    //});
 
 
 
 
-    }
+    //}
 
 
 

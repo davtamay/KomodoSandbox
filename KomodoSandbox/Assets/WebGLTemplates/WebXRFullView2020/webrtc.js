@@ -6,6 +6,7 @@ let videoElementsMap = new Map();
 //peer connection setup
 let connectedPeers = new Set(); // Tracks peers we're connected to
 
+let clientsInRoom = new Map();
 
 let connectedPeersMap = new Map(); // Tracks peers we're connected to
 
@@ -89,48 +90,92 @@ function setupSocketListeners() {
         updateOfferElements(offers);
     });
 
-  
+    // socket.on('messageFromClient', (data, ackFn) => {
+    //     console.log(`Received message: ${data.message} from ${data.from}`);
+
+    //     // Process the message here
+
+    //     // Send an acknowledgment back to the server, which will relay it to Client A
+    //     if (ackFn) ackFn('Message received and processed');
+    //   });
     //invoked on client that is being called
-    socket.on('newOfferAwaiting', async (data) => {
+    socket.on('newOfferAwaiting', async (data, ackFn) => {
+
+        let peerConnection = await getOrCreatePeerConnection(data.newOffer.offererUserName)//createPeerConnection(offer.offererUserName);
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.newOffer.offer));
+        await processBufferedIceCandidates(data.newOffer.offererUserName, peerConnection);
+
+
 
         //let peerConnection = await getOrCreatePeerConnection(offer.offererUserName)//createPeerConnection(offer.offererUserName);
-      
+
 
         console.log(`newOfferAwaiting : ${data.newOffer.offererUserName}`);
 
         currentClientOffersMap.set(data.newOffer.offererUserName, data.newOffer);
 
-        
-        //socket.emit('updateOffersInMap', data.newOffer) //socket.io.
 
         if (window && window.gameInstance && window.socketIOAdapterName)
             window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientCall', data.offererClientID);
 
-            
 
-            let peerConnection = await getOrCreatePeerConnection(data.newOffer.offererUserName, false)//createPeerConnection(offer.offererUserName);
-    
+
+
+
+
+        // await processBufferedIceCandidates(offer.offererUserName, peerConnection);
+
+
+
         addToOffers(data.newOffer);
+
+
+
+        const responseObject = {
+            status: 'success',
+            message: `Call offer to ${data.newOffer.answererUserName} received and processed`,
+            data: { /* some data */ }
+        };
+
+
+        if (ackFn) ackFn(responseObject);
     });
 
-    socket.on('newOfferAwaiting2', async (data) => {
 
-        console.log(`newOfferAwaiting : ${data.newOffer.offererUserName}`);
+    socket.on('newOfferAwaiting2', async (data, ackFn) => {
 
-        //if(!data.isForClientSync)
+        console.log(`newOfferAwaiting2 : ${data.newOffer.offererUserName}`);
+
+        let peerConnection = await getOrCreatePeerConnection(data.newOffer.offererUserName)//createPeerConnection(offer.offererUserName);
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.newOffer.offer));
+        await processBufferedIceCandidates(data.newOffer.offererUserName, peerConnection);
+
         currentClientOffersMap.set(data.newOffer.offererUserName, data.newOffer);
 
-        //socket.emit('updateOffersInMap', data.newOffer) //socket.io.
 
-        // if (window && window.gameInstance && window.socketIOAdapterName)
-        //     window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientCall', data.offererClientID);
+        // setTimeout(async() => {
+        await addToAutomaticClickedOffers({ offer: data.newOffer, offererSocketID: data.offererSocketID });
 
-
-        await addToAutomaticClickedOffers({offer: data.newOffer, offererSocketID : data.offererClientID});await  addToAutomaticClickedOffers({offer: data.newOffer, offererSocketID : data.newOffer.offererSocketID, offererClientID: data.offererClientID});
+        // }, 1000);
         //addToOffers(data.newOffer);
         if (window && window.gameInstance && window.socketIOAdapterName)
-        window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientCallAndAnswer', data.offererClientID);//addToOffers(data.newOffer);
-    });
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientCallAndAnswer', data.offererClientID);//addToOffers(data.newOffer);
+
+
+        const responseObject = {
+            status: 'success',
+            message: `Call offer to ${data.newOffer.answererUserName} received and processed`,
+            data: { /* some data */ }
+        };
+
+
+        if (ackFn) ackFn(responseObject);
+
+        console.log(`RETURNING ACKFN : ${data.newOffer.offererUserName}`);
+
+    }
+
+    );
 
 
     socket.on('removeOffer', (offer) => {
@@ -139,8 +184,10 @@ function setupSocketListeners() {
         removeOffer(offer);
     });
 
+
     socket.on('roomCreated', (data) => {
-        //        console.log(`roomCreated : ${data.roomName} with: ${data.nameToAdd}`);
+
+        clientsInRoom.set(data.socketID, data.nameToAdd);
 
         roomName = data.roomName;
 
@@ -151,45 +198,34 @@ function setupSocketListeners() {
 
         let peerConnection = await getOrCreatePeerConnection(data.offer.answererUserName);//createPeerConnection(offer.answererUserName);
 
-
-       
-
-        if(connectedPeers.has(data.offer.answererUserName)) //connectedPeersMap.has(data.offer.answererUserName))
+        if (connectedPeers.has(data.offer.answererUserName)) //connectedPeersMap.has(data.offer.answererUserName))
         {
             console.log(`This User: ${userName} is already connected to ${data.offer.answererUserName} aborting answerResponse.`);
-           //cant do this after 4 clients there are empty ones
+            //cant do this after 4 clients there are empty ones
             //return;
         }
 
-        
-        
+
+
         console.log(`answerResponse : ${data.offer.answererUserName}`);
-        
-        
-        
-      
 
 
-        data.offer.offererUserName = userName;
-        
-
-        // if(peerConnection)
-         await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer.answer));
-         await processBufferedIceCandidates(data.offer.offererUserName, peerConnection);
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer.answer));
+        await processBufferedIceCandidates(data.offer.answererUserName, peerConnection);
 
 
 
 
-         data.offer.answererIceCandidates.forEach(c => {
+        // data.offer.answererIceCandidates.forEach(c => {
 
-      if (peerConnection && peerConnection.signalingState !== 'closed')
-          peerConnection.addIceCandidate(c);
+        //     if (peerConnection && peerConnection.signalingState !== 'closed')
+        //         peerConnection.addIceCandidate(c);
 
-      console.log(`${userName}  ======Added Ice Candidate======`)
-  });
+        //     console.log(`${userName}  ======Added Ice Candidate======`)
+        // });
 
 
-         console.log(peerConnection.remoteDescription);
+        console.log(peerConnection.remoteDescription);
         //addAnswer(data.offer);
 
         // if (peerConnection.signalingState === 'stable') {
@@ -200,69 +236,88 @@ function setupSocketListeners() {
         //   //  console.log('The connection is not stable.');
         // }
 
-
+        console.log(`CLIENT ID RECEIVING ANSWER RECEIPT : ${data.offererClientID}`);
         if (window && window.gameInstance && window.socketIOAdapterName)
             window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientAnswer', data.offererClientID);
 
 
-      
-  //if(!isForSync)
-    if(connectedPeers.has(data.offer.answererUserName)) //connectedPeersMap.has(data.offer.answererUserName))
-    {
-        console.log(`This User: ${userName} is already connected to ${data.offer.answererUserName} aborting.`);
-     //   return;
-    }else{
 
-        
-        console.log(`OFFERER CONNECTED PEERS:  ${connectedPeersMap.size})`)
-        
-
-        connectedPeersMap.set(data.offer.offererUserName, data.offer.offererSocketID);
-        socket.emit('roomCallClient',data.offer.offererUserName, Array.from(connectedPeersMap.values()));
-        connectedPeersMap.set(data.offer.answererUserName, data.offer.answererSocketID);
-
-
-    }
-
-      // socket.emit('connectionEstablished', {offererSocketID:offerResult.offererSocketID, answererSocketID: offerResult.answererSocketID, offererUserName: offerResult.offererUserName, answererUserName: offerResult.answererUserName, isForSync: isForSync });
+        //if(!isForSync)
+        if (connectedPeers.has(data.offer.answererUserName)) //connectedPeersMap.has(data.offer.answererUserName))
+        {
+            console.log(`This User: ${userName} is already connected to ${data.offer.answererUserName} aborting.`);
+            //   return;
+        } else {
 
 
 
-       
+            // connectedPeersMap.set(data.offer.offererUserName, data.offer.offererSocketID);
+
+            connectedPeersMap.set(data.offer.answererUserName, data.offer.answererSocketID);
+
+            if (!data.offer.isForSync) {
+                socket.emit('roomCallClient', { clientToAdd: data.offer.offererUserName, clientsAlreadyConnectedTo: Array.from(connectedPeersMap.keys()) });
+                console.log(`OFFERER CONNECTED PEERS:  ${connectedPeersMap.size})`)
+            }
+
+        }
+
+        // socket.emit('connectionEstablished', {offererSocketID:offerResult.offererSocketID, answererSocketID: offerResult.answererSocketID, offererUserName: offerResult.offererUserName, answererUserName: offerResult.answererUserName, isForSync: isForSync });
+
+
+
+
     });
 
-    
-    
 
-    
+
+
     socket.on('receivedIceCandidateFromServer', async (candidate) => {
         // addNewIceCandidate(candidate.iceCandidate, candidate.offer, candidate.to);
-        console.log(`receiving ice candidate : ${userName}`)
+        //console.log(`receiving ice candidate : ${userName}`)
 
         const peerConnection = await getOrCreatePeerConnection(candidate.from);//offer.answererUserName);
 
-        if (candidate.iceCandidate && peerConnection){
-           
-           
-            console.log(`receivedIceCandidateFromServer : ${userName}`)
+        if (candidate.iceCandidate && peerConnection) {
 
 
-            //if( peerConnection.remoteDescription)
-            peerConnection.addIceCandidate(new RTCIceCandidate(candidate.iceCandidate));
+
+            if (!peerConnection.remoteDescription) {
+                addIceCandidateToBuffer(candidate.from, candidate.iceCandidate);
+                //   console.log(peerConnection.remoteDescription)
+            } else {
+
+                console.log(`receivedIceCandidateFromServer : ${candidate.from}`)
+
+                peerConnection.addIceCandidate(new RTCIceCandidate(candidate.iceCandidate));
+            }
         }
         else {
             console.log("Remote description not set. Buffering ICE candidate.");
             // Check if there's already a buffer for this peer connection
-            if (!iceCandidateBuffer.has(candidate.from)) {
-                iceCandidateBuffer.set(candidate.from, []);
-            }
-            // Add the ICE candidate to the buffer
-            iceCandidateBuffer.get(candidate.from).push(candidate.iceCandidate);
+
+            addIceCandidateToBuffer(candidate.from, candidate.iceCandidate);
+            // if (!iceCandidateBuffer.has(candidate.from)) {
+            //     iceCandidateBuffer.set(candidate.from, []);
+            // }
+            // // Add the ICE candidate to the buffer
+            // iceCandidateBuffer.get(candidate.from).push(candidate.iceCandidate);
         }
 
     });
 
-   
+
+
+
+    function addIceCandidateToBuffer(from, iceCandidate) {
+        if (!iceCandidateBuffer.has(from)) {
+            iceCandidateBuffer.set(from, []);
+        }
+        // Add the ICE candidate to the buffer
+        iceCandidateBuffer.get(from).push(iceCandidate);
+    }
+
+
 
 
 
@@ -283,14 +338,30 @@ function setupSocketListeners() {
         addClientElement(clients);
     });
 
-    socket.on('callEnded', clientID => {
+    // socket.on('callEnded', clientID => {
+    //     // Handle the call end event
+
+    //     if (window && window.gameInstance && window.socketIOAdapterName) {
+    //         window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveCallEnded', clientID);
+    //         console.log(`SENDMESSAGE RECEIVECALLENDED : ${userName}`);
+    //     }
+
+
+    //     endCall(0);
+
+
+    // });
+
+    socket.on('callEnded', (clientData) => {
         // Handle the call end event
 
         if (window && window.gameInstance && window.socketIOAdapterName) {
-            window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveCallEnded', clientID);
-            console.log(`SENDMESSAGE RECEIVECALLENDED : ${userName}`);
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveCallEnded', clientData.clientID);
+            console.log(`SENDMESSAGE RECEIVECALLENDED : ${clientData.clientName}`);
         }
 
+        if (clientsCalled.has(clientData.clientName))
+            clientsCalled.remove(clientData.clientName);
 
         endCall(0);
 
@@ -298,9 +369,22 @@ function setupSocketListeners() {
     });
 
 
-    socket.on('clientDisconnected', (disconectingUserName) => {
+    socket.on('callEndedAndEmptyRoom', clientID => {
         // Handle the call end event
 
+        // if (window && window.gameInstance && window.socketIOAdapterName) {
+        //     window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveCallEnded', clientID);
+        //     console.log(`SENDMESSAGE RECEIVECALLENDED : ${userName}`);
+        // }
+
+
+    });
+
+
+    socket.on('clientDisconnected', (disconectingUserName) => {
+        // Handle the call end event
+        if (clientsCalled.has(disconectingUserName))
+            clientsCalled.delete(disconectingUserName);
 
         endCall(0, disconectingUserName);
     });
@@ -313,6 +397,9 @@ function setupSocketListeners() {
 
     socket.on('rejectedClientOffer', (data) => {
 
+        if (clientsCalled.has(data.answererUserName))
+            clientsCalled.delete(data.answererUserName);
+
         console.log(`rejectedClientOffer : ${data}`);
         //  removeOffer(data);
 
@@ -322,22 +409,22 @@ function setupSocketListeners() {
     socket.on('makeClientSendOffer', (clientToAdd) => {
 
         console.log(`makeClientSendOffer : ${clientToAdd}`);
-        call(clientToAdd, true);
-     //   call(clientToAdd, true);
+        call(clientToAdd, true, true);
+        //   call(clientToAdd, true);
 
     });
-  
 
-    socket.on('informAnswered', async(data) => {
 
-    
-  // let peerConnection = await getOrCreatePeerConnection(data.offererUserName, false);
-     
-    //attachIceCandidateListener(peerConnection, true);
+    socket.on('informAnswered', async (data) => {
 
-    //     console.log(`inform of answer : ${data.offererUserName}`);
+
+        // let peerConnection = await getOrCreatePeerConnection(data.offererUserName, false);
+
+        //attachIceCandidateListener(peerConnection, true);
+
+        //     console.log(`inform of answer : ${data.offererUserName}`);
         //call(clientToAdd, true);
-     //   call(clientToAdd, true);
+        //   call(clientToAdd, true);
 
     });
     // socket.on('syncForOfferer', (clientToAdd, offer) => {   
@@ -348,7 +435,14 @@ function setupSocketListeners() {
     //     socket.emit('roomCallClient', clientToAdd, Array.from(connectedPeersMap.values()));
     // });
 
+    socket.on('messageFromClient', (data, ackFn) => {
+        console.log(`Received message: ${data.message} from ${data.from}`);
 
+        // Process the message here
+
+        // Send an acknowledgment back to the server, which will relay it to Client A
+        if (ackFn) ackFn('Message received and processed');
+    });
 
 
 }
@@ -359,12 +453,58 @@ async function processBufferedIceCandidates(peerIdentifier, peerConnection) {
         const candidates = iceCandidateBuffer.get(peerIdentifier);
         console.log(`Adding buffered ICE candidates for ${peerIdentifier}`);
         for (const candidate of candidates) {
-            await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+            peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
         }
         // Clear the buffer for this peer connection
         iceCandidateBuffer.delete(peerIdentifier);
     }
 }
+
+
+// Set a maximum amount of time we're willing to wait for ICE to connect
+const ICE_CONNECTION_TIMEOUT = 8000; // 15 seconds
+
+function setupIceConnectionTimeout(peerConnection, peerId) {
+    let iceConnectionTimer = setTimeout(() => {
+        console.log(`ICE Connection Timeout. Restarting ICE for ${peerId}`);
+        //   restartIce(peerConnection);
+        call(peerId, true, true);
+    }, ICE_CONNECTION_TIMEOUT);
+
+    peerConnection.oniceconnectionstatechange = () => {
+        console.log(`${peerId}: ICE connection state changed to: ${peerConnection.iceConnectionState}`);
+        if (peerConnection.iceConnectionState === 'connected' ||
+            peerConnection.iceConnectionState === 'completed') {
+            clearTimeout(iceConnectionTimer);
+        }
+    };
+}
+//   async function restartIce(peerConnection, peerId) {
+//       if (peerConnection.signalingState !== 'stable') {
+//           console.log('Signaling state is not stable. Cannot restart ICE now.');
+//           return; // Do not restart ICE if the signaling state is not stable
+//       }
+
+//       try {
+//           const offer = await peerConnection.createOffer({ iceRestart: true });
+//           await peerConnection.setLocalDescription(offer);
+
+//           // Send the new offer to the signaling server
+//           // Adjust this part based on how you send offers in your signaling logic
+//           socket.emit('offer', {
+//               type: 'ice-restart-offer',
+//               offer: offer,
+//               from: userName,
+//               to: peerId
+//           });
+
+//           console.log(`ICE restart offer sent for ${peerId}`);
+//       } catch (error) {
+//           console.error(`Error during ICE restart for ${peerId}:`, error);
+//       }
+//   }
+
+
 
 
 async function acceptClientOffer({ offer, offererClientID }) {
@@ -412,7 +552,7 @@ function updateClientElements(clients) {
 }
 
 function addToOffers(offer) {
-  
+
     // Update the DOM
     const answerEl = document.querySelector('#answer');
     if (answerEl) {
@@ -430,9 +570,9 @@ function addToOffers(offer) {
     }
 }
 
-async function addToAutomaticClickedOffers({offer, offererSocketID  }) {
+async function addToAutomaticClickedOffers(data) {
 
-    await answerOffer(offer, offererSocketID, true);
+    await answerOffer(data.offer, data.offererSocketID, true);
 }
 
 async function answerClient(offererUserName) {
@@ -441,30 +581,18 @@ async function answerClient(offererUserName) {
     console.log(`answerClient (function parameter) : ${offererUserName}`);
 
     const valuesArray = Array.from(currentClientOffersMap.values());
-console.log(valuesArray); 
+    console.log(valuesArray);
 
-// ["value1", "value2", "value3"]
-    // currentClientOffersMap.values().forEach(name => { 
-    //     console.log(`clientINMAP:   --- ${name}`);
-    // });
-    
-    // if(!offererUserName)
-    // return;
+
     const offer = currentClientOffersMap.get(offererUserName);
-    // if(!offer)
 
-    // return;
     console.log(`answerClient (existance in map) : ${offer}`);
 
 
     console.log(`answerClient client: ${currentClientOffersMap.size}`);
-    //currentClientOffersMap.length
-    // socket.emit('offerAnswered', offer);
+
     await answerOffer(offer);
 
-   // removeOffer(offer);
-
-    // currentClientOffersMap.delete(offererUserName);
 
 }
 
@@ -524,11 +652,11 @@ async function endCall(isCaller, disconnectingUserName) {
 
     }
 
-    // localStream.getTracks().forEach(track => track.stop());
-    // clientsInCall = [];
-    // roomName = null;
 
     if (isCaller) {
+        localStream.getTracks().forEach(track => track.stop());
+        clientsInCall = [];
+        roomName = null;
         //  console.log("roomname: " + roomName);
         socket.emit('sendCallEndedToServer', userName);
     }
@@ -604,7 +732,7 @@ function updateOfferElements(newOffers) {
 
 async function answerOffer(offer, offererSocketID, isForSync) {
 
-    
+
     //call this for the offerer socket aswell getting to offerer as someone needed to be exposed. this is done
     //since the sole offerer that does not know about peers is the one that is calling the answerer 
     //with multi peers
@@ -613,183 +741,126 @@ async function answerOffer(offer, offererSocketID, isForSync) {
 
     console.log(`answerOffer : ${offer}`);
 
-     let peerConnection = await getOrCreatePeerConnection(offer.offererUserName)//createPeerConnection(offer.offererUserName);
-    // attachIceCandidateListener(peerConnection,false);
-     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer.offer));
-     await processBufferedIceCandidates(offer.answererUserName, peerConnection);
-     
-     
-     const answer = await peerConnection.createAnswer({});
-     
-     
-     await peerConnection.setLocalDescription(answer);
-     
-     
-     
-     console.log(peerConnection.remoteDescription);
-     
-     
-     offer.answer = answer;
-     offer.answererUserName = userName;
-     offer.isForSync = isForSync;
+    let peerConnection = await getOrCreatePeerConnection(offer.offererUserName)//createPeerConnection(offer.offererUserName);
+    // await peerConnection.setRemoteDescription(new RTCSessionDescription(offer.offer));
+    //  await processBufferedIceCandidates(offer.offererUserName, peerConnection);
+
+
+    // offer.offerIceCandidates.forEach(c => {
+
+    //     if (peerConnection) //&& peerConnection.signalingState !== 'closed')
+    //         peerConnection.addIceCandidate(c);
+
+    //     console.log(`${userName}  ======Added Ice Candidate======`)
+    // });
+
+    console.log(`POST PROCESS BUFFER`);
+
+
+    const answer = await peerConnection.createAnswer({});
+
+
+    await peerConnection.setLocalDescription(answer);
+
+    await waitForIceGatheringComplete(peerConnection);
+
+
+    console.log(peerConnection.remoteDescription);
+
+
+    offer.answer = answer;
+    // offer.answererUserName = userName;
+    offer.isForSync = isForSync;
 
     let offerResult = null;
 
-   // offer.clientsInCall = clientsInCall;
- //  socket.emit('informClientOfAnswer', { offererSocketID:offer.offererSocketID, answererSocketID: offer.answererSocketID, offererUserName: offer.offererUserName, answererUserName: userName, isForSync: isForSync });
-
-    offerResult = await socket.emitWithAck('newAnswer', offer);
-   
 
 
 
 
+    // offer.clientsInCall = clientsInCall;
+    //  socket.emit('informClientOfAnswer', { offererSocketID:offer.offererSocketID, answererSocketID: offer.answererSocketID, offererUserName: offer.offererUserName, answererUserName: userName, isForSync: isForSync });
 
-    
+    //let data= {offer, clientsInRoom};
+    offerResult = await socket.emitWithAck('newAnswer', { offer, clients: clientsInRoom.values() });
 
 
 
-    offerResult.offerIceCandidates.forEach(c => {
 
-        if (peerConnection && peerConnection.signalingState !== 'closed')
-            peerConnection.addIceCandidate(c);
 
-        console.log(`${userName}  ======Added Ice Candidate======`)
-    });
 
-    
-   
-   
-  //  console.log(`ANSWERER CONNECTED PEERS:  ${connectedPeersMap.size})`)
+
+
+
+
+    // await processBufferedIceCandidates(offer.offererUserName, peerConnection);
+
+
+
+    console.log(`ANSWERER CONNECTED PEERS:  ${connectedPeersMap.size})`)
     //if(offererSocketID)
-  
-     //if(!isForSync)
-      if(connectedPeers.has(offerResult.offererUserName)) //connectedPeersMap.has(offerResult.offererUserName))
-      {
-          console.log(`This User: ${userName} is already connected to ${offerResult.offererUserName} in answerOffer answer.`);
-       //  return;
-      }else{
-        
-           connectedPeersMap.set(offerResult.offererUserName, offerResult.offererSocketID);
-          connectedPeersMap.set(offerResult.answererUserName, offerResult.answererSocketID);
-          socket.emit('roomCallClient', offerResult.answererUserName, Array.from(connectedPeersMap.values()));
-          
-      }
+
+    //if(!isForSync)
+    if (connectedPeers.has(offerResult.offererUserName)) //connectedPeersMap.has(offerResult.offererUserName))
+    {
+        console.log(`This User: ${userName} is already connected to ${offerResult.offererUserName} in answerOffer answer.`);
+        //  return;
+    } else {
+
+
+        //  setTimeout(() => {  
+        connectedPeersMap.set(offer.offererUserName, offer.offererSocketID);
+        //  connectedPeersMap.set(offer.answererUserName, offer.answererSocketID);
+
+        if (!isForSync) {
+            console.log(`ANSWER OFFERER :  ${offer.offererUserName} OFFFER RESULT: ${offerResult.offererUserName} CONNECTED PEERS:  ${connectedPeersMap.size})`)
+            socket.emit('roomCallClient', { clientToAdd: offer.answererUserName, clientsAlreadyConnectedTo: Array.from(connectedPeersMap.keys()) });
+
+        }
+        //{clientToAdd: data.offer.offererUserName, clientsAlreadyConnectedTo:  Array.from(connectedPeersMap.values())}
+
+        //   }, 1000);
+
+    }
 
     //ReceiveClientAnswer   socket.emit('connectionEstablished', {offererSocketID:offerResult.offererSocketID, answererSocketID: offerResult.answererSocketID, offererUserName: offerResult.offererUserName, answererUserName: offerResult.answererUserName, isForSync: isForSync });
-  
- 
+
+
 }
 
 
-// async function answerOffer2(offer) {
-
-
-//     //await fetchUserMedia();
-
-//     console.log(`answerOffer : ${offer}`);
-
-//     // let peerConnection = peerConnections.get( offer.offererUserName);
-
-//     //     if (!peerConnection) {
-//     let peerConnection = await getOrCreatePeerConnection(offer.offererUserName)//createPeerConnection(offer.offererUserName);
-//     //        peerConnections.set(offer.offererUserName, peerConnection);
-//     //    }
-
-
-
-//     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer.offer));
-
-//     const answer = await peerConnection.createAnswer();
-
-//     await peerConnection.setLocalDescription(answer);
-
-//     offer.answer = answer;
-//     offer.answererUserName = userName;
-
-//     offer.clientsInCall = clientsInCall;
-
-//     const offerResult = await socket.emitWithAck('answerResolve2', offer);
-
-//     offerResult.offerIceCandidates.forEach(c => {
-
-//         if (peerConnection && peerConnection.signalingState !== 'closed')
-//             peerConnection.addIceCandidate(c);
-//     });
-
-// }
-
-
-
-// async function addNewIceCandidate(iceCandidate, offer) {
-
-//     // let peerConnection = peerConnections.get( offer.answererUserName);
-//     // if (!peerConnection) {
-//     let peerConnection = await getOrCreatePeerConnection(offer.answererUserName)//createPeerConnection(offer.answererUserName);
-//     //     peerConnections.set(offer.offererUserName, peerConnection);
-//     // }
-
-
-//     if (iceCandidate && peerConnection && peerConnection.signalingState !== 'closed')
-//         peerConnection.addIceCandidate(new RTCIceCandidate(iceCandidate));
-// }
-
-
-async function getOrCreatePeerConnection(name, didIOffer = false, overide = false) {
+async function getOrCreatePeerConnection(name, didIOffer = false, isForClientSync = false) {
 
     let peerConnection;
 
     //syncing more than 2 users per answered client required overwriting the peer connection.
     //need to look for a better approach in the future
 
-        peerConnection = peerConnections.get(name);
+    peerConnection = peerConnections.get(name);
 
-        if (!peerConnection) {
-            console.log(`CreatePeerConnection : ${name}`);
+    if (!peerConnection) {
+        console.log(`CreatePeerConnection : ${name}`);
 
-            peerConnection = await createPeerConnection(name, didIOffer);
-            
-            
-             attachIceCandidateListener(peerConnection, didIOffer);
-            listenAndSetupRemoteVideoStream(peerConnection, name);
-            peerConnections.set(name, peerConnection);
-            await fetchUserMedia(peerConnection);
-   
-
-            
-           
-    
-   
-      
-        }
-
-    // } else {
-
-    //     // peerConnection = await createPeerConnection(name, didIOffer);
-    //     // peerConnections.set(name, peerConnection);
+        peerConnection = await createPeerConnection(name, didIOffer);
 
 
-    //  //   await fetchUserMedia();
-    
-    //     // peerConnections.forEach((peerConnection, peerId) => {
-    //     //     // Remove all tracks from the peer connection
-    //     //     peerConnection.getSenders().forEach(sender => peerConnection.removeTrack(sender));
-
-    //     //     // Add the new tracks to the peer connection
-    //     //     localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-    //     // });
-  
-    //    // listenAndSetupRemoteVideoStream(peerConnection, name);
-    // }
-
-   
-
-      //  localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-        // Assume peerConnections is a Map of RTCPeerConnection objects
+        if (isForClientSync)
+            // Set up ICE connection state monitoring with a timeout
+            setupIceConnectionTimeout(peerConnection, name);
 
 
-  // localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+        attachIceCandidateListener(peerConnection, didIOffer);
+        listenAndSetupRemoteVideoStream(peerConnection, name);
+        peerConnections.set(name, peerConnection);
+        await fetchUserMedia(peerConnection);
+
+
+
+
+
+
+
+    }
 
 
 
@@ -798,70 +869,70 @@ async function getOrCreatePeerConnection(name, didIOffer = false, overide = fals
 
 }
 
-function sendLocalFeedToRemotePeers(){
+function sendLocalFeedToRemotePeers() {
 
-      peerConnections.forEach((peerConnection, peerId) => {
-            // Remove all tracks from the peer connection
-            peerConnection.getSenders().forEach(sender => peerConnection.removeTrack(sender));
+    peerConnections.forEach((peerConnection, peerId) => {
+        // Remove all tracks from the peer connection
+        peerConnection.getSenders().forEach(sender => peerConnection.removeTrack(sender));
 
-            // Add the new tracks to the peer connection
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-        });
+        // Add the new tracks to the peer connection
+        //localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+    });
 
-          // localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
 
 }
 
 
-function listenAndSetupRemoteVideoStream(peerConnection, name){
- 
- 
+function listenAndSetupRemoteVideoStream(peerConnection, name) {
+
+
     // Handle remote track
- peerConnection.ontrack = event => {
-     const remoteStream = new MediaStream();
-    event.streams[0].getTracks().forEach(track => {
-        
-        remoteStream.addTrack(track)
-       // console.log(`Track state: ${track.readyState}, enabled: ${track.enabled}`);
-    
-    }
-    
-    
-    );
-  
-    // Update or create remote video element for the target user
-    if(event.track.kind === 'video'){
-        const videoElement = updateRemoteVideoElement(name);
+    peerConnection.ontrack = event => {
+        const remoteStream = new MediaStream();
+        event.streams[0].getTracks().forEach(track => {
 
-        videoElement.srcObject = remoteStream;
-        // Play the video element when it's ready
-        videoElement.onloadedmetadata = () => {
-          
-            if (!connectedPeers.has(name)) {
-                 connectedPeers.add(name);
-                console.log(`Peer ${name} added to connected peers.`);
-            }
+            remoteStream.addTrack(track)
+            // console.log(`Track state: ${track.readyState}, enabled: ${track.enabled}`);
 
-            
-            console.log(`onloadedmetadata: Video is now ready to play for ${name}`);
-            playVideoSafely(videoElement); // Function to safely play the video
-        };
-    
-        videoElement.oncanplaythrough = () => {
-            console.log("Can play through video now. Attempting to play...");
-            playVideoSafely(videoElement);
-        };
-
-        console.log(`Remote stream added for ${name}: "elementname: ${videoElement.id} : ${remoteStream}`);
-    }
-    console.log("Track received:", event.track.kind, event.track.id);
-    console.log("Associated stream IDs:", event.streams.map(s => s.id));
+        }
 
 
-  
+        );
 
-};
+        // Update or create remote video element for the target user
+        if (event.track.kind === 'video') {
+            const videoElement = updateRemoteVideoElement(name);
+
+            videoElement.srcObject = remoteStream;
+            // Play the video element when it's ready
+            videoElement.onloadedmetadata = () => {
+
+                if (!connectedPeers.has(name)) {
+                    connectedPeers.add(name);
+                    console.log(`Peer ${name} added to connected peers.`);
+                }
+
+
+                console.log(`onloadedmetadata: Video is now ready to play for ${name}`);
+                playVideoSafely(videoElement); // Function to safely play the video
+            };
+
+            videoElement.oncanplaythrough = () => {
+                console.log("Can play through video now. Attempting to play...");
+                playVideoSafely(videoElement);
+            };
+
+            console.log(`Remote stream added for ${name}: "elementname: ${videoElement.id} : ${remoteStream}`);
+        }
+        console.log("Track received:", event.track.kind, event.track.id);
+        console.log("Associated stream IDs:", event.streams.map(s => s.id));
+
+
+
+
+    };
 
 }
 function playVideoSafely(videoElement) {
@@ -880,32 +951,62 @@ async function createPeerConnection(targetUserName, didIOffer = false) {
 
     peerConnection.oniceconnectionstatechange = () => {
 
-        console.log(`ICE connection state changed to: ${peerConnection.iceConnectionState}`);
-       // peerConnection.iceConnectionState
+        console.log(`${targetUserName} : ICE connection state changed to: ${peerConnection.iceConnectionState}`);
+        // peerConnection.iceConnectionState
         checkAndAddPeer(targetUserName, peerConnection);
+
+        if (peerConnection.iceConnectionState === 'disconnected' || peerConnection.iceConnectionState === 'failed') {
+            // Handle disconnection or failure
+            if (connectedPeers.has(targetUserName)) {
+                connectedPeers.delete(targetUserName);
+                console.log(`Peer ${targetUserName} disconnected or failed to connect. Retrying...`);
+                call(targetUserName, true);
+            }
+        }
+    };
+
+    peerConnection.onicegatheringstatechange = function() {
+        console.log(`${targetUserName} : ICE gathering state changed to: ' ${peerConnection.iceGatheringState}`);
+    
+        // switch(peerConnection.iceGatheringState) {
+        //     case 'new':
+        //         // The ICE agent is gathering addresses or is waiting to be given remote candidates
+        //         // through calls to addIceCandidate (or both).
+        //         break;
+        //     case 'gathering':
+        //         // The ICE agent is actively gathering candidates.
+        //         break;
+        //     case 'complete':
+        //         // The ICE agent has finished gathering candidates.
+        //         break;
+        // }
+    };
+
+
+    peerConnection.onconnectionstatechange = () => {
+
+        console.log(`${targetUserName} : Connection state changed to: ${peerConnection.connectionState}`);
+
+        checkAndAddPeer(targetUserName, peerConnection);
+
 
         if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
             // Handle disconnection or failure
             if (connectedPeers.has(targetUserName)) {
                 connectedPeers.delete(targetUserName);
-                console.log(`Peer ${targetUserName} disconnected or failed to connect.`);
+                console.log(`Peer ${targetUserName} disconnected or failed to connect. Retrying...`);
+                call(targetUserName, true);
             }
         }
-    };
-    
-    peerConnection.onconnectionstatechange = () => {
 
-        console.log(`Connection state changed to: ${peerConnection.connectionState}`);
-        
-        checkAndAddPeer(targetUserName, peerConnection);
     };
-    
+
     peerConnection.onsignalingstatechange = () => {
 
-        console.log(`Signaling state changed to: ${peerConnection.signalingState}`);
+        console.log(`${targetUserName} : Signaling state changed to: ${peerConnection.signalingState}`);
         checkAndAddPeer(targetUserName, peerConnection);
     };
-   
+
 
 
 
@@ -918,12 +1019,12 @@ function checkAndAddPeer(peerId, peerConnection) {
     if (peerConnection.iceConnectionState === 'connected' || peerConnection.iceConnectionState === 'completed') {
         if (peerConnection.connectionState === 'connected') {
             if (peerConnection.signalingState === 'stable') {
-                
-                if (!connectedPeers.has(peerId)) 
-                connectedPeers.add(peerId);
+
+                if (!connectedPeers.has(peerId))
+                    connectedPeers.add(peerId);
                 console.log(`Peer ${peerId} added to connected peers.`);
 
-               let videoEl = videoElementsMap.get(peerId);
+                let videoEl = videoElementsMap.get(peerId);
 
                 // Check if the video is playing and has enough data
                 if (videoEl && !videoEl.paused && videoEl.readyState === 4) {
@@ -941,7 +1042,7 @@ function updateRemoteVideoElement(userName, stream) {
     console.log(`updateRemoteVideoElement : ` + "remoteVideo_" + userName);
     let videoEl = document.getElementById(`remoteVideo_${userName}`);
     if (!videoEl) {
-    //    console.log(`updateRemoteVideoElement : ` + "remoteVideo_" + userName);
+        //    console.log(`updateRemoteVideoElement : ` + "remoteVideo_" + userName);
         videoEl = document.createElement('video');
         videoEl.id = `remoteVideo_${userName}`;
         videoEl.autoplay = true;
@@ -972,14 +1073,14 @@ function updateRemoteVideoElement(userName, stream) {
 
 
 
-      //  document.body.appendChild(videoEl); // Or append to a specific container
+        //  document.body.appendChild(videoEl); // Or append to a specific container
 
         videoElements.push(videoEl);
 
         videoElementsMap.set(userName, videoEl);
         // videoIndex++;
     }
-     // videoEl.srcObject = stream;
+    // videoEl.srcObject = stream;
 
     return videoEl;
 
@@ -1040,14 +1141,25 @@ async function fetchUserMedia(peerConnection, includeVideo = true) {
         console.log(`ADDED TRACK: ${track.enabled}`);
         peerConnection.addTrack(track, localStream)
     }
-    
+
     );
- 
+
 }
 
-async function call(sendToUserName, isForClientSync = false, clientToSync = null) {
+const callTimeoutDuration = 5000; // Timeout duration in milliseconds
 
-    if(sendToUserName === userName){
+let clientsCalled = new Set();
+async function call(sendToUserName, isForClientSync = false, restartIce = false) {
+
+    // if (clientsCalled.has(sendToUserName)) {
+    //     console.log(`This User: ${userName} is already calling ${sendToUserName} aborting call.`);
+    //     return;
+    // }
+
+    // clientsCalled.add(sendToUserName);
+
+
+    if (sendToUserName === userName) {
 
         console.log(`Calling yourself: ${userName} `);
         return;
@@ -1057,55 +1169,159 @@ async function call(sendToUserName, isForClientSync = false, clientToSync = null
     //     console.log(`This User: ${userName} is already connected to ${sendToUserName} aborting call.`);
     //     return;
     // }
+    let peerConnection;
 
-    let peerConnection = await getOrCreatePeerConnection(sendToUserName, true, false);
+    if (restartIce)
+        peerConnection = await getOrCreatePeerConnection(sendToUserName, true, true);
+    else
+        peerConnection = await getOrCreatePeerConnection(sendToUserName, true, false);
 
     try {
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
 
-        
 
-        let adjustedAnswer;
-        switch (peerConnection.signalingState) {
-            case 'stable':
-                adjustedAnswer = `Calling ${sendToUserName}. The connection is stable.`;
-                break;
-            case 'have-local-offer':
-                adjustedAnswer = `Calling ${sendToUserName}. The local peer has created an offer and set it in the local description.`;
-                break;
-            case 'have-remote-offer':
-                adjustedAnswer = `Calling ${sendToUserName}. The remote peer has set the offer in the Remote description.`;
-                break;
-            case 'have-local-pranswer':
-                adjustedAnswer = `Calling ${sendToUserName}. The local peer has created a provisional answer and set it in the local desciption.`;
-                break;
-            case 'have-remote-pranswer':
-                adjustedAnswer = `Calling ${sendToUserName}. The remote peer has created a provisional answer and set it in the remote desciption.`;
-                break;
-            case 'closed':
-                adjustedAnswer = `Calling ${sendToUserName}. The connection is closed.`;
-                break;
-            default:
-                console.error('Unknown signaling state:', peerConnection.signalingState);
-                return;
-        }
 
-        // Log the adjusted answer
-        console.log("+++++++++++++++" + adjustedAnswer);
+        // peerConnection.createOffer().then(offer => {
+        //     return peerConnection.setLocalDescription(offer);
+        // }).then(() => {
+        //     return waitForIceGatheringComplete(peerConnection);
+        // }).then(() => {
+        //     const offer = peerConnection.localDescription;
+        //     enqueueSignalingMessage({
+        //         type: 'offer',
+        //         offer: offer,
+        //         target: targetPeerId
+        //     });
+        // }).catch(error => {
+        //     console.error("Error creating or sending offer:", error);
+        // });
+
+
+
+
+
+
+
+        let offer = null;
+
+        if (restartIce)
+            offer = await peerConnection.createOffer({ iceRestart: true });
+        else
+            offer = await peerConnection.createOffer();
+      
+            await peerConnection.setLocalDescription(offer);
+
+            await waitForIceGatheringComplete(peerConnection);
+
+            console.log(`CCCCCalling ${sendToUserName}. The local peer has created an offer and set it in the local description.`);
+      
+
+                  // let adjustedAnswer;
+        // switch (peerConnection.signalingState) {
+        //     case 'stable':
+        //         adjustedAnswer = `Calling ${sendToUserName}. The connection is stable.`;
+        //         break;
+        //     case 'have-local-offer':
+        //         adjustedAnswer = `Calling ${sendToUserName}. The local peer has created an offer and set it in the local description.`;
+        //         break;
+        //     case 'have-remote-offer':
+        //         adjustedAnswer = `Calling ${sendToUserName}. The remote peer has set the offer in the Remote description.`;
+        //         break;
+        //     case 'have-local-pranswer':
+        //         adjustedAnswer = `Calling ${sendToUserName}. The local peer has created a provisional answer and set it in the local desciption.`;
+        //         break;
+        //     case 'have-remote-pranswer':
+        //         adjustedAnswer = `Calling ${sendToUserName}. The remote peer has created a provisional answer and set it in the remote desciption.`;
+        //         break;
+        //     case 'closed':
+        //         adjustedAnswer = `Calling ${sendToUserName}. The connection is closed.`;
+        //         break;
+        //     default:
+        //         console.error('Unknown signaling state:', peerConnection.signalingState);
+        //         return;
+        // }
+
+        // // Log the adjusted answer
+        // console.log("+++++++++++++++" + adjustedAnswer);
+
+
+        let ackReceived = false; // Flag to track acknowledgment receipt
+
 
         // Emitting the offer to the signaling server with details about the target user
         socket.emit('newOffer', {
             offer,
             offererUserName: userName,
             answererUserName: sendToUserName,
-            isForClientSync: isForClientSync
-        });
+            isForClientSync
+        },
+            (response) => {
+
+                ackReceived = true; // Acknowledgment received
+
+                //console.log('Acknowledgment from Client B:', response)
+                if (response.status === 'success') {
+
+                    console.log('Message:', response.message);
+                    // Process the response data
+                } else {
+                    // Handle errors or unsuccessful responses
+                }
+
+            });
+
+        // Setting a timeout to check for acknowledgment
+        setTimeout(() => {
+            if (!ackReceived) {
+                console.error('Message delivery failed or acknowledgment was not received within the timeout period.');
+                // Handle the delivery failure (e.g., retry sending the message, alert the user)
+            } else {
+                if (clientsCalled.has(sendToUserName))
+                    clientsCalled.delete(sendToUserName);
+            }
+        }, callTimeoutDuration);
+
+
 
     } catch (error) {
         console.error('Error creating offer:', error);
     }
 }
+
+
+
+function createOfferAndSend(peerConnection, targetPeerId) {
+    peerConnection.createOffer().then(offer => {
+        return peerConnection.setLocalDescription(offer);
+    }).then(() => {
+        return waitForIceGatheringComplete(peerConnection);
+    }).then(() => {
+        const offer = peerConnection.localDescription;
+        enqueueSignalingMessage({
+            type: 'offer',
+            offer: offer,
+            target: targetPeerId
+        });
+    }).catch(error => {
+        console.error("Error creating or sending offer:", error);
+    });
+}
+
+function waitForIceGatheringComplete(peerConnection) {
+    return new Promise((resolve) => {
+        if (peerConnection.iceGatheringState === "gathering") {
+            resolve();
+        } else {
+            const checkState = () => {
+                if (peerConnection.iceGatheringState === "gathering") {
+                    peerConnection.removeEventListener("icegatheringstatechange", checkState);
+                    resolve();
+                }
+            };
+            peerConnection.addEventListener("icegatheringstatechange", checkState);
+        }
+    });
+}
+
 
 
 document.getElementById('startScreenSharingButton').addEventListener('click',
@@ -1162,6 +1378,9 @@ async function startScreenSharing() {
 }
 
 
+
+
+
 async function stopScreenSharing() {
     // Stop screen sharing stream tracks
     if (screenStream) {
@@ -1192,7 +1411,7 @@ async function stopScreenSharing() {
     }
 
     // Refresh originalStream for future use
-  //  await fetchUserMedia();
+    //  await fetchUserMedia();
 }
 
 document.getElementById('toggleMicrophoneButton').addEventListener('click', MuteMicToggle);
