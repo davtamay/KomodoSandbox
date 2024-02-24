@@ -27,13 +27,21 @@ public class WebRTCVideoTexture : MonoBehaviour
     [DllImport("__Internal")]
     private static extern void RemoveWebRTCTexture(int id, string name);
 
-    
+    [DllImport("__Internal")]
+    private static extern void RequestVideoReadyCheck(string name, int id);
+
+
     public int videoIndex;
 
     Dictionary<string, (int,RawImage)> nameToRawImage = new Dictionary<string, (int,RawImage)>();
 
-  //  public Dictionary<int, RawImage> inactiveTextures = new Dictionary<int, RawImage>();
-  public List<int> textureImages= new List<int>();
+    Stack<string> inactivateClientNames = new Stack<string>();
+
+   
+  // public Dictionary<int, RawImage> inactiveTextures = new Dictionary<int, RawImage>();
+  public Stack<int> inactiveTextureImages= new Stack<int>();
+
+    //public Dictionary<int, Texture> inactiveTextureImageMap = new Dictionary<int, Texture>();
 
     public void ProvideWebRTCTexture(RawImage rawImage, string name)
     {
@@ -47,37 +55,174 @@ public class WebRTCVideoTexture : MonoBehaviour
         int textureId = 0;
 
      
-
-
-        if (nameToRawImage.ContainsKey(name))
+        if(inactivateClientNames.Count > 0)
         {
-            texture = nameToRawImage[name].Item2.mainTexture;
-            textureId = nameToRawImage[name].Item1;
+           var iname = inactivateClientNames.Pop();
+
+            textureId = nameToRawImage[iname].Item1;
+            
+            texture = nameToRawImage[iname].Item2.mainTexture;
+
+
+            nameToRawImage.Remove(iname);
+
+
+            if (nameToRawImage.ContainsKey(name))
+                nameToRawImage[name] = (textureId, rawImage);
+            else
+               nameToRawImage.Add(name, (textureId, rawImage));
+
+
+         //   nameToRawImage[iname].Item2 = (textureId, rawImage);
+
+           // nameToRawImage[]
+
         }
         else
         {
-            texture = new Texture2D(256, 256);
-            textureId = (int)texture.GetNativeTexturePtr();
+            if (nameToRawImage.ContainsKey(name))
+            {
+                texture = nameToRawImage[name].Item2.mainTexture;
+                textureId = nameToRawImage[name].Item1;
+            }
+            else
+            {
+                texture = new Texture2D(256, 256);
+                textureId = (int)texture.GetNativeTexturePtr();
+                nameToRawImage.Add(name, (textureId, rawImage));
+            }
 
-            nameToRawImage.Add(name, (textureId, rawImage));
         }
+
+
+
+
 
         rawImage.texture = texture;
 
         //provide the name for the html element that is being created in javascript side
-        SetupWebRTCTexture(textureId, name);
-
         
+        // SetupWebRTCTexture(textureId, name);
+
+        RequestVideoReadyCheck(name, textureId);
+
+
+
+    }
+    public void OnVideoReady(string name)
+    {
+
+        if (nameToRawImage.ContainsKey(name))
+        {
+            var textureId = nameToRawImage[name].Item1;
+            SetupWebRTCTexture(textureId, name);
+        }
+
     }
 
-    public void RemoveTexture(int id, string name)
+    //public void OnVideoReady(string name)
+    //{
+    //    RawImage rawImage = null;
+    //    Texture texture = default;
+    //    int textureId = 0;
+
+
+    //    if (nameToRawImage.ContainsKey(name))
+    //    {
+    //        rawImage = nameToRawImage[name].Item2;
+    //    }
+
+
+    //    if (rawImage == null)
+    //    {
+    //        Debug.LogError("NO RAWIMAGE FOUND WHEN RECEIVING CLIENT NAME ");
+    //        return;
+
+    //    }
+
+
+    //    //  if(nameToRawImage[name].Item1 == -1)
+    //    texture = new Texture2D(256, 256);
+
+
+    //    // if (inactiveTextureImages.Count == 0)
+    //    textureId = (int)texture.GetNativeTexturePtr();
+    //    //else
+    //    //    textureId = inactiveTextureImages.Pop();
+
+
+
+    //    nameToRawImage[name] = (textureId, rawImage);
+
+
+
+    //    rawImage.texture = texture;
+
+
+    //    SetupWebRTCTexture(textureId, name);
+
+
+
+
+
+
+    //    //if (nameToRawImage.ContainsKey(name))
+    //    //{
+    //    //    texture = nameToRawImage[name].Item2.mainTexture;
+    //    //    textureId = nameToRawImage[name].Item1;
+    //    //}
+    //    //else
+    //    //{
+    //    //    texture = new Texture2D(256, 256);
+
+    //    //    if (inactiveTextureImages.Count == 0)
+    //    //    {
+
+    //    //        textureId = (int)texture.GetNativeTexturePtr();
+
+    //    //    }
+    //    //    else
+    //    //    {
+    //    //        textureId = inactiveTextureImages.Pop();
+    //    //    }
+
+    //    //    nameToRawImage.Add(name, (textureId, rawImage));
+    //    //}
+
+    //    //rawImage.texture = texture;
+
+    //    //provide the name for the html element that is being created in javascript side
+    //    //SetupWebRTCTexture(textureId, name);
+
+
+
+
+    //}
+
+
+    public void RemoveTexture(string name)
     {
+        if (nameToRawImage.ContainsKey(name)) {
+
+            RemoveWebRTCTexture(nameToRawImage[name].Item1, name);
+
+            inactivateClientNames.Push(name);
+            //inactiveTextureImages.Push(nameToRawImage[name].Item1);
+
+
+            //nameToRawImage.Remove(name);
+
+        }
+
         //if(inactiveTextures.Count> 0) 
-        textureImages.Add(id);
+        //textureImages.Add(id);
 
 
     }
  
+
+
+
     public void ReceiveDimensions(string dimensions)
     {
         string[] dims = dimensions.Split(',');

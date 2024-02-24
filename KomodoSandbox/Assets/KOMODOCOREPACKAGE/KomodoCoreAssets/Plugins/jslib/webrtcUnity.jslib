@@ -56,46 +56,58 @@
        },
 
 
+      RequestVideoReadyCheck : function(name, id) {
+          console.log("RequestVideoReadyCheck : " + UTF8ToString(name));
+
+          let nameConverted = UTF8ToString(name);
+         
+          if(nameConverted === "localVideo")
+             checkVideoElementReady("localVideo", id);
+          else
+            checkVideoElementReady("remoteVideo_" + nameConverted, id);
+      ///  window.gameInstance.SendMessage('WebRTCVideo', 'ReceiveVideoReadyCheck', UTF8ToString(name));
+       },
+
+
       RemoveWebRTCTexture: function(id, name) {
-        let textureObj = GL.textures[id];
-        GLctx.deleteTexture(textureObj);
-        console.log("WebGL texture deleted with ID:", id);
-
-        let videoElement = document.getElementById("remoteVideo_" + textureName);
-
-        // Find the index of the videoElement in the array
-        let index = videoElements.indexOf(videoElement);
-
-        if (index !== -1) {
-            videoElements.splice(index, 1);
-        }
-    
+       RemoveWebRTCTextureJS(id, UTF8ToString(name));
       },
+
 
 
 
      SetupWebRTCTexture: function(id, name) {
 
       let textureName = UTF8ToString(name);
-      let videoElement = document.getElementById("remoteVideo_" + textureName);
-    
 
-    if (!videoElement) {
-         console.log(`createdRemoteVideoElement : ` + "remoteVideo_" + textureName);
-        videoElement = document.createElement('video');
-        videoElement.id = "remoteVideo_" + textureName;//textureName;
-        videoElement.autoplay = true;
-        videoElement.playsInline = true;
-      videoElement.style.position = 'absolute';
-      videoElement.style.visibility = 'hidden';
-      videoElement.style.pointerEvents = 'none';
+      let videoElement = null;
       
-        document.body.appendChild(videoElement); // Or append to a specific container
+      if(textureName === "localVideo")
+          videoElement = localVideo;
+      else
+         videoElement = document.getElementById("remoteVideo_" + textureName);
+    
+    //  if (!videoElement) {
+    //     // If no existing video element is found, try to get an inactive video element from the pool
+    //     videoElement = inactiveVideoElements.pop();
+    // }
 
-  //  videoElements.push(videoElement);
+  //   if (!videoElement) {
+  //        console.log(`createdRemoteVideoElement : ` + "remoteVideo_" + textureName);
+  //       videoElement = document.createElement('video');
+  //       videoElement.id = "remoteVideo_" + textureName;//textureName;
+  //       videoElement.autoplay = true;
+  //       videoElement.playsInline = true;
+  //     videoElement.style.position = 'absolute';
+  //     videoElement.style.visibility = 'hidden';
+  //     videoElement.style.pointerEvents = 'none';
+      
+  //       document.body.appendChild(videoElement); // Or append to a specific container
+
+  //  // videoElements.push(videoElement);
 
         
-    }
+  //   }
    
 
 
@@ -119,11 +131,15 @@
 
         // Get the WebGL texture object from the Emscripten texture ID.
         textureObj = GL.textures[id];
-        textureID = id;
+        //needed to keep track of the texture to update
+        // videoElement.textureID = id;
 
-        videoElement.textureID = id;
-
-        videoElements.push(videoElement); 
+// if(!videoElements.includes(videoElement)) {
+//     videoElements.push(videoElement);
+// }
+         // if(videoElements.indexOf(videoElement) === -1) 
+           //   videoElements.push(videoElement);
+          
         
           console.log("WebGL texture created with ID:", id);
 
@@ -162,7 +178,7 @@
 
       if (v.readyState >= v.HAVE_CURRENT_DATA)
       { 
-        console.log("video ready" + v.id)
+        console.log("video ready" + v.id + "VIDEOELEMENTS :"+ videoElements.length)
         texturePaint(v);
       }
 

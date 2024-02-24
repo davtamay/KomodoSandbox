@@ -713,7 +713,19 @@ public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
     public void ReceiveCallEnded(int id)=>
         ShareMediaConnection.Instance.EndCall(id);
 
-   
+    public void ReceiveCallRejected(int id) =>
+      ShareMediaConnection.Instance.CallRejected(id);
+
+
+    public void ReceiveCallFailed(int id) =>
+     ShareMediaConnection.Instance.CallFailed(id);
+
+
+    public void ReceiveEmptyRoom() =>
+  ShareMediaConnection.Instance.EmptyRoom();
+
+
+
 
 
 

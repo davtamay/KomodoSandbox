@@ -1,6 +1,7 @@
 let localStream;
 
 let videoElements = [];//new Map();
+let inactiveVideoElements = []; // Add this line to create the inactiveVideoElements list
 
 let videoElementsMap = new Map();
 //peer connection setup
@@ -273,14 +274,10 @@ function setupSocketListeners() {
 
 
     socket.on('receivedIceCandidateFromServer', async (candidate) => {
-        // addNewIceCandidate(candidate.iceCandidate, candidate.offer, candidate.to);
-        //console.log(`receiving ice candidate : ${userName}`)
 
         const peerConnection = await getOrCreatePeerConnection(candidate.from);//offer.answererUserName);
 
         if (candidate.iceCandidate && peerConnection) {
-
-
 
             if (!peerConnection.remoteDescription) {
                 addIceCandidateToBuffer(candidate.from, candidate.iceCandidate);
@@ -294,14 +291,8 @@ function setupSocketListeners() {
         }
         else {
             console.log("Remote description not set. Buffering ICE candidate.");
-            // Check if there's already a buffer for this peer connection
 
             addIceCandidateToBuffer(candidate.from, candidate.iceCandidate);
-            // if (!iceCandidateBuffer.has(candidate.from)) {
-            //     iceCandidateBuffer.set(candidate.from, []);
-            // }
-            // // Add the ICE candidate to the buffer
-            // iceCandidateBuffer.get(candidate.from).push(candidate.iceCandidate);
         }
 
     });
@@ -338,19 +329,7 @@ function setupSocketListeners() {
         addClientElement(clients);
     });
 
-    // socket.on('callEnded', clientID => {
-    //     // Handle the call end event
-
-    //     if (window && window.gameInstance && window.socketIOAdapterName) {
-    //         window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveCallEnded', clientID);
-    //         console.log(`SENDMESSAGE RECEIVECALLENDED : ${userName}`);
-    //     }
-
-
-    //     endCall(0);
-
-
-    // });
+   
 
     socket.on('callEnded', (clientData) => {
         // Handle the call end event
@@ -363,19 +342,38 @@ function setupSocketListeners() {
         if (clientsCalled.has(clientData.clientName))
             clientsCalled.remove(clientData.clientName);
 
-        endCall(0);
+        endCall(0, clientData.clientName);
+
+        console.log(`callEnded : ${clientData.clientName}`);
+        //  endCall(0);
 
 
     });
 
 
-    socket.on('callEndedAndEmptyRoom', clientID => {
+    socket.on('callEndedAndEmptyRoom', () => {
+
+        // console.log(`callEndedAndEmptyRoom :`);
+        // // 1. Stop all local media tracks
+        // if (localStream) {
+        //     localStream.getTracks().forEach(track => track.stop());
+        //     localStream = null; // Clear the localStream reference
+        // }
+
+        // // 2. Close all peer connections
+        // peerConnections.forEach((peerConnection, key) => {
+        //     peerConnection.close(); // Close the peer connection
+        //     peerConnections.delete(key); // Remove from the map or collection
+        // });
+
+
+
         // Handle the call end event
 
-        // if (window && window.gameInstance && window.socketIOAdapterName) {
-        //     window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveCallEnded', clientID);
-        //     console.log(`SENDMESSAGE RECEIVECALLENDED : ${userName}`);
-        // }
+        if (window && window.gameInstance && window.socketIOAdapterName) {
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveEmptyRoom');
+            console.log(`SENDMESSAGE RECEIVECALLENDED : ${userName}`);
+        }
 
 
     });
@@ -400,10 +398,17 @@ function setupSocketListeners() {
         if (clientsCalled.has(data.answererUserName))
             clientsCalled.delete(data.answererUserName);
 
+
+            if (window && window.gameInstance && window.socketIOAdapterName)
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveCallRejected', data.answererClientID);
+
+            
         console.log(`rejectedClientOffer : ${data}`);
         //  removeOffer(data);
 
     });
+
+   
 
 
     socket.on('makeClientSendOffer', (clientToAdd) => {
@@ -580,8 +585,8 @@ async function answerClient(offererUserName) {
 
     console.log(`answerClient (function parameter) : ${offererUserName}`);
 
-    const valuesArray = Array.from(currentClientOffersMap.values());
-    console.log(valuesArray);
+  //  const valuesArray = Array.from(currentClientOffersMap.values());
+    //console.log(valuesArray);
 
 
     const offer = currentClientOffersMap.get(offererUserName);
@@ -589,7 +594,7 @@ async function answerClient(offererUserName) {
     console.log(`answerClient (existance in map) : ${offer}`);
 
 
-    console.log(`answerClient client: ${currentClientOffersMap.size}`);
+  //  console.log(`answerClient client: ${currentClientOffersMap.size}`);
 
     await answerOffer(offer);
 
@@ -618,6 +623,10 @@ function removeOffer(offer) {
 const endButton = document.getElementById('endButton');
 endButton.addEventListener('click', () => endCall(1));
 
+// window.addEventListener('beforeunload', (event) => {
+//     endCall(1);
+//   });
+
 async function endCall(isCaller, disconnectingUserName) {
 
     //clientsInCall contais the names of the clients alternative to the user. Answerer -> Offerer / Offerer -> Answeret
@@ -637,6 +646,7 @@ async function endCall(isCaller, disconnectingUserName) {
 
         let peerConnection = peerConnections.get(disconnectingUserName);
 
+        console.log(`endCall : ${disconnectingUserName} peerConnection: ${peerConnection}`)
         if (peerConnection) {
             peerConnection.close();
             peerConnections.delete(disconnectingUserName);
@@ -654,9 +664,21 @@ async function endCall(isCaller, disconnectingUserName) {
 
 
     if (isCaller) {
+
         localStream.getTracks().forEach(track => track.stop());
         clientsInCall = [];
         roomName = null;
+
+
+        // Close all peer connections
+        peerConnections.forEach((peerConnection, key) => {
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnections.delete(key);
+            }
+        });
+
+
         //  console.log("roomname: " + roomName);
         socket.emit('sendCallEndedToServer', userName);
     }
@@ -675,11 +697,16 @@ function rejectOffer(clientID) {
     // Construct a rejection message
     const rejectionMessage = {
         type: 'offer-rejection',
-        //  offererUserName: offererUserName,
+
+
+        //offererUserName: offererUserName,
+        
+        
+
         // offererSocketID: offererSocketID,
         offererClientID: clientID,
         answererUserName: userName,
-        reason: 'Busy' // Optional, you can provide a reason
+        reason: 'rejectedOffer' // Optional, you can provide a reason
     };
 
     // Send the rejection message to the signaling server
@@ -756,13 +783,11 @@ async function answerOffer(offer, offererSocketID, isForSync) {
 
     console.log(`POST PROCESS BUFFER`);
 
-
     const answer = await peerConnection.createAnswer({});
-
 
     await peerConnection.setLocalDescription(answer);
 
-    await waitForIceGatheringComplete(peerConnection);
+    // await waitForIceGatheringComplete(peerConnection);
 
 
     console.log(peerConnection.remoteDescription);
@@ -783,13 +808,6 @@ async function answerOffer(offer, offererSocketID, isForSync) {
 
     //let data= {offer, clientsInRoom};
     offerResult = await socket.emitWithAck('newAnswer', { offer, clients: clientsInRoom.values() });
-
-
-
-
-
-
-
 
 
 
@@ -965,9 +983,9 @@ async function createPeerConnection(targetUserName, didIOffer = false) {
         }
     };
 
-    peerConnection.onicegatheringstatechange = function() {
+    peerConnection.onicegatheringstatechange = function () {
         console.log(`${targetUserName} : ICE gathering state changed to: ' ${peerConnection.iceGatheringState}`);
-    
+
         // switch(peerConnection.iceGatheringState) {
         //     case 'new':
         //         // The ICE agent is gathering addresses or is waiting to be given remote candidates
@@ -1035,14 +1053,23 @@ function checkAndAddPeer(peerId, peerConnection) {
     }
 }
 
-//let videoIndex = 0;
 // Function to update or create a new remote video element for a given userName
-function updateRemoteVideoElement(userName, stream) {
+function updateRemoteVideoElement(userName) {
 
     console.log(`updateRemoteVideoElement : ` + "remoteVideo_" + userName);
     let videoEl = document.getElementById(`remoteVideo_${userName}`);
+
+    // if (!videoEl) {
+    //     // If no existing video element is found, try to get an inactive video element from the pool
+    //     if (inactiveVideoElements.length > 0) {
+    //         videoEl = inactiveVideoElements.pop();
+    //         videoEl.id = "remoteVideo_" + userName;
+    //     }
+    // }
+
+
     if (!videoEl) {
-        //    console.log(`updateRemoteVideoElement : ` + "remoteVideo_" + userName);
+       console.log(`created __ updateRemoteVideoElement : ` + "remoteVideo_" + userName);
         videoEl = document.createElement('video');
         videoEl.id = `remoteVideo_${userName}`;
         videoEl.autoplay = true;
@@ -1072,20 +1099,31 @@ function updateRemoteVideoElement(userName, stream) {
         videoEl.style.pointerEvents = 'none';
 
 
-
         //  document.body.appendChild(videoEl); // Or append to a specific container
-
-        videoElements.push(videoEl);
-
+        
         videoElementsMap.set(userName, videoEl);
         // videoIndex++;
+
+      //  unityInstance.SendMessage('WebRTCVideo', 'OnVideoReady', userName);
+        
+        
+
+        // videoEl.onloadedmetadata = function() {
+
+        //     window.gameInstance.SendMessage('WebRTCVideo', 'ReceiveDimensions', `${userName},${videoEl.videoWidth},${videoEl.videoHeight}`);
+    
+        // };
+
+    
+    
     }
+
+    //if(!videoElements.includes(videoEl))
+            videoElements.push(videoEl);
+
     // videoEl.srcObject = stream;
 
     return videoEl;
-
-    // if (window && window.gameInstance && window.socketIOAdapterName)
-
 
 }
 function attachIceCandidateListener(peerConnection, didIOffer) {
@@ -1119,6 +1157,10 @@ async function fetchUserMedia(peerConnection, includeVideo = true) {
         originalStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
         localVideo.srcObject = originalStream;
         localStream = originalStream;
+
+
+        if(videoElements.includes(localVideo) === false)
+                videoElements.push(localVideo);
 
 
     } catch (videoError) {
@@ -1207,15 +1249,15 @@ async function call(sendToUserName, isForClientSync = false, restartIce = false)
             offer = await peerConnection.createOffer({ iceRestart: true });
         else
             offer = await peerConnection.createOffer();
-      
-            await peerConnection.setLocalDescription(offer);
 
-            await waitForIceGatheringComplete(peerConnection);
+        await peerConnection.setLocalDescription(offer);
 
-            console.log(`CCCCCalling ${sendToUserName}. The local peer has created an offer and set it in the local description.`);
-      
+        await waitForIceGatheringComplete(peerConnection);
 
-                  // let adjustedAnswer;
+        console.log(`CCCCCalling ${sendToUserName}. The local peer has created an offer and set it in the local description.`);
+
+
+        // let adjustedAnswer;
         // switch (peerConnection.signalingState) {
         //     case 'stable':
         //         adjustedAnswer = `Calling ${sendToUserName}. The connection is stable.`;
@@ -1275,8 +1317,20 @@ async function call(sendToUserName, isForClientSync = false, restartIce = false)
                 console.error('Message delivery failed or acknowledgment was not received within the timeout period.');
                 // Handle the delivery failure (e.g., retry sending the message, alert the user)
             } else {
-                if (clientsCalled.has(sendToUserName))
+                if (clientsCalled.has(sendToUserName)){
+
+
+                    if (window && window.gameInstance && window.socketIOAdapterName)
+                    window.gameInstance.SendMessage(window.socketIOAdapterName, 'CallFailed', sendToUserName);
+        
+                            
+
+
+
+
                     clientsCalled.delete(sendToUserName);
+
+                }
             }
         }, callTimeoutDuration);
 
@@ -1447,3 +1501,206 @@ async function ShareVideoToggle() {
 
 
 }
+
+
+
+
+function RemoveWebRTCTextureJS(id, name) {
+    // let textureObj = GL.textures[id];
+    // GLctx.deleteTexture(textureObj);
+    // console.log("WebGL texture deleted with ID:", id);
+
+   // let videoElement = document.getElementById("remoteVideo_" + name);
+
+    let videoElement = undefined
+
+    if(name === "localVideo")
+        videoElement = localVideo;
+    else
+        videoElement = document.getElementById("remoteVideo_" + name);
+
+    // Find the index of the videoElement in the array
+    let index = videoElements.indexOf(videoElement);
+
+    console.log("RemoveWebRTCTexture : " + "remoteVideo_" + name);
+    if (index !== -1) {
+        videoElements.splice(index, 1);
+
+        console.log('WEBRTCTEXTURE_index:', index + '  videoElements:', videoElements.length);
+        // Add the video element to the inactiveVideoElements list
+        inactiveVideoElements.push(videoElement);
+     }
+
+}
+
+
+function checkVideoElementReady(videoId, id) {
+    function waitForElementAndCheckReadyState() {
+
+        var video = document.getElementById(videoId);
+        if (video) {
+            // If the video element exists, check its ready state
+            if (video.readyState >= 2) { // HAVE_CURRENT_DATA
+               
+                video.textureID = id;
+
+                gameInstance.SendMessage('WebRTCVideo', 'OnVideoReady', videoId);
+                
+                
+                 video.onloadedmetadata = function() {
+                    
+                    setTimeout(()=>
+                    window.gameInstance.SendMessage('WebRTCVideo', 'ReceiveDimensions', `${videoId},${video.videoWidth},${video.videoHeight}`)
+                    , 100);
+                    
+            
+                 };
+          
+          
+          
+            } else {
+                // If not ready, check again after some time
+                setTimeout(waitForElementAndCheckReadyState, 100);
+            }
+        } else {
+            // If the video element does not exist yet, check again after some time
+            console.log("Waiting for video element to be created:", videoId);
+            setTimeout(waitForElementAndCheckReadyState, 100);
+        }
+    }
+
+    waitForElementAndCheckReadyState();
+}
+
+
+// function SetupWebRTCTextureJS(id, name, GL, GLctx) {
+
+//     let textureName = name;
+//     let videoElement = document.getElementById("remoteVideo_" + textureName);
+   
+//     if (!videoElement)
+//     videoElement = updateRemoteVideoElement(name);
+   
+//     // if (!videoElement) {
+//     //     // If no existing video element is found, try to get an inactive video element from the pool
+//     //     videoElement = inactiveVideoElements.pop();
+//     // }
+
+//     // if (!videoElement) {
+//     //     console.log(`createdRemoteVideoElement : ` + "remoteVideo_" + textureName);
+//     //     videoElement = document.createElement('video');
+//     //     videoElement.id = "remoteVideo_" + textureName;//textureName;
+//     //     videoElement.autoplay = true;
+//     //     videoElement.playsInline = true;
+//     //     videoElement.style.position = 'absolute';
+//     //     videoElement.style.visibility = 'hidden';
+//     //     videoElement.style.pointerEvents = 'none';
+
+//     //     document.body.appendChild(videoElement); // Or append to a specific container
+
+//     //     // videoElements.push(videoElement);
+
+
+//     // }
+
+//     videoElement.onloadedmetadata = function () {
+
+//         window.gameInstance.SendMessage('WebRTCVideo', 'ReceiveDimensions', `${textureName},${videoElement.videoWidth},${videoElement.videoHeight}`);
+
+//     };
+
+//     // Create and fill a canvas with a gradient
+//     ct_canvas = document.createElement("canvas");
+//     ct_canvas.width = 256;
+//     ct_canvas.height = 256;
+//     ctx = ct_canvas.getContext("2d");
+//     var grd = ctx.createLinearGradient(0, 0, 200, 0);
+//     grd.addColorStop(0, "red");
+//     grd.addColorStop(1, "white");
+//     ctx.fillStyle = grd;
+//     ctx.fillRect(0, 0, 256, 256);
+
+//     // Get the WebGL texture object from the Emscripten texture ID.
+//     textureObj = GL.textures[id];
+//     // textureID = id;
+
+//     // videoElement.textureID = id;
+
+//     //if (!videoElements.includes(videoElement)) {
+//      //   videoElements.push(videoElement);
+//     //}
+//     // if(videoElements.indexOf(videoElement) === -1) 
+//     //   videoElements.push(videoElement);
+
+
+//     console.log("WebGL texture created with ID:", id);
+
+//     // GLctx is the webgl context of the Unity canvas
+//     GLctx.bindTexture(GLctx.TEXTURE_2D, textureObj);
+//     GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_WRAP_S, GLctx.CLAMP_TO_EDGE);
+//     GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_WRAP_T, GLctx.CLAMP_TO_EDGE);
+//     GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_MIN_FILTER, GLctx.LINEAR);
+
+//     // Upload the canvas image to the GPU texture.
+//     GLctx.texImage2D(GLctx.TEXTURE_2D, 0, GLctx.RGBA, GLctx.RGBA, GLctx.UNSIGNED_BYTE, ct_canvas);
+
+
+//     function texturePaint(v) {
+
+//         ctx.drawImage(v, 0, 0, 256, 256);
+
+//         GLctx.bindTexture(GLctx.TEXTURE_2D, GL.textures[v.textureID]);//textureObj);
+//         GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_WRAP_S, GLctx.CLAMP_TO_EDGE);
+//         GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_WRAP_T, GLctx.CLAMP_TO_EDGE);
+//         GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_MIN_FILTER, GLctx.LINEAR);
+
+//         GLctx.texSubImage2D(GLctx.TEXTURE_2D, 0, 0, 0, GLctx.RGBA, GLctx.UNSIGNED_BYTE, ct_canvas);
+
+//     }
+
+//     function updateTexture() {
+
+//         for (let v of videoElements) {
+
+//             if (v.readyState >= v.HAVE_CURRENT_DATA) {
+//                 console.log("video ready" + v.id + "VIDEOELEMENTS :" + videoElements.length)
+//                 texturePaint(v);
+//             }
+
+//         }
+//         requestAnimationFrame(updateTexture);
+
+//     }
+
+
+//     //need to hijack this function for requestAnimationFrame to work during webxr session
+//     xrManager.BrowserObject.requestAnimationFrame = function (func) {
+
+//         if (xrManager.xrSession && xrManager.xrSession.isInSession) {
+//             return xrManager.xrSession.requestAnimationFrame((time, xrFrame) => {
+//                 xrManager.animate(xrFrame);
+
+//                 for (let v of videoElements) {
+//                     if (v.readyState >= v.HAVE_CURRENT_DATA)
+//                         texturePaint(v);
+//                 };
+//                 // if (videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) 
+//                 //      texturePaint();
+
+//                 func(time);
+
+//             });
+
+//         }
+//         else {
+
+//             window.requestAnimationFrame(func);
+
+//         }
+//     };
+
+//     if (videoElements.length >= 0)
+//         updateTexture();
+
+
+// }
