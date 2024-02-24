@@ -1074,7 +1074,7 @@ function updateRemoteVideoElement(userName) {
         videoEl.id = `remoteVideo_${userName}`;
         videoEl.autoplay = true;
         videoEl.playsInline = true;
-        videoEl.muted = true; // Add playsInline for compatibility with mobile browsers
+      //  videoEl.muted = true; // Add playsInline for compatibility with mobile browsers
 
         // Create a new div element for the label
         let labelEl = document.createElement('div');

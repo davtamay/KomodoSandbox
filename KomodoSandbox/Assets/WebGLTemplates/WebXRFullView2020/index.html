@@ -36,11 +36,10 @@
    
    <div id="webrtc-container">
     <div id="webrtc-controls">
-        <h2>WebRTC Test</h2>
-        <div>Current client: <span id="currentClientName"></span></div>
-        <video id="localVideo" autoplay controls muted style="pointer-events: none; position: relative; z-index: 1000; width: 300px; height: 200px; display: none;"></video>
-        <video id="remoteVideo" autoplay style="pointer-events: none; display: none;"></video>
-     <br/>
+      <h2>WebRTC Test</h2>
+      <div>Current client: <span id="currentClientName"></span></div>
+      <video id="localVideo" autoplay muted style="pointer-events: none; visibility: hidden; position: relative; z-index: 1000;"></video>
+   <br/>
      <button style="position: relative; z-index: 1000; display: none;" id="startButton">Start Call</button>
      <button style="position: relative; z-index: 1000; display: none;"  id="stopButton">Stop Call</button>
      <button style="position: relative; z-index: 1000; display: none; "  id="answer">Answer Call</button>

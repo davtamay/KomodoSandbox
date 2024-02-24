@@ -103,6 +103,8 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
                     webRTCVideoTexture.RemoveTexture("localVideo");
                     localVideoReferences.gameObject.SetActive(false);
 
+                    localVideoReferences.clientName.text = "<color=black>" + ClientSpawnManager.Instance.GetPlayerNameFromClientID(NetworkUpdateHandler.Instance.client_id)  + "</color>";
+
                     isLocalClientStreaming = false;
                 }
 
@@ -185,8 +187,14 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         {
 
             localVideoReferences.gameObject.SetActive(true);
+            localVideoReferences.clientName.text = "<color=black>" + ClientSpawnManager.Instance.GetPlayerNameFromClientID(NetworkUpdateHandler.Instance.client_id) + "</color>";
+
+
             //  (int videoIndexID, GameObject videoFeedGO) = videoFeedManager.GetOrCreateVideoFeed(fromClientID);
             webRTCVideoTexture.ProvideWebRTCTexture(localVideoReferences.videoTexture, "localVideo");
+
+
+
 
             isLocalClientStreaming = true;
 
@@ -339,6 +347,8 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
             //  (int videoIndexID, GameObject videoFeedGO) = videoFeedManager.GetOrCreateVideoFeed(fromClientID);
             webRTCVideoTexture.ProvideWebRTCTexture(localVideoReferences.videoTexture, "localVideo");
 
+            localVideoReferences.clientName.text = "<color=black>" + ClientSpawnManager.Instance.GetPlayerNameFromClientID(NetworkUpdateHandler.Instance.client_id) + "</color>";
+           
             isLocalClientStreaming = true;
         }
             webRTCVideoSettings.gameObject.SetActive(true);
