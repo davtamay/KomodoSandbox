@@ -178,6 +178,19 @@ public static class SocketIOJSLib
     [DllImport("__Internal")]
     public static extern void SetVideo();
 
+
+    // Import the JavaScript function
+    [DllImport("__Internal")]
+    public static extern void ChangeVideoDevice(string deviceId);
+
+    [DllImport("__Internal")]
+    public static extern void ChangeAudioDevice(string deviceId);
+
+    [DllImport("__Internal")]
+    public static extern void ChangeAudioOutputDevice(string deviceId);
+
+  //  ChangeAudioOutputDevice
+
     #endregion
 }
 //}

@@ -725,6 +725,11 @@ public class SocketIOAdapter : SingletonComponent<SocketIOAdapter>
   ShareMediaConnection.Instance.EmptyRoom();
 
 
+    public void ReceiveDeviceInfo(string deviceListJson)
+    {
+        ShareMediaConnection.Instance.SetDeviceList(deviceListJson);
+
+    }
 
 
 

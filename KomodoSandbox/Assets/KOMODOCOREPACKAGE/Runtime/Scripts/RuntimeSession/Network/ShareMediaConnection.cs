@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static ShareMediaConnection;
 
 //namespace Komodo.Runtime
 //{
@@ -19,7 +20,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         set { _Instance = value; }
     }
 
-    
+
     //public int currentClientIDSelected;
     public MediaType currentMediaType = MediaType.TEXT;
 
@@ -39,12 +40,12 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
     public WebRTCVideoTexture RemoteClients;
 
-  //  public GameObject shareMediaUI;
+    //  public GameObject shareMediaUI;
     //public Transform videoGridParent;
 
     //public GameObject videoPrefab;
-   
-   // public List<Transform> videoTransformList = new List<Transform>();
+
+    // public List<Transform> videoTransformList = new List<Transform>();
 
     public TMP_Text customReceiveText;
 
@@ -68,7 +69,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     public GameObject receiveCallPrefab;
     public void Start()
     {
-      
+
         //ReceivedCall(3);
         videoFeedManager = GetComponent<VideoFeedManager>();
 
@@ -82,7 +83,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         webRTCVideoSettings.hangUpButton.onClick.AddListener(() =>
             {
                 DisactivateCallPresentation();
-              
+
                 SocketIOJSLib.HangUpClient();
 
                 foreach (int id in clientsWithVideo)
@@ -93,7 +94,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
                 clientsCalled.Clear();
 
 
-                webRTCVideoSettings.gameObject.SetActive(false);
+                webRTCVideoSettings.transform.parent.gameObject.SetActive(false);
 
 
 
@@ -103,7 +104,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
                     webRTCVideoTexture.RemoveTexture("localVideo");
                     localVideoReferences.gameObject.SetActive(false);
 
-                    localVideoReferences.clientName.text = "<color=black>" + ClientSpawnManager.Instance.GetPlayerNameFromClientID(NetworkUpdateHandler.Instance.client_id)  + "</color>";
+                    localVideoReferences.clientName.text = "<color=black>" + ClientSpawnManager.Instance.GetPlayerNameFromClientID(NetworkUpdateHandler.Instance.client_id) + "</color>";
 
                     isLocalClientStreaming = false;
                 }
@@ -133,18 +134,28 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
 
 
+        // Assuming you've already parsed the JSON into deviceList
+        //  PopulateDeviceDropdowns();
 
 
-        
+        // Add listener for the video input dropdown
+        videoInputDropdown.onValueChanged.AddListener(delegate
+        {
+            DropdownValueChanged(videoInputDropdown, 1);
+        });
 
-        //ReceivedCall(4);
-        //ReceivedCall(4);
-        //ReceivedCall(2);
-        //ReceivedOfferAnswer(2);
-        //ReceivedOfferAnswer(2);
-        // ReceivedCall(3);
-        //SetupVideo(2);
+        // Add listener for the audio input dropdown
+        audioInputDropdown.onValueChanged.AddListener(delegate
+        {
 
+            DropdownValueChanged(audioInputDropdown, 2);
+        });
+
+        audioOutputDropdown.onValueChanged.AddListener(delegate
+        {
+
+            DropdownValueChanged(audioOutputDropdown, 3);
+        });
 
 
     }
@@ -162,7 +173,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
         //    isLocalClientStreaming = false;
         //}
-      
+
 
 
         foreach (var item in clientIDToVideoRefsDictionary)
@@ -172,7 +183,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
             SetClientConnectedToggleState(item, false);
 
 
-       // isLocalClientStreaming = false;
+        // isLocalClientStreaming = false;
 
     }
     public Dictionary<int, Toggle> clientIDToToggleDictionary = new Dictionary<int, Toggle>();
@@ -181,7 +192,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
     public List<int> clientsCalled = new List<int>();
 
-    public void MakeCallToSelectedClients( )
+    public void MakeCallToSelectedClients()
     {
         if (!isLocalClientStreaming)
         {
@@ -198,10 +209,12 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
             isLocalClientStreaming = true;
 
-            webRTCVideoSettings.gameObject.SetActive(true);
+
+
+            webRTCVideoSettings.transform.parent.gameObject.SetActive(true);
         }
 
-        foreach (KeyValuePair<int,bool> item in clientIDToToggleStateDictionary)
+        foreach (KeyValuePair<int, bool> item in clientIDToToggleStateDictionary)
         {
             if (item.Value)
             {
@@ -220,7 +233,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         }
 
     }
-    
+
 
     public List<int> clientsWithVideo = new List<int>();
 
@@ -228,18 +241,33 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     private List<WebRTCReceiveCallReferences> pool = new List<WebRTCReceiveCallReferences>();
 
 
-    
+    Dictionary<int, WebRTCReceiveCallReferences> callsAvailableDictionary = new Dictionary<int, WebRTCReceiveCallReferences>();
+
     // Method to handle received calls
     public void ReceivedCall(int fromClientID)
     {
-        
-    
+
+
+
         string nameOfClient = ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID);
 
 
 
         var panel = GetPanel();
+        
+
+        if (callsAvailableDictionary.ContainsKey(fromClientID))
+        {
+            ResetAndReturnPanel(fromClientID);
+            callsAvailableDictionary[fromClientID] = panel;
+        }
+        else
+        {
+            callsAvailableDictionary.Add(fromClientID, panel);
+        }
+
         panel.SetupPanel(fromClientID, nameOfClient, RejectCall, AcceptCall);
+
     }
 
     private void RejectCall(int clientId)
@@ -266,11 +294,11 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     private void ResetAndReturnPanel(int clientId)
     {
         var panel = pool.Find(p => p.clientId == clientId);
-     
+
         if (panel != null)
         {
             panel.ResetPanel();
-        //    clientsAdded.Remove(clientId);
+            //    clientsAdded.Remove(clientId);
         }
     }
 
@@ -292,13 +320,22 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         return newPanelInstance;
     }
 
-    
+
 
 
 
     public void ReceiveCallAndAnswer(int fromClientID)
     {
-   
+
+        if (callsAvailableDictionary.ContainsKey(fromClientID))
+        {
+            ResetAndReturnPanel(fromClientID);
+            callsAvailableDictionary.Remove(fromClientID);
+        }
+        //else
+        //{
+        //    callsAvailableDictionary.Add(fromClientID, panel);
+        //}
 
         SocketIOJSLib.AnswerClientOffer(ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
         SetupVideo(fromClientID);
@@ -309,7 +346,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     public Color clientInCall = Color.green;
 
     public Color clientRejectColor = Color.red;
-    public void SetClientConnectedToggleState(int clientID, bool isActive )
+    public void SetClientConnectedToggleState(int clientID, bool isActive)
     {
 
         if (clientIDToToggleDictionary.ContainsKey(clientID))
@@ -319,7 +356,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
             clientToggle.interactable = !isActive;
             clientToggle.SetIsOnWithoutNotify(isActive);
 
-            if(isActive)
+            if (isActive)
                 clientToggle.graphic.color = clientInCall;
             else
                 clientToggle.graphic.color = selectClient;
@@ -337,7 +374,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         if (!clientsWithVideo.Contains(fromClientID))
             clientsWithVideo.Add(fromClientID);
         else
-            Debug.Log("Setting up client already in setup video list") ;
+            Debug.Log("Setting up client already in setup video list");
 
 
         if (!isLocalClientStreaming)
@@ -348,15 +385,15 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
             webRTCVideoTexture.ProvideWebRTCTexture(localVideoReferences.videoTexture, "localVideo");
 
             localVideoReferences.clientName.text = "<color=black>" + ClientSpawnManager.Instance.GetPlayerNameFromClientID(NetworkUpdateHandler.Instance.client_id) + "</color>";
-           
+
             isLocalClientStreaming = true;
         }
-            webRTCVideoSettings.gameObject.SetActive(true);
+        webRTCVideoSettings.transform.parent.gameObject.SetActive(true);
 
 
         Debug.Log("****************received setup video from :" + fromClientID);
 
-        
+
         (int videoIndexID, GameObject videoFeedGO) = videoFeedManager.GetOrCreateVideoFeed(fromClientID);
 
         if (videoFeedGO != null)
@@ -365,7 +402,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
             SetClientConnectedToggleState(fromClientID, true);
 
-           //  SetClientForMediaShare(fromClientID);
+            //  SetClientForMediaShare(fromClientID);
             SetMediaShareType(2); // call
 
             var videoRefs = videoFeedGO.GetComponentInChildren<WebRTCVideoReferences>(true);
@@ -387,16 +424,16 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
 
             // SetupVideoListeners(fromClientID, videoRefs);
-           // videoRefs.videoTexture.texture =
-                
-                
-                webRTCVideoTexture.ProvideWebRTCTexture(videoRefs.videoTexture, ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
-
-         //   webRTCVideoTexture.ProvideWebRTCTexture(videoRefs.videoTexture, ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
-          //  Debug.Log("CHECKING FOR NULL REFERENCE ISSUE WHEN MAKING CALL ABOVE MAYBE PROVIDE");
+            // videoRefs.videoTexture.texture =
 
 
-           
+            webRTCVideoTexture.ProvideWebRTCTexture(videoRefs.videoTexture, ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
+
+            //   webRTCVideoTexture.ProvideWebRTCTexture(videoRefs.videoTexture, ClientSpawnManager.Instance.GetPlayerNameFromClientID(fromClientID));
+            //  Debug.Log("CHECKING FOR NULL REFERENCE ISSUE WHEN MAKING CALL ABOVE MAYBE PROVIDE");
+
+
+
 
             // shareMediaUI.GetComponentInChildren<WebRTCVideoReferences>().clientID = fromClientID;
             //shareMediaUI.SetActive(true);
@@ -412,20 +449,20 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     public void ReceivedOfferAnswer(int clientID)
     {
         Debug.Log("RECEIVEDOFFER FROM ANSWER");
-      
-            SetupVideo(clientID);
+
+        SetupVideo(clientID);
     }
     public void EndCall(int clientID)
     {
-      //  Debug.Log("ENDED CALL FOR ROOMNAME");
+        //  Debug.Log("ENDED CALL FOR ROOMNAME");
         if (clientIDToVideoRefsDictionary.ContainsKey(clientID))
         {
             clientIDToVideoRefsDictionary[clientID].gameObject.SetActive(false);
             clientIDToVideoRefsDictionary.Remove(clientID);
 
 
-            if(clientsWithVideo.Contains(clientID)) 
-               clientsWithVideo.Remove(clientID);
+            if (clientsWithVideo.Contains(clientID))
+                clientsWithVideo.Remove(clientID);
         }
 
         SetClientConnectedToggleState(clientID, false);
@@ -439,11 +476,11 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
         webRTCVideoTexture.RemoveTexture(ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID));
 
-        if(clientsCalled.Contains(clientID))
+        if (clientsCalled.Contains(clientID))
             clientsCalled.Remove(clientID);
 
 
-      //  if(clientsWithVideo.Count <= )
+        //  if(clientsWithVideo.Count <= )
         //if (clientIDToToggleDictionary.ContainsKey(clientID))
         //    clientIDToToggleDictionary[clientID].interactable = true;
     }
@@ -459,7 +496,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         {
             var clientToggle = clientIDToToggleDictionary[clientID];
 
-                clientToggle.graphic.color = clientRejectColor;
+            clientToggle.graphic.color = clientRejectColor;
         }
 
 
@@ -474,13 +511,14 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     public IEnumerator SetClientCallStatusBackToNormalAfterTime(int clientID)
     {
         yield return new WaitForSecondsRealtime(4);
-     
+
         SetClientConnectedToggleState(clientID, false);
     }
 
     public void RemoveClientConnections(int clientID)
     {
-        if(clientID == CallReceivePanelReferences.clientId) {
+        if (clientID == CallReceivePanelReferences.clientId)
+        {
             CallReceivePanelReferences.gameObject.SetActive(false);
         }
 
@@ -488,14 +526,14 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         {
             if (clientIDToVideoRefsDictionary[clientID].clientID == clientID)
                 clientIDToVideoRefsDictionary[clientID].gameObject.SetActive(false);
-       
+
             clientIDToVideoRefsDictionary.Remove(clientID);
         }
 
-       SetClientConnectedToggleState(clientID, false);
+        SetClientConnectedToggleState(clientID, false);
 
         videoFeedManager.RemoveVideoFeed(clientID);
-        
+
         CheckIfAnyConnectionToSetToolsInactive();
 
 
@@ -521,7 +559,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         // If all GameObjects are not active, set webRTCVideoSettings to inactive
         if (allInactive)
         {
-         //   webRTCVideoSettings.gameObject.SetActive(false);
+            //   webRTCVideoSettings.gameObject.SetActive(false);
 
             foreach (var item in clientIDToToggleDictionary.Keys)
             {
@@ -535,12 +573,12 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     public Dictionary<GameObject, bool> poolVideoActiveStateDic = new Dictionary<GameObject, bool>();
 
 
-        
+
     public void CreatePrivateChat(string from, string to)
     {
         //instantiate prefab
         //get the text and add the "to" name
-        
+
         //reuse the same rect view.
         //pool the quantity of generated chat boxes.
         //fill it in. old get new. whats a good e
@@ -674,6 +712,151 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         }
 
 
+    }
+
+
+
+
+
+
+
+
+
+
+
+    [System.Serializable]
+    public class DeviceInfo
+    {
+        public string deviceId;
+        public string kind;
+        public string label;
+    }
+
+    [System.Serializable]
+    public class DeviceList
+    {
+        public DeviceInfo[] devices;
+    }
+
+
+    public TMP_Dropdown videoInputDropdown;
+    public TMP_Dropdown audioInputDropdown;
+    public TMP_Dropdown audioOutputDropdown;
+    public void SetDeviceList(string deviseListJSON)
+    {
+        // Parse the JSON string into DeviceList
+        DeviceList deviceList = JsonUtility.FromJson<DeviceList>(deviseListJSON);
+
+        PopulateDeviceDropdowns(deviceList);
+
+        SetDropdownToSavedValue(videoInputDropdown, savedVideoKey);
+        SetDropdownToSavedValue(audioInputDropdown, savedAudioKey);
+        SetDropdownToSavedValue(audioOutputDropdown, savedAudioOutputKey);
+
+    }
+
+    public string savedVideoKey = "videoDevice";
+    public string savedAudioKey = "audioInputDevice";
+    public string savedAudioOutputKey = "audioOutputDevice";
+    // Dropdown change event handler
+    void DropdownValueChanged(TMP_Dropdown dropdown, int type)
+    {
+        string label = dropdown.options[dropdown.value].text; // Assuming the option text contains the device ID
+
+        string deviceId = labelToDeviceID[label]; //(device.label, device.deviceId);
+
+        // Call JavaScript function based on the type of device
+        switch (type)
+        {
+            case 1:
+#if UNITY_WEBGL && !UNITY_EDITOR
+           SocketIOJSLib.ChangeVideoDevice(deviceId);
+#endif
+                PlayerPrefs.SetString(savedVideoKey, deviceId);
+
+
+                break;
+
+            case 2:
+#if UNITY_WEBGL && !UNITY_EDITOR
+          SocketIOJSLib.ChangeAudioDevice(deviceId);
+#endif
+
+                PlayerPrefs.SetString(savedAudioKey, deviceId);
+
+                break;
+
+            case 3:
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+                SocketIOJSLib.ChangeAudioOutputDevice(deviceId);
+#endif
+                PlayerPrefs.SetString(savedAudioOutputKey, deviceId);
+                break;
+
+        }
+    }
+
+    Dictionary<string, string> labelToDeviceID = new Dictionary<string, string>();
+    void PopulateDeviceDropdowns(DeviceList deviceList)
+    {
+        videoInputDropdown.ClearOptions();
+        audioInputDropdown.ClearOptions();
+
+        List<string> videoOptions = new List<string>();
+        List<string> audioInputOptions = new List<string>();
+        List<string> audioOutputOptions = new List<string>();
+
+        foreach (DeviceInfo device in deviceList.devices)
+        {
+            if (!labelToDeviceID.ContainsKey(device.label))
+                labelToDeviceID.Add(device.label, device.deviceId);
+
+            // Example logic to categorize devices (you might need additional info in your JSON for this)
+            if (device.kind == "videoinput")//device.label.Contains("Camera"))
+            {
+                videoOptions.Add(device.label);
+            }
+            else if (device.kind == "audioinput")//device.label.Contains("Microphone"))
+            {
+                audioInputOptions.Add(device.label);
+            }
+            else if (device.kind == "audiooutput")//device.label.Contains("Microphone"))
+            {
+                audioOutputOptions.Add(device.label);
+            }
+        }
+
+        videoInputDropdown.AddOptions(videoOptions);
+        audioInputDropdown.AddOptions(audioInputOptions);
+        audioOutputDropdown.AddOptions(audioOutputOptions);
+
+        //if (PlayerPrefs.HasKey(savedVideoKey))
+        //    videoInputDropdown.onValueChanged.Invoke((v) => { 
+
+
+        //    });
+
+
+        //    DropdownValueChanged(videoInputDropdown, 1);
+
+        //if(PlayerPrefs.HasKey())
+
+    }
+
+    void SetDropdownToSavedValue(TMP_Dropdown dropdown, string playerPrefsKey)
+    {
+        if (PlayerPrefs.HasKey(playerPrefsKey))
+        {
+            string savedDeviceId = PlayerPrefs.GetString(playerPrefsKey);
+            // Find the index of the option that corresponds to the saved device ID
+            int index = dropdown.options.FindIndex(option => labelToDeviceID[option.text] == savedDeviceId);
+            if (index != -1)
+            { // Check if the device was found
+                dropdown.value = index;
+                dropdown.RefreshShownValue();
+            }
+        }
     }
 
 }

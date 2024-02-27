@@ -49,6 +49,34 @@
          ShareVideoToggle();
        },
 
+
+        // Function called by Unity to change the video device
+     ChangeVideoDevice: function(deviceId) {
+
+        // Your logic to change the video device in WebRTC
+        console.log("Changing video device to: ", UTF8ToString(deviceId));
+        fetchUserMedia(null, UTF8ToString(deviceId))
+        // Example: updateWebRTCVideoDevice(deviceId);
+    },
+
+    // Function called by Unity to change the audio device
+     ChangeAudioDevice : function(deviceId) {
+        // Your logic to change the audio device in WebRTC
+        console.log("Changing audio device to: ", UTF8ToString(deviceId));
+         fetchUserMedia(null, null, UTF8ToString(deviceId));
+        // Example: updateWebRTCAudioDevice(deviceId);
+    },
+
+     ChangeAudioOutputDevice : function(deviceId) {
+        // Your logic to change the audio device in WebRTC
+        console.log("Changing audio output device to: ", UTF8ToString(deviceId));
+        changeAudioOutputDevice(UTF8ToString(deviceId));
+       //  fetchUserMedia(null, null, UTF8ToString(deviceId));
+        // Example: updateWebRTCAudioDevice(deviceId);
+    },
+
+
+
        RejectClientOffer: function(clientID) {
       
         rejectOffer(clientID);
@@ -87,35 +115,13 @@
       else
          videoElement = document.getElementById("remoteVideo_" + textureName);
     
-    //  if (!videoElement) {
-    //     // If no existing video element is found, try to get an inactive video element from the pool
-    //     videoElement = inactiveVideoElements.pop();
-    // }
-
-  //   if (!videoElement) {
-  //        console.log(`createdRemoteVideoElement : ` + "remoteVideo_" + textureName);
-  //       videoElement = document.createElement('video');
-  //       videoElement.id = "remoteVideo_" + textureName;//textureName;
-  //       videoElement.autoplay = true;
-  //       videoElement.playsInline = true;
-  //     videoElement.style.position = 'absolute';
-  //     videoElement.style.visibility = 'hidden';
-  //     videoElement.style.pointerEvents = 'none';
-      
-  //       document.body.appendChild(videoElement); // Or append to a specific container
-
-  //  // videoElements.push(videoElement);
-
-        
-  //   }
-   
 
 
-     videoElement.onloadedmetadata = function() {
+    //  videoElement.onloadedmetadata = function() {
 
-        window.gameInstance.SendMessage('WebRTCVideo', 'ReceiveDimensions', `${textureName},${videoElement.videoWidth},${videoElement.videoHeight}`);
+    //     window.gameInstance.SendMessage('WebRTCVideo', 'ReceiveDimensions', `${textureName},${videoElement.videoWidth},${videoElement.videoHeight}`);
     
-     };
+    //  };
 
 
         // Create and fill a canvas with a gradient
