@@ -31,7 +31,7 @@ let peerConfiguration = {
 
 let currentClientOffersMap = new Map();
 //if(!RELAY_BASE_URL)
-// let RELAY_BASE_URL = 'https://192.168.1.67:3000';
+ //let RELAY_BASE_URL = 'https://192.168.1.67:3000';
 
 
 
@@ -549,7 +549,7 @@ function updateClientElements(clients) {
                 const newClientEl = document.createElement('div');
                 newClientEl.innerHTML = `<button id=call-${client} style="position: relative; z-index: 1000;" class="btn btn-success col-1">Call ${client}</button>`;
                 newClientEl.addEventListener('click', () => {
-                    call(client);
+                    call(client, false, true);
                 });
                 clientsEl.appendChild(newClientEl);
             }
@@ -773,17 +773,7 @@ async function answerOffer(offer, offererSocketID, isForSync) {
     console.log(`answerOffer : ${offer}`);
 
     let peerConnection = await getOrCreatePeerConnection(offer.offererUserName)//createPeerConnection(offer.offererUserName);
-    // await peerConnection.setRemoteDescription(new RTCSessionDescription(offer.offer));
-    //  await processBufferedIceCandidates(offer.offererUserName, peerConnection);
-
-
-    // offer.offerIceCandidates.forEach(c => {
-
-    //     if (peerConnection) //&& peerConnection.signalingState !== 'closed')
-    //         peerConnection.addIceCandidate(c);
-
-    //     console.log(`${userName}  ======Added Ice Candidate======`)
-    // });
+    
 
     console.log(`POST PROCESS BUFFER`);
 
@@ -863,7 +853,7 @@ async function getOrCreatePeerConnection(name, didIOffer = false, isForClientSyn
     if (!peerConnection) {
         console.log(`CreatePeerConnection : ${name}`);
 
-        peerConnection = await createPeerConnection(name);
+        peerConnection = await createPeerConnection(name, isForClientSync);
 
         attachIceCandidateListener(peerConnection, didIOffer);
 
@@ -973,11 +963,13 @@ function listenAndSetupRemoteVideoStream(peerConnection, name) {
 //     });
 // }
 
-async function createPeerConnection(targetUserName) {
+async function createPeerConnection(targetUserName, isForClientSync = false) {
     let peerConnection = new RTCPeerConnection(peerConfiguration);
 
+    let iceConnectionTimer
 
-    let iceConnectionTimer = setTimeout(() => {
+if(!isForClientSync)
+     iceConnectionTimer = setTimeout(() => {
         console.log(`ICE Connection Timeout. Restarting ICE for ${targetUserName}`);
         call(targetUserName, true, true);
     }, ICE_CONNECTION_TIMEOUT);

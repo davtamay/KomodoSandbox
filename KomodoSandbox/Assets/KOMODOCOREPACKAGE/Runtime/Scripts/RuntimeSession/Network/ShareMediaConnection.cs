@@ -32,20 +32,11 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
     public int lastMessageid;
 
-    public Scrollbar scrollbar;
 
 
-    public Button ShareCameraClientButton;
 
 
-    public WebRTCVideoTexture RemoteClients;
 
-    //  public GameObject shareMediaUI;
-    //public Transform videoGridParent;
-
-    //public GameObject videoPrefab;
-
-    // public List<Transform> videoTransformList = new List<Transform>();
 
     public TMP_Text customReceiveText;
 
@@ -82,12 +73,28 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
         webRTCVideoSettings.hangUpButton.onClick.AddListener(() =>
             {
-                DisactivateCallPresentation();
+             //   minMaxSharedVideo.SetSizeBack();
+
+
+               
 
                 SocketIOJSLib.HangUpClient();
 
-                foreach (int id in clientsWithVideo)
-                    webRTCVideoTexture.RemoveTexture(ClientSpawnManager.Instance.GetPlayerNameFromClientID(id));
+
+
+                //R//emoveClientFromVideoFeed(id);
+
+                //foreach (int id in clientsWithVideo)
+                //{
+                //    RemoveClientFromVideoFeed(id);
+
+                //    //   webRTCVideoTexture.RemoveTexture(ClientSpawnManager.Instance.GetPlayerNameFromClientID(id));
+
+                //}
+                DisactivateCallPresentation();
+
+                for (int i = 0; i < clientsWithVideo.Count; i++)
+                    RemoveClientFromVideoFeed(clientsWithVideo[i]);
 
                 clientsWithVideo.Clear();
 
@@ -286,6 +293,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
     public void CallFailed(int clientId)
     {
+        Debug.LogError("CALL TO " + clientId + "  FAILED");
         if (clientsCalled.Contains(clientId))
             clientsCalled.Remove(clientId);
 
@@ -368,6 +376,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
     bool isLocalClientStreaming = false;
 
     public WebRTCVideoReferences localVideoReferences;
+    public MinMaxSharedVideo minMaxSharedVideo;
     public void SetupVideo(int fromClientID)
     {
 
@@ -381,6 +390,8 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         {
 
             localVideoReferences.gameObject.SetActive(true);
+
+            
             //  (int videoIndexID, GameObject videoFeedGO) = videoFeedManager.GetOrCreateVideoFeed(fromClientID);
             webRTCVideoTexture.ProvideWebRTCTexture(localVideoReferences.videoTexture, "localVideo");
 
@@ -403,7 +414,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
             SetClientConnectedToggleState(fromClientID, true);
 
             //  SetClientForMediaShare(fromClientID);
-            SetMediaShareType(2); // call
+         //  SetMediaShareType(2); // call
 
             var videoRefs = videoFeedGO.GetComponentInChildren<WebRTCVideoReferences>(true);
 
@@ -452,38 +463,7 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
 
         SetupVideo(clientID);
     }
-    public void EndCall(int clientID)
-    {
-        //  Debug.Log("ENDED CALL FOR ROOMNAME");
-        if (clientIDToVideoRefsDictionary.ContainsKey(clientID))
-        {
-            clientIDToVideoRefsDictionary[clientID].gameObject.SetActive(false);
-            clientIDToVideoRefsDictionary.Remove(clientID);
-
-
-            if (clientsWithVideo.Contains(clientID))
-                clientsWithVideo.Remove(clientID);
-        }
-
-        SetClientConnectedToggleState(clientID, false);
-
-
-
-        CheckIfAnyConnectionToSetToolsInactive();
-        videoFeedManager.RemoveVideoFeed(clientID);
-        // clientIDToVideoRefsDictionary
-
-
-        webRTCVideoTexture.RemoveTexture(ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID));
-
-        if (clientsCalled.Contains(clientID))
-            clientsCalled.Remove(clientID);
-
-
-        //  if(clientsWithVideo.Count <= )
-        //if (clientIDToToggleDictionary.ContainsKey(clientID))
-        //    clientIDToToggleDictionary[clientID].interactable = true;
-    }
+    
     public void EmptyRoom() { }
 
 
@@ -515,30 +495,125 @@ public class ShareMediaConnection : SingletonComponent<ShareMediaConnection>
         SetClientConnectedToggleState(clientID, false);
     }
 
-    public void RemoveClientConnections(int clientID)
+    public void RemoveClientFromVideoFeed( int clientID )
     {
+
+        minMaxSharedVideo.SetSizeBackAndDeactivateOriginalVideoShare(clientID);
+
         if (clientID == CallReceivePanelReferences.clientId)
         {
             CallReceivePanelReferences.gameObject.SetActive(false);
         }
 
+
+        //  Debug.Log("ENDED CALL FOR ROOMNAME");
         if (clientIDToVideoRefsDictionary.ContainsKey(clientID))
         {
-            if (clientIDToVideoRefsDictionary[clientID].clientID == clientID)
-                clientIDToVideoRefsDictionary[clientID].gameObject.SetActive(false);
-
+            clientIDToVideoRefsDictionary[clientID].gameObject.SetActive(false);
             clientIDToVideoRefsDictionary.Remove(clientID);
+
+
+            if (clientsWithVideo.Contains(clientID))
+                clientsWithVideo.Remove(clientID);
         }
 
         SetClientConnectedToggleState(clientID, false);
 
-        videoFeedManager.RemoveVideoFeed(clientID);
+
 
         CheckIfAnyConnectionToSetToolsInactive();
-
+        videoFeedManager.RemoveVideoFeed(clientID);
+        // clientIDToVideoRefsDictionary
 
 
         webRTCVideoTexture.RemoveTexture(ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID));
+
+        if (clientsCalled.Contains(clientID))
+            clientsCalled.Remove(clientID);
+
+    }
+    public void EndCall(int clientID)
+    {
+        RemoveClientFromVideoFeed(clientID);
+        //minMaxSharedVideo.SetSizeBackAndDeactivateOriginalVideoShare(clientID);
+
+        //if (clientID == CallReceivePanelReferences.clientId)
+        //{
+        //    CallReceivePanelReferences.gameObject.SetActive(false);
+        //}
+
+
+        ////  Debug.Log("ENDED CALL FOR ROOMNAME");
+        //if (clientIDToVideoRefsDictionary.ContainsKey(clientID))
+        //{
+        //    clientIDToVideoRefsDictionary[clientID].gameObject.SetActive(false);
+        //    clientIDToVideoRefsDictionary.Remove(clientID);
+
+
+        //    if (clientsWithVideo.Contains(clientID))
+        //        clientsWithVideo.Remove(clientID);
+        //}
+
+        //SetClientConnectedToggleState(clientID, false);
+
+
+
+        //CheckIfAnyConnectionToSetToolsInactive();
+        //videoFeedManager.RemoveVideoFeed(clientID);
+        //// clientIDToVideoRefsDictionary
+
+
+        //webRTCVideoTexture.RemoveTexture(ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID));
+
+        //if (clientsCalled.Contains(clientID))
+        //    clientsCalled.Remove(clientID);
+
+
+    }
+
+    public void RemoveClientConnections(int clientID)
+    {
+        RemoveClientFromVideoFeed(clientID);
+        //minMaxSharedVideo.SetSizeBackAndDeactivateOriginalVideoShare(clientID);
+
+        //if (clientID == CallReceivePanelReferences.clientId)
+        //{
+        //    CallReceivePanelReferences.gameObject.SetActive(false);
+        //}
+
+        ////if (clientIDToVideoRefsDictionary.ContainsKey(clientID))
+        ////{
+        ////    if (clientIDToVideoRefsDictionary[clientID].clientID == clientID)
+        ////        clientIDToVideoRefsDictionary[clientID].gameObject.SetActive(false);
+
+        ////    clientIDToVideoRefsDictionary.Remove(clientID);
+        ////}
+        //if (clientIDToVideoRefsDictionary.ContainsKey(clientID))
+        //{
+        //    clientIDToVideoRefsDictionary[clientID].gameObject.SetActive(false);
+        //    clientIDToVideoRefsDictionary.Remove(clientID);
+
+
+        //    if (clientsWithVideo.Contains(clientID))
+        //        clientsWithVideo.Remove(clientID);
+        //}
+
+
+        //SetClientConnectedToggleState(clientID, false);
+
+
+
+        //CheckIfAnyConnectionToSetToolsInactive();
+
+        //videoFeedManager.RemoveVideoFeed(clientID);
+
+
+
+
+        //webRTCVideoTexture.RemoveTexture(ClientSpawnManager.Instance.GetPlayerNameFromClientID(clientID));
+
+        //if (clientsCalled.Contains(clientID))
+        //    clientsCalled.Remove(clientID);
     }
 
     void CheckIfAnyConnectionToSetToolsInactive()
