@@ -61,12 +61,14 @@ const password = "x";
 
 let isScreenSharing = false;
 
-//remove this when adding to unity
+// //remove this when adding to unity
 // document.addEventListener('DOMContentLoaded', () => {
 //     ConnectToWebRTCSocket("Rob-" + Math.floor(Math.random() * 100000));
 // });
 
-function ConnectToWebRTCSocket(name) {
+let hasVideoDevice;
+
+async function ConnectToWebRTCSocket(name) {
 
     console.log(`ConnectToWebRTCSocket : ${name}`);
 
@@ -84,6 +86,35 @@ function ConnectToWebRTCSocket(name) {
         document.querySelector('#currentClientName').textContent = userName;
 
     }
+
+   
+
+    // if (!isFirst)//videoElements.includes(localVideo) === false) 
+    // {
+        // videoElements.push(localVideo);
+       // isFirst = true;
+
+        hasVideoDevice = await enumerateDevices();
+        console.log(`ConnectToWebRTCSocket -fetchUserMedia : hasVideoDevice : ${hasVideoDevice}`);
+       
+       
+       let deviceType;
+        // Call enumerateDevices to fill the device options
+        if(hasVideoDevice){
+            //originalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+            deviceType = 0;
+
+            videoElements.push(localVideo);
+        }else{
+          //  originalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            deviceType = 1;
+        }
+
+
+        socket.emit('setDeviceType',{userName, deviceType} );
+
+
+  //  }
 }
 
 function setupSocketListeners() {
@@ -104,11 +135,20 @@ function setupSocketListeners() {
     //invoked on client that is being called
     socket.on('newOfferAwaiting', async (data, ackFn) => {
 
-        let peerConnection = await getOrCreatePeerConnection(data.newOffer.offererUserName)//createPeerConnection(offer.offererUserName);
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.newOffer.offer));
-        await processBufferedIceCandidates(data.newOffer.offererUserName, peerConnection);
+       // let peerConnection = await getOrCreatePeerConnection(data.newOffer.offererUserName)//createPeerConnection(offer.offererUserName);
+        // await peerConnection.setRemoteDescription(new RTCSessionDescription(data.newOffer.offer));
+        // await processBufferedIceCandidates(data.newOffer.offererUserName, peerConnection);
 
 
+        if(isOnlyAudioOffer(data.newOffer.offer.sdp)){
+
+
+         
+
+            console.log(`the offerer only sending audio`);
+
+
+        }
 
         //let peerConnection = await getOrCreatePeerConnection(offer.offererUserName)//createPeerConnection(offer.offererUserName);
 
@@ -122,11 +162,6 @@ function setupSocketListeners() {
             window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientCall', data.offererClientID);
 
 
-
-
-
-
-        // await processBufferedIceCandidates(offer.offererUserName, peerConnection);
 
 
 
@@ -149,17 +184,17 @@ function setupSocketListeners() {
 
         console.log(`newOfferAwaiting2 : ${data.newOffer.offererUserName}`);
 
-        let peerConnection = await getOrCreatePeerConnection(data.newOffer.offererUserName)//createPeerConnection(offer.offererUserName);
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.newOffer.offer));
-        await processBufferedIceCandidates(data.newOffer.offererUserName, peerConnection);
+        // let peerConnection = await getOrCreatePeerConnection(data.newOffer.offererUserName)//createPeerConnection(offer.offererUserName);
+        // await peerConnection.setRemoteDescription(new RTCSessionDescription(data.newOffer.offer));
+        // await processBufferedIceCandidates(data.newOffer.offererUserName, peerConnection);
 
         currentClientOffersMap.set(data.newOffer.offererUserName, data.newOffer);
 
 
-        setTimeout(async () => {
+      //  setTimeout(async () => {
             // setTimeout(async() => {
             await addToAutomaticClickedOffers({ offer: data.newOffer, offererSocketID: data.offererSocketID });
-        }, 1000);
+       // }, 500);
 
         // }, 1000);
         //addToOffers(data.newOffer);
@@ -453,6 +488,12 @@ function setupSocketListeners() {
         if (ackFn) ackFn('Message received and processed');
     });
 
+    socket.on('receiveCallClientFromServer', ({ userName, sendToUserName, isForClientSync, restartIce, sendToUserDeviceType }) => {
+
+        callFromServer({ userName, sendToUserName, isForClientSync, restartIce, sendToUserDeviceType });
+        
+    });
+
 
 }
 
@@ -560,6 +601,22 @@ function updateClientElements(clients) {
     }
 }
 
+
+function isOnlyAudioOffer(sdpOffer) {
+    const lines = sdpOffer.split('\r\n'); // Split SDP into lines
+    const audioLines = lines.filter(line => line.startsWith('m=audio'));
+    const videoLines = lines.filter(line => line.startsWith('m=video'));
+
+    // Check if there is an audio line and no video line
+    const isAudioOnly = audioLines.length > 0 && videoLines.length === 0;
+
+    return isAudioOnly;
+}
+
+// const onlyAudio = isOnlyAudioOffer(sdpOffer);
+// console.log(`Is the offer only sending audio? ${onlyAudio}`);
+
+
 function addToOffers(offer) {
 
     // Update the DOM
@@ -571,6 +628,9 @@ function addToOffers(offer) {
             //socket.emit('offerAnswered', offer);
             console.log(`___________addToOffers : ${offer.offererUserName}`);
             await answerOffer(offer);
+
+
+        
             newOfferEl.remove();
         });
         answerEl.appendChild(newOfferEl);
@@ -763,16 +823,19 @@ function updateOfferElements(newOffers) {
 
 async function answerOffer(offer, offererSocketID, isForSync) {
 
-
+    //let peerConnection = await getOrCreatePeerConnection(data.newOffer.offererUserName)//createPeerConnection(offer.offererUserName);
+    
     //call this for the offerer socket aswell getting to offerer as someone needed to be exposed. this is done
     //since the sole offerer that does not know about peers is the one that is calling the answerer 
     //with multi peers
-
-
-
+    
+    
+    
     console.log(`answerOffer : ${offer}`);
-
+    
     let peerConnection = await getOrCreatePeerConnection(offer.offererUserName)//createPeerConnection(offer.offererUserName);
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer.offer));
+    await processBufferedIceCandidates(offer.offererUserName, peerConnection);
     
 
     console.log(`POST PROCESS BUFFER`);
@@ -793,21 +856,10 @@ async function answerOffer(offer, offererSocketID, isForSync) {
 
     let offerResult = null;
 
-
-
-
-
-    // offer.clientsInCall = clientsInCall;
-    //  socket.emit('informClientOfAnswer', { offererSocketID:offer.offererSocketID, answererSocketID: offer.answererSocketID, offererUserName: offer.offererUserName, answererUserName: userName, isForSync: isForSync });
-
     //let data= {offer, clientsInRoom};
     offerResult = await socket.emitWithAck('newAnswer', { offer, clients: clientsInRoom.values() });
 
-
-
     // await processBufferedIceCandidates(offer.offererUserName, peerConnection);
-
-
 
     console.log(`ANSWERER CONNECTED PEERS:  ${connectedPeersMap.size})`)
     //if(offererSocketID)
@@ -855,14 +907,17 @@ async function getOrCreatePeerConnection(name, didIOffer = false, isForClientSyn
 
         peerConnection = await createPeerConnection(name, isForClientSync);
 
+        
+     //   peerConnection.addTransceiver('video', { direction: 'recvonly' });
+
         attachIceCandidateListener(peerConnection, didIOffer);
 
+        listenAndSetupRemoteVideoStream(peerConnection, name);
         // Set up ICE connection state monitoring with a timeout
         // if (isForClientSync)
         //     setupIceConnectionTimeout(peerConnection, name);
 
 
-        listenAndSetupRemoteVideoStream(peerConnection, name);
         peerConnections.set(name, peerConnection);
         await fetchUserMedia(peerConnection);
 
@@ -902,10 +957,29 @@ function listenAndSetupRemoteVideoStream(peerConnection, name) {
 
     // Handle remote track
     peerConnection.ontrack = event => {
+    
+        console.log('ontrack event:', event);
+        console.log('RTCPeerConnection state:', peerConnection.connectionState);
+        
+        if(event.streams.length === 0){
+            console.log('remote track without stream');
+            return;
+        }
 
         const remoteStream = new MediaStream();
-        event.streams[0].getTracks().forEach(track => {
 
+        // if (event.streams[0].getTracks())
+        // {
+        console.log('event.streams', event.streams);
+
+        // }
+     
+
+
+        event.streams[0].getTracks().forEach(track => {
+            
+            // if (event.streams.length !== 0) 
+            
             remoteStream.addTrack(track)
             // console.log(`Track state: ${track.readyState}, enabled: ${track.enabled}`);
 
@@ -914,8 +988,13 @@ function listenAndSetupRemoteVideoStream(peerConnection, name) {
 
         );
 
+
+        
+        console.log(`Remote stream added for ${name}: ${event.track.kind}`);
         // Update or create remote video element for the target user
         if (event.track.kind === 'video') {
+
+
             const videoElement = updateRemoteVideoElement(name);
 
             videoElement.srcObject = remoteStream;
@@ -943,7 +1022,7 @@ function listenAndSetupRemoteVideoStream(peerConnection, name) {
             // };
 
             console.log(`Remote stream added for ${name}: "elementname: ${videoElement.id} : ${remoteStream}`);
-        }
+       }
         // console.log("Track received:", event.track.kind, event.track.id);
         // console.log("Associated stream IDs:", event.streams.map(s => s.id));
 
@@ -1042,10 +1121,6 @@ if(!isForClientSync)
         console.log(`${targetUserName} : Signaling state changed to: ${peerConnection.signalingState}`);
         checkAndAddPeer(targetUserName, peerConnection);
     };
-
-
-
-
 
 
     return peerConnection;
@@ -1194,6 +1269,9 @@ let currentAudioDeviceId;
 
 let currentAudioOutputDeviceId;
 
+let isFirst = false;
+
+let localConstraints;
 async function fetchUserMedia(peerConnection = null, videoDeviceId = null, audioDeviceId = null) {
 
     if (videoDeviceId == null)
@@ -1217,24 +1295,19 @@ async function fetchUserMedia(peerConnection = null, videoDeviceId = null, audio
     };
 
     try {
-        originalStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+           
+            // Call enumerateDevices to fill the device options
+            if(hasVideoDevice){
+                originalStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+               // videoElements.push(localVideo);
+            }else{
+                originalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            }
+
+
+      //  originalStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
         localVideo.srcObject = originalStream;
         localStream = originalStream;
-
-
-        if (videoElements.includes(localVideo) === false) {
-            videoElements.push(localVideo);
-            // Call enumerateDevices to fill the device options
-            enumerateDevices();
-
-            // localVideo.onloadedmetadata = () => {
-
-            //     window.gameInstance.SendMessage('WebRTCVideo', 'ReceiveDimensions', `${"localVideo"},${localVideo.videoWidth},${localVideo.videoHeight}`);
-
-            //     console.log(`onloadedmetadata: Video is now ready to play for ${localVideo.id}`);
-            // };
-
-        }
 
         if (peerConnection) {
             localStream.getTracks().forEach(track => {
@@ -1251,6 +1324,9 @@ async function fetchUserMedia(peerConnection = null, videoDeviceId = null, audio
         }
         else {
             peerConnections.forEach((peerConnection, key) => {
+
+              
+
                 // Add new tracks to the peer connection or replace existing ones
                 localStream.getTracks().forEach(track => {
                     let sender = peerConnection.getSenders().find(s => s.track.kind === track.kind);
@@ -1315,14 +1391,13 @@ const callTimeoutDuration = 7000; // Timeout duration in milliseconds
 let clientsCalled = new Set();
 async function call(sendToUserName, isForClientSync = false, restartIce = false) {
 
-    // if (clientsCalled.has(sendToUserName)) {
-    //     console.log(`This User: ${userName} is already calling ${sendToUserName} aborting call.`);
-    //     return;
-    // }
+  
+    socket.emit('callClientFromServer', {userName, sendToUserName, isForClientSync, restartIce});
+    
+}
 
-    // clientsCalled.add(sendToUserName);
-
-
+async function callFromServer({ userName, sendToUserName, isForClientSync, restartIce, sendToUserDeviceType }) 
+{
     if (sendToUserName === userName) {
 
         console.log(`Calling yourself: ${userName} `);
@@ -1344,8 +1419,11 @@ async function call(sendToUserName, isForClientSync = false, restartIce = false)
 
 
 
-
-
+        console.log(`call : ${sendToUserName} isForClientSync: ${isForClientSync} restartIce: ${restartIce} sendToUserDeviceType: ${sendToUserDeviceType}`);
+//vir headsets
+    //    if(sendToUserDeviceType == 1)
+        peerConnection.addTransceiver('video', { direction: 'sendrecv' });
+        // peerConnection.addTransceiver('video', { direction: 'sendrecv' });
 
         let offer = null;
 
@@ -1401,25 +1479,18 @@ async function call(sendToUserName, isForClientSync = false, restartIce = false)
                     if (window && window.gameInstance && window.socketIOAdapterName)
                         window.gameInstance.SendMessage(window.socketIOAdapterName, 'CallFailed', sendToUserName);
 
-
-
-
-
-
                     clientsCalled.delete(sendToUserName);
 
                 }
             }
         }, callTimeoutDuration);
 
-
-
     } catch (error) {
         console.error('Error creating offer:', error);
     }
+
+
 }
-
-
 
 function createOfferAndSend(peerConnection, targetPeerId) {
     peerConnection.createOffer().then(offer => {
@@ -1612,7 +1683,40 @@ function RemoveWebRTCTextureJS(id, name) {
 }
 
 
-function checkVideoElementReady(videoId, id) {
+async function checkVideoElementReady(videoId, id) {
+
+    if (videoId !== "localVideo") {
+        // Trim the "remoteVideo_" prefix from videoId
+        let trimmedVideoId = videoId.substring("remoteVideo_".length);
+    
+       // offerResult = await socket.emitWithAck('newAnswer', { offer, clients: clientsInRoom.values() });
+
+       let hasVideo = false;
+        // Emit a message to the server and handle the response
+        let response = await socket.emitWithAck('checkPeerDeviceType', trimmedVideoId );
+        
+        
+      
+           
+           
+            if (response) {
+                hasVideo = true;
+                // If the response is true, continue with your code
+                 console.log('Peer device has video and audio');
+            } else {
+                // If the response is false, return
+                console.log('Peer device only has audio');
+               
+            }
+       // }
+       // });
+
+        if(!hasVideo){
+            gameInstance.SendMessage('WebRTCVideo', 'OnVideoReady', videoId);
+            return;
+        }
+    }
+
     function waitForElementAndCheckReadyState() {
 
         var video = document.getElementById(videoId);
@@ -1623,18 +1727,6 @@ function checkVideoElementReady(videoId, id) {
                 video.textureID = id;
 
                 gameInstance.SendMessage('WebRTCVideo', 'OnVideoReady', videoId);
-
-
-                //  video.onloadedmetadata = function() {
-
-                //     setTimeout(()=>
-                //     window.gameInstance.SendMessage('WebRTCVideo', 'ReceiveDimensions', `${videoId},${video.videoWidth},${video.videoHeight}`)
-                //     , 100);
-
-
-                //  };
-
-
 
             } else {
                 // If not ready, check again after some time
@@ -1654,12 +1746,18 @@ async function enumerateDevices() {
     // Get the list of available media input devices
     const devices = await navigator.mediaDevices.enumerateDevices();
 
+
     const videoInputSelect = document.getElementById('videoInputSelect');
     const audioInputSelect = document.getElementById('audioInputSelect');
+
 
     // Clear out existing options
     videoInputSelect.innerHTML = '';
     audioInputSelect.innerHTML = '';
+
+
+    let videoDevicePresent = false;
+
 
     // Populate the video and audio input select elements
     devices.forEach(device => {
@@ -1669,12 +1767,19 @@ async function enumerateDevices() {
 
 
 
+
+
+
         if (device.kind === 'videoinput') {
             videoInputSelect.appendChild(option);
+            videoDevicePresent = true;
         } else if (device.kind === 'audioinput') {
             audioInputSelect.appendChild(option);
         }
     });
+
+
+
 
 
 
@@ -1685,10 +1790,13 @@ async function enumerateDevices() {
         kind: device.kind
     }));
 
+
     console.log(deviceInfoArray);
+
 
     // Serialize the array to a JSON string
     const deviceInfoJson = JSON.stringify({ devices: deviceInfoArray });
+
 
     // Use Unity's SendMessage to pass the JSON string back to Unity
     // Assuming you have a GameObject named 'DeviceManager' with a script that has a method 'ReceiveDeviceInfo'
@@ -1696,10 +1804,16 @@ async function enumerateDevices() {
 
 
 
+
+
+
     if (window && window.gameInstance && window.socketIOAdapterName)
         window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveDeviceInfo', deviceInfoJson);
 
+
+        return videoDevicePresent;
 }
+
 
 // Call enumerateDevices to fill the device options
 //enumerateDevices();

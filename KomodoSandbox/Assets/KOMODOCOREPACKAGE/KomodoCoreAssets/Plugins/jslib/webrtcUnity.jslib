@@ -115,6 +115,7 @@
       else
          videoElement = document.getElementById("remoteVideo_" + textureName);
     
+     //   videoElement.textureID = id;
 
 
     //  videoElement.onloadedmetadata = function() {
@@ -138,7 +139,7 @@
         // Get the WebGL texture object from the Emscripten texture ID.
         textureObj = GL.textures[id];
         //needed to keep track of the texture to update
-        // videoElement.textureID = id;
+       // videoElement.textureID = id;
 
 // if(!videoElements.includes(videoElement)) {
 //     videoElements.push(videoElement);
@@ -159,79 +160,82 @@
         GLctx.texImage2D(GLctx.TEXTURE_2D, 0, GLctx.RGBA, GLctx.RGBA, GLctx.UNSIGNED_BYTE, ct_canvas);
 
 
- function texturePaint(v)
-  {
+          function texturePaint(v)
+          {
 
-        ctx.drawImage(v, 0, 0, 256, 256);
+                ctx.drawImage(v, 0, 0, 256, 256);
 
-        GLctx.bindTexture(GLctx.TEXTURE_2D,  GL.textures[v.textureID]);//textureObj);
-        GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_WRAP_S, GLctx.CLAMP_TO_EDGE);
-        GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_WRAP_T, GLctx.CLAMP_TO_EDGE);
-        GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_MIN_FILTER, GLctx.LINEAR);
-    
-        GLctx.texSubImage2D(GLctx.TEXTURE_2D, 0, 0, 0, GLctx.RGBA, GLctx.UNSIGNED_BYTE, ct_canvas);
+                GLctx.bindTexture(GLctx.TEXTURE_2D,  GL.textures[v.textureID]);//textureObj);
+                GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_WRAP_S, GLctx.CLAMP_TO_EDGE);
+                GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_WRAP_T, GLctx.CLAMP_TO_EDGE);
+                GLctx.texParameteri(GLctx.TEXTURE_2D, GLctx.TEXTURE_MIN_FILTER, GLctx.LINEAR);
+            
+                GLctx.texSubImage2D(GLctx.TEXTURE_2D, 0, 0, 0, GLctx.RGBA, GLctx.UNSIGNED_BYTE, ct_canvas);
 
-  }
- 
-  function updateTexture() 
-  { 
+          }
+        
+          function updateTexture() 
+          { 
 
-    
+            
 
-    
-    for(let v of videoElements)
-    {
+            
+                for(let v of videoElements)
+                {
 
-      if (v.readyState >= v.HAVE_CURRENT_DATA)
-      { 
-        console.log("video ready" + v.id + "VIDEOELEMENTS :"+ videoElements.length)
-        texturePaint(v);
-      }
+                  if (v.readyState >= v.HAVE_CURRENT_DATA)
+                  { 
+                    console.log("video ready" + v.id + "VIDEOELEMENTS :"+ videoElements.length)
+                    texturePaint(v);
+                  }
 
-    }
-       requestAnimationFrame(updateTexture);
+                }
+                  requestAnimationFrame(updateTexture);
 
-    
-
-
+                
 
 
 
 
-    
 
-  }
+
+            
+
+          }
 
 
     //need to hijack this function for requestAnimationFrame to work during webxr session
-    xrManager.BrowserObject.requestAnimationFrame = function (func) 
-    {
-          
-      if (xrManager.xrSession && xrManager.xrSession.isInSession) 
-      {
-        return xrManager.xrSession.requestAnimationFrame((time, xrFrame) =>
-        {
-            xrManager.animate(xrFrame);
-
-                for(let v of videoElements)
-                {
-                  if (v.readyState >= v.HAVE_CURRENT_DATA) 
-                    texturePaint(v);
-                };
-          // if (videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) 
-          //      texturePaint();
-
-            func(time);
+          xrManager.BrowserObject.requestAnimationFrame = function (func) 
+          {
                 
-        });
+                if (xrManager.xrSession && xrManager.xrSession.isInSession) 
+                {
+                  return xrManager.xrSession.requestAnimationFrame((time, xrFrame) =>
+                  {
+                      xrManager.animate(xrFrame);
 
-      } 
-      else {
+                          for(let v of videoElements)
+                          {
+                           //   console.log("video check" + v.id + "VIDEOELEMENTS :"+ videoElements.length)
+                            if (v.readyState >= v.HAVE_CURRENT_DATA) {
+                              console.log("video ready" + v.id + "VIDEOELEMENTS :"+ videoElements.length)
+                              texturePaint(v);
+                            }
+                          };
+                    // if (videoElement.readyState >= videoElement.HAVE_CURRENT_DATA) 
+                    //      texturePaint();
 
-         window.requestAnimationFrame(func);
+                      func(time);
+                          
+                  });
 
-      }
-    };
+                } 
+                else {
+
+                  window.requestAnimationFrame(func);
+
+                }
+          };
 
         if (videoElements.length >= 0)
           updateTexture();
