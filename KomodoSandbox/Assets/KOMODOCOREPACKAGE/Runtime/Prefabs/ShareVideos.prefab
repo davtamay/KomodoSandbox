@@ -612,6 +612,9 @@ MonoBehaviour:
   - {fileID: 9030846745487290011}
   gridlayout: {fileID: 0}
   maxSizeVideoReference: {fileID: 0}
+  viewSizeWhenMaxScreenOn: 0
+  viewSizeWhenMinScreenOff: 0
+  viewMaskLayout: {fileID: 0}
 --- !u!1 &2192908170320306859
 GameObject:
   m_ObjectHideFlags: 0
@@ -1001,7 +1004,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.4509804, g: 0.07058824, b: 0.61960787, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:

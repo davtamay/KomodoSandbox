@@ -31,7 +31,9 @@ let peerConfiguration = {
 
 let currentClientOffersMap = new Map();
 //if(!RELAY_BASE_URL)
- //let RELAY_BASE_URL = 'https://192.168.1.67:3000';
+// let RELAY_BASE_URL = 'https://192.168.1.126:3000';
+
+ //https://192.168.1.126:3000
 
 
 
@@ -61,7 +63,7 @@ const password = "x";
 
 let isScreenSharing = false;
 
-// //remove this when adding to unity
+//remove this when adding to unity
 // document.addEventListener('DOMContentLoaded', () => {
 //     ConnectToWebRTCSocket("Rob-" + Math.floor(Math.random() * 100000));
 // });
@@ -94,27 +96,53 @@ async function ConnectToWebRTCSocket(name) {
         // videoElements.push(localVideo);
        // isFirst = true;
 
-        hasVideoDevice = await enumerateDevices();
-        console.log(`ConnectToWebRTCSocket -fetchUserMedia : hasVideoDevice : ${hasVideoDevice}`);
+    //    hasVideoDevice = await enumerateDevices();
+    //     console.log(`ConnectToWebRTCSocket -fetchUserMedia : hasVideoDevice : ${hasVideoDevice}`);
        
        
-       let deviceType;
-        // Call enumerateDevices to fill the device options
-        if(hasVideoDevice){
-            //originalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-            deviceType = 0;
+    //    let deviceType;
+    //     // Call enumerateDevices to fill the device options
+    //     if(hasVideoDevice){
+    //         //originalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+    //         deviceType = 0;
 
-            videoElements.push(localVideo);
-        }else{
-          //  originalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            deviceType = 1;
-        }
+    //         videoElements.push(localVideo);
+    //     }else{
+    //       //  originalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    //         deviceType = 1;
+    //     }
 
 
-        socket.emit('setDeviceType',{userName, deviceType} );
+    //     socket.emit('setDeviceType',{userName, deviceType} );
+
+     await getAllDevicesAndSendToUnity();
 
 
   //  }
+}
+
+async function getAllDevicesAndSendToUnity() {
+
+    hasVideoDevice = await enumerateDevices();
+    console.log(`ConnectToWebRTCSocket -fetchUserMedia : hasVideoDevice : ${hasVideoDevice}`);
+   
+   
+   let deviceType;
+    // Call enumerateDevices to fill the device options
+    if(hasVideoDevice){
+        //originalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        deviceType = 0;
+
+        videoElements.push(localVideo);
+    }else{
+      //  originalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+        deviceType = 1;
+    }
+
+
+    socket.emit('setDeviceType',{userName, deviceType} );
+
+
 }
 
 function setupSocketListeners() {
@@ -191,16 +219,17 @@ function setupSocketListeners() {
         currentClientOffersMap.set(data.newOffer.offererUserName, data.newOffer);
 
 
-      //  setTimeout(async () => {
+       // setTimeout(async () => {
             // setTimeout(async() => {
             await addToAutomaticClickedOffers({ offer: data.newOffer, offererSocketID: data.offererSocketID });
-       // }, 500);
+            if (window && window.gameInstance && window.socketIOAdapterName)
+            window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientCallAndAnswer', data.offererClientID);//addToOffers(data.newOffer);
+        
+      //  }, 1000);
 
         // }, 1000);
         //addToOffers(data.newOffer);
-        if (window && window.gameInstance && window.socketIOAdapterName)
-            window.gameInstance.SendMessage(window.socketIOAdapterName, 'ReceiveClientCallAndAnswer', data.offererClientID);//addToOffers(data.newOffer);
-
+       
 
         const responseObject = {
             status: 'success',
@@ -304,7 +333,10 @@ function setupSocketListeners() {
 
         // socket.emit('connectionEstablished', {offererSocketID:offerResult.offererSocketID, answererSocketID: offerResult.answererSocketID, offererUserName: offerResult.offererUserName, answererUserName: offerResult.answererUserName, isForSync: isForSync });
 
-
+         iceConnectionTimer = setTimeout(() => {
+                            console.log(`ICE Connection Timeout. Restarting ICE for ${data.offer.answererUserName}`);
+                            call(data.offer.answererUserName, true, true);
+                        }, ICE_CONNECTION_TIMEOUT);
 
 
     });
@@ -854,12 +886,14 @@ async function answerOffer(offer, offererSocketID, isForSync) {
     // offer.answererUserName = userName;
     offer.isForSync = isForSync;
 
-    let offerResult = null;
-
     //let data= {offer, clientsInRoom};
-    offerResult = await socket.emitWithAck('newAnswer', { offer, clients: clientsInRoom.values() });
+    let offerResult = await socket.emitWithAck('newAnswer', { offer, clients: clientsInRoom.values() });
+
+
 
     // await processBufferedIceCandidates(offer.offererUserName, peerConnection);
+
+
 
     console.log(`ANSWERER CONNECTED PEERS:  ${connectedPeersMap.size})`)
     //if(offererSocketID)
@@ -890,6 +924,10 @@ async function answerOffer(offer, offererSocketID, isForSync) {
     //ReceiveClientAnswer   socket.emit('connectionEstablished', {offererSocketID:offerResult.offererSocketID, answererSocketID: offerResult.answererSocketID, offererUserName: offerResult.offererUserName, answererUserName: offerResult.answererUserName, isForSync: isForSync });
 
 
+    iceConnectionTimer = setTimeout(() => {
+        console.log(`ICE Connection Timeout. Restarting ICE for ${offer.offererUserName}`);
+        call(offer.offererUserName, true, true);
+    }, ICE_CONNECTION_TIMEOUT);
 }
 
 
@@ -1047,11 +1085,11 @@ async function createPeerConnection(targetUserName, isForClientSync = false) {
 
     let iceConnectionTimer
 
-if(!isForClientSync)
-     iceConnectionTimer = setTimeout(() => {
-        console.log(`ICE Connection Timeout. Restarting ICE for ${targetUserName}`);
-        call(targetUserName, true, true);
-    }, ICE_CONNECTION_TIMEOUT);
+// if(!isForClientSync)
+//      iceConnectionTimer = setTimeout(() => {
+//         console.log(`ICE Connection Timeout. Restarting ICE for ${targetUserName}`);
+//         call(targetUserName, true, true);
+//     }, ICE_CONNECTION_TIMEOUT);
 
     peerConnection.oniceconnectionstatechange = () => {
 
@@ -1061,6 +1099,8 @@ if(!isForClientSync)
             peerConnection.iceConnectionState === 'completed') {
             clearTimeout(iceConnectionTimer);
         }
+
+     
 
 
         // console.log(`${targetUserName} : ICE connection state changed to: ${peerConnection.iceConnectionState}`);
@@ -1088,9 +1128,21 @@ if(!isForClientSync)
                 break;
             case 'gathering':
                 // The ICE agent is actively gathering candidates.
+
+
+                // iceConnectionTimer = setTimeout(() => {
+                //             console.log(`ICE Connection Timeout. Restarting ICE for ${targetUserName}`);
+                //             call(targetUserName, true, true);
+                //         }, ICE_CONNECTION_TIMEOUT);
+
+
+
+
                 break;
             case 'complete':
 
+
+             //  clearTimeout(iceConnectionTimer);
                 // fetchUserMedia(peerConnection, null, null);
                 // The ICE agent has finished gathering candidates.
                 break;
@@ -1121,6 +1173,10 @@ if(!isForClientSync)
         console.log(`${targetUserName} : Signaling state changed to: ${peerConnection.signalingState}`);
         checkAndAddPeer(targetUserName, peerConnection);
     };
+
+
+
+
 
 
     return peerConnection;
@@ -1683,6 +1739,7 @@ function RemoveWebRTCTextureJS(id, name) {
 }
 
 
+
 async function checkVideoElementReady(videoId, id) {
 
     if (videoId !== "localVideo") {
@@ -1695,10 +1752,6 @@ async function checkVideoElementReady(videoId, id) {
         // Emit a message to the server and handle the response
         let response = await socket.emitWithAck('checkPeerDeviceType', trimmedVideoId );
         
-        
-      
-           
-           
             if (response) {
                 hasVideo = true;
                 // If the response is true, continue with your code
@@ -1716,6 +1769,25 @@ async function checkVideoElementReady(videoId, id) {
             return;
         }
     }
+    else{
+       // await getAllDevicesAndSendToUnity();
+       // await enumerateDevices();
+       console.log('LLLLLLLLLLOOOOOCCCCCCCALLL VIDEO')
+        await fetchUserMedia(null, null, null);
+        
+        var video = document.getElementById(videoId);
+        video.textureID = id;
+      
+        if(hasVideoDevice){
+             if(videoElements.includes(video) === false)
+                videoElements.push(video);
+
+        }
+
+        gameInstance.SendMessage('WebRTCVideo', 'OnVideoReady', videoId);
+        // gameInstance.SendMessage('WebRTCVideo', 'OnVideoReady', videoId);
+        return;
+    }
 
     function waitForElementAndCheckReadyState() {
 
@@ -1723,6 +1795,7 @@ async function checkVideoElementReady(videoId, id) {
         if (video) {
             // If the video element exists, check its ready state
             if (video.readyState >= 2) { // HAVE_CURRENT_DATA
+
 
                 video.textureID = id;
 
@@ -1831,7 +1904,7 @@ async function changeVideoInputDevice() {
     // Get the stream based on the new constraints
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     // Assuming you have a video element to display the local stream
-    document.querySelector('video').srcObject = stream;
+    document.querySelector('#localVideo').srcObject = stream;
 }
 
 async function changeAudioInputDevice() {
@@ -1843,4 +1916,5 @@ async function changeAudioInputDevice() {
     // Get the stream based on the new constraints
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     // Use the stream for audio calls or add it to the RTCPeerConnection
+    document.querySelector('#localVideo').srcObject = stream;
 }

@@ -132,6 +132,8 @@ public struct ToggleState
 
 
     public GameObject mainMenu;
+    public GameObject localVideo;
+    public GameObject remoteVideos;
    // public GameObject shareMenu;
 
         public void Awake()
@@ -605,12 +607,23 @@ public struct ToggleState
         }
 
         public void SetLeftHandedMenu() {
-            mainMenu.transform.SetSiblingIndex(0);
-            SetHandednessAndPlaceMenu(false);
+       
+        mainMenu.transform.SetSiblingIndex(2);
+        localVideo.transform.SetSiblingIndex(1);
+        remoteVideos.transform.SetSiblingIndex(0);
+
+
+        SetHandednessAndPlaceMenu(false);
         }
 
         public void SetRightHandedMenu() {
-          mainMenu.transform.SetSiblingIndex(1);
+      
+        remoteVideos.transform.SetSiblingIndex(2);
+        localVideo.transform.SetSiblingIndex(1);
+        mainMenu.transform.SetSiblingIndex(0);
+
+
+        //mainMenu.transform.SetSiblingIndex(1);
             SetHandednessAndPlaceMenu(true);
         }
 
