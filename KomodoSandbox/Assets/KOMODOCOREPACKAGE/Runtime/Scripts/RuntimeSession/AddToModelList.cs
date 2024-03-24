@@ -202,10 +202,12 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
         if (isNetCall)
         {
             //find the enabled camera
-            Camera[] allCameras = ClientSpawnManager.Instance.mainPlayer_AvatarEntityGroup.transform.GetChild(0).GetComponentsInChildren<Camera>(true);
-          //  Debug.Log("TOTAL CAMERAS " + allCameras.Length);
-            foreach (var item in allCameras)
-            {
+            //  Camera[] allCameras = ClientSpawnManager.Instance.mainPlayer_AvatarEntityGroup.transform.GetChild(0).GetComponentsInChildren<Camera>(true);
+            ////  Debug.Log("TOTAL CAMERAS " + allCameras.Length);
+            //  foreach (var item in allCameras)
+            //  {
+                 Camera item = Camera.main;
+
                 if (item.enabled && item.gameObject.activeInHierarchy)
                 {
                  //   Debug.Log("CAMERA ON " + item.gameObject.name);
@@ -217,9 +219,9 @@ public class AddToModelList : MonoBehaviour, ICodeLogger
 
 
                     // komodoImportedModel.transform.rotation = Quaternion.LookRotation(komodoImportedModel.transform.position - item.transform.position, Vector3.up);
-                    break;
+                    //break;
                 }
-            }
+           // }
        
             NotifyOthersOfClick(komodoImportedModel.transform.position, komodoImportedModel.transform.rotation);
 

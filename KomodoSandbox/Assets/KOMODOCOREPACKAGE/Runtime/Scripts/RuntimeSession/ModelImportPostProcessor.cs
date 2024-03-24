@@ -40,11 +40,13 @@ using Komodo.AssetImport;
 using Unity.Collections;
 using System;
 using Komodo.Utilities;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 //namespace Komodo.Runtime
 //{
-    //Provides funcions to set up gameobject with colliders and setup references for network interaction
-    public class ModelImportPostProcessor : SingletonComponent<ModelImportPostProcessor>
+//Provides funcions to set up gameobject with colliders and setup references for network interaction
+public class ModelImportPostProcessor : SingletonComponent<ModelImportPostProcessor>
     {
         public static ModelImportPostProcessor Instance
         {
@@ -94,6 +96,8 @@ using Komodo.Utilities;
 
                 nRGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(newParent.gameObject, menuButtonIndex, modelData.guid, modelType: MODEL_TYPE.URL , isNetCall: isNetCall);
 
+                //nRGO.gameObject.AddComponent<Rigidbody>().isKinematic = true;
+                //nRGO.gameObject.AddComponent<XRGrabInteractable>();
             }
 
             //provide appropriate tag to enable it to be grabbed
@@ -127,8 +131,31 @@ using Komodo.Utilities;
 
             newParent.gameObject.SetActive(false);
 
-            return newParent.gameObject;
+
+        SetupXRToolkitGrabbable(nRGO);
+
+
+        return newParent.gameObject;
         }
+
+    public void SetupXRToolkitGrabbable(NetworkedGameObject nRGO)
+    {
+
+        nRGO.gameObject.AddComponent<Rigidbody>().isKinematic = true;
+        var GENGrab = nRGO.gameObject.AddComponent<XRGeneralGrabTransformer>();
+        GENGrab.constrainedAxisDisplacementMode = XRGeneralGrabTransformer.ConstrainedAxisDisplacementMode.ObjectRelativeWithLockedWorldUp;
+        GENGrab.allowTwoHandedRotation = XRGeneralGrabTransformer.TwoHandedRotationMode.FirstHandDirectedTowardsSecondHand;
+        GENGrab.allowOneHandedScaling = true;
+        GENGrab.allowTwoHandedScaling = true;
+        GENGrab.clampScaling = false;
+        GENGrab.maximumScaleRatio = 10;
+        GENGrab.scaleMultiplier = 1;
+
+        var Interactable = nRGO.gameObject.AddComponent<XRGrabInteractable>();
+        Interactable.selectMode = InteractableSelectMode.Multiple;
+        Interactable.useDynamicAttach = true;
+
+    }
 
         public static void AdjustPose(Transform newParent, ModelImportData modelData, Bounds bounds)
         {

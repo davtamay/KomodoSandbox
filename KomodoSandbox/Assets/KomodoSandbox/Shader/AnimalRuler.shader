@@ -1,53 +1,70 @@
-// Copyright 2020 The Tilt Brush Authors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-Shader "Custom/AnimalRuler" {
-  Properties {
-    _Color ("Main Color", Color) = (1,1,1,1)
-    _MainTex ("Texture", 2D) = "white" {}
-    _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
-    _Saturation ("Saturation", Range(0,1)) = 1.0
-  }
-  SubShader {
-    Tags {"Queue"="AlphaTest" "IgnoreProjector"="True" "RenderType"="TransparentCutout"}
-    LOD 100
-    Cull Off
-    CGPROGRAM
-    #pragma surface surf Lambert nofog
-
-    sampler2D _MainTex;
-    fixed4 _Color;
-    float _Saturation;
-    fixed _Cutoff;
-
-    struct Input {
-      float2 uv_MainTex;
-      float3 worldPos;
-    };
-
-    void surf (Input IN, inout SurfaceOutput o) {
-      fixed4 c = tex2D(_MainTex, IN.uv_MainTex);
-      c *= lerp(1.0f, _Color + .25f, _Saturation);
-      o.Emission = c.rgb;
-      if (c.a < _Cutoff) {
-        discard;
-      }
-      o.Alpha = 1;
+Shader "Universal Render Pipeline/Unlit/AnimalRuler"
+{
+    Properties
+    {
+        _BaseMap ("Base Map", 2D) = "white" {}
+        _Color ("Main Color", Color) = (1,1,1,1)
+        _Cutoff ("Alpha Cutoff", Range(0,1)) = 0.5
+        _Saturation ("Saturation", Range(0,1)) = 1.0
     }
-    ENDCG
-  }
-  FallBack "Transparent/Cutout/VertexLit"
+    SubShader
+    {
+        Tags { "RenderType"="TransparentCutout" "Queue"="AlphaTest" }
+        LOD 100
+
+        Blend SrcAlpha OneMinusSrcAlpha
+        AlphaToMask On
+        Cull Off ZWrite Off
+
+        Pass
+        {
+            Name "UnlitPass"
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            struct Varyings
+            {
+                float2 uv : TEXCOORD0;
+                float4 positionHCS : SV_POSITION;
+            };
+
+            CBUFFER_START(UnityPerMaterial)
+            half4 _Color;
+            half _Saturation;
+            half _Cutoff;
+            float4 _BaseMap_ST; // Add this line for tiling and offset
+            CBUFFER_END
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap); // Modify this line for tiling and offset
+                return OUT;
+            }
+
+            TEXTURE2D(_BaseMap);
+            SAMPLER(sampler_BaseMap);
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                half4 baseColor = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
+                baseColor.rgb *= _Color.rgb;
+                baseColor.rgb = lerp(half3(1,1,1), baseColor.rgb, _Saturation);
+                clip(baseColor.a - _Cutoff);
+                return baseColor;
+            }
+            ENDHLSL
+        }
+    }
+    FallBack "Universal Render Pipeline/Unlit"
 }
-
-

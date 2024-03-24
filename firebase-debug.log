@@ -1,0 +1,49 @@
+[debug] [2024-03-04T08:48:14.978Z] ----------------------------------------------------------------------
+[debug] [2024-03-04T08:48:14.979Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\davta\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2024-03-04T08:48:14.979Z] CLI Version:   13.4.0
+[debug] [2024-03-04T08:48:14.979Z] Platform:      win32
+[debug] [2024-03-04T08:48:14.980Z] Node Version:  v20.11.1
+[debug] [2024-03-04T08:48:14.980Z] Time:          Mon Mar 04 2024 02:48:14 GMT-0600 (Central Standard Time)
+[debug] [2024-03-04T08:48:14.980Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-03-04T08:48:20.018Z] Error: Timed out.
+    at Timeout._onTimeout (C:\Users\davta\AppData\Roaming\npm\node_modules\firebase-tools\lib\utils.js:258:49)
+    at listOnTimeout (node:internal/timers:573:17)
+    at process.processTimers (node:internal/timers:514:7)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2024-03-04T08:48:31.283Z] ----------------------------------------------------------------------
+[debug] [2024-03-04T08:48:31.284Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\davta\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2024-03-04T08:48:31.285Z] CLI Version:   13.4.0
+[debug] [2024-03-04T08:48:31.285Z] Platform:      win32
+[debug] [2024-03-04T08:48:31.285Z] Node Version:  v20.11.1
+[debug] [2024-03-04T08:48:31.285Z] Time:          Mon Mar 04 2024 02:48:31 GMT-0600 (Central Standard Time)
+[debug] [2024-03-04T08:48:31.285Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-03-04T08:48:36.323Z] Error: Timed out.
+    at Timeout._onTimeout (C:\Users\davta\AppData\Roaming\npm\node_modules\firebase-tools\lib\utils.js:258:49)
+    at listOnTimeout (node:internal/timers:573:17)
+    at process.processTimers (node:internal/timers:514:7)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2024-03-04T08:48:44.399Z] ----------------------------------------------------------------------
+[debug] [2024-03-04T08:48:44.400Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\davta\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2024-03-04T08:48:44.400Z] CLI Version:   13.4.0
+[debug] [2024-03-04T08:48:44.400Z] Platform:      win32
+[debug] [2024-03-04T08:48:44.400Z] Node Version:  v20.11.1
+[debug] [2024-03-04T08:48:44.401Z] Time:          Mon Mar 04 2024 02:48:44 GMT-0600 (Central Standard Time)
+[debug] [2024-03-04T08:48:44.401Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-03-04T08:48:44.404Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-03-04T08:48:44.404Z] > authorizing via signed-in user (davtamay@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\davta\Repos\KomodoSandbox
+

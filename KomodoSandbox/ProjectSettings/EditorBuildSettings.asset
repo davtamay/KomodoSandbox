@@ -7,7 +7,7 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/KomodoSandbox/Scene/Main.unity
-    guid: dba90801ac9e9374f9139c616e5f8862
+    guid: 35cf39af604baf546b60cb72e247331d
   - enabled: 1
     path: Assets/KomodoCoreAssets/KomodoCoreAssets/Scenes/Outdoors/Outdoors.unity
     guid: d28f43d8cd84e41458b0819c642f91db
@@ -24,3 +24,4 @@ EditorBuildSettings:
       type: 2}
     xr.sdk.mock-hmd.settings: {fileID: 11400000, guid: 6145319c34f440441bbabe329561f17c,
       type: 2}
+  m_UseUCBPForAssetBundles: 0

@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Komodo.Runtime
 {
-    public class MoveColorTargetWithSelection : MonoBehaviour, ICursorHover
+    public class MoveColorTargetWithSelection : MonoBehaviour, ICursorHover, IPointerMoveHandler
     {
         public Transform target;
         public Vector3 lastLocalPos;
@@ -22,5 +23,26 @@ namespace Komodo.Runtime
 
 
         }
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            //if (cursorData.inputSourceActiveState)
+            //{
+                target.transform.position = eventData.worldPosition;
+                lastLocalPos = target.transform.localPosition;
+            //}
+            //else
+            //{
+            //    target.transform.localPosition = lastLocalPos;
+            //}
+
+        }
+
+        public void OnPointerMove(PointerEventData eventData)
+        {
+            target.transform.position = eventData.position;
+            lastLocalPos = target.transform.localPosition;
+        }
+    
     }
 }

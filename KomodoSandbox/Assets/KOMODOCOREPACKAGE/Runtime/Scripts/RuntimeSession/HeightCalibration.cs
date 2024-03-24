@@ -50,22 +50,22 @@ using UnityEngine.SceneManagement;
 
         public void OnValidate ()
         {
-            if (GameObject.FindWithTag(TagList.leftEye) == null)
-            {
-                throw new System.Exception($"Could not find GameObject with tag {TagList.leftEye}");
-            }
+            //if (GameObject.FindWithTag(TagList.leftEye) == null)
+            //{
+            //    throw new System.Exception($"Could not find GameObject with tag {TagList.leftEye}");
+            //}
         }
 
         public void Start ()
         {
-            if (!leftEye)
-            {
-                leftEye = GameObject.FindWithTag(TagList.leftEye).transform;
-            }
+            //if (!leftEye)
+            //{
+            //    leftEye = GameObject.FindWithTag(TagList.leftEye).transform;
+            //}
 
-            minYOfHands = leftHand.transform.position.y;
+            //minYOfHands = leftHand.transform.position.y;
 
-            floorHeightDisplayCenter = new Vector3(leftEye.position.x, minYOfHands, leftEye.position.z);
+            //floorHeightDisplayCenter = new Vector3(leftEye.position.x, minYOfHands, leftEye.position.z);
         }
 
         public void Update ()

@@ -162,7 +162,12 @@ using Komodo.Utilities;
         private void SendUpdateEventForCollisionInfoAndCursorUpdate(Transform lineStart, PointerEventData pEvent)
         {
             currentCollisionLocation = lineStart.position + (lineStart.forward * (pEvent.pointerCurrentRaycast.distance + 0.025f));
-            cursorParent.position = currentCollisionLocation;
+            
+        //if(currentCollisionLocation == float.NaN)
+        //float.IsNaN()
+        
+        
+        cursorParent.position = currentCollisionLocation;
             cursorParent.rotation = (Quaternion.FromToRotation(cursorParent.up, pEvent.pointerCurrentRaycast.worldNormal)) * cursorParent.rotation;
         }
 

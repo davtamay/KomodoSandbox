@@ -22,6 +22,7 @@ public class Impress_ToggleMenuDisplayMode : MonoBehaviour
     private UIManager uiManager;
     public void Start()
     {
+
 #if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
         WebXRManager.OnXRChange += ToggleMode;
 #else 

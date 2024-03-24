@@ -14,7 +14,7 @@ public class LineWidthModification : MonoBehaviour
     public Text displayLineWidth;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         displayLineWidth.text = LDraw.widthMultiplier.ToString("0.00") ;
 
@@ -24,15 +24,15 @@ public class LineWidthModification : MonoBehaviour
 
         float initialScale = LDraw.widthMultiplier * 1.2f; //* 2f;
 
-        LSelect.widthMultiplier = initialScale ;
-        RSelect.widthMultiplier = initialScale ;
+        //LSelect.widthMultiplier = initialScale ;
+        //RSelect.widthMultiplier = initialScale ;
         LDraw.widthMultiplier = initialScale;
         RDraw.widthMultiplier = initialScale;
 
 
         float adjustedScale = initialScale * 5;
-        LSelect.widthMultiplier = adjustedScale;
-        RSelect.widthMultiplier = adjustedScale;
+        //LSelect.widthMultiplier = adjustedScale;
+        //RSelect.widthMultiplier = adjustedScale;
         LDraw.widthMultiplier = adjustedScale;
         RDraw.widthMultiplier = adjustedScale;
 
@@ -42,8 +42,8 @@ public class LineWidthModification : MonoBehaviour
         {
             //newScale *= 1.2f ;
             float adjustedScale = initialScale * newScale;
-            LSelect.widthMultiplier = adjustedScale;
-            RSelect.widthMultiplier = adjustedScale;
+            //LSelect.widthMultiplier = adjustedScale;
+            //RSelect.widthMultiplier = adjustedScale;
             LDraw.widthMultiplier = adjustedScale;
             RDraw.widthMultiplier = adjustedScale;
 

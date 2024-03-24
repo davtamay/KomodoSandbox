@@ -21,48 +21,13 @@
         </div>
       </div>
       <div id="unity-footer">
-        <!-- <div id="unity-webgl-logo"></div> -->
+        <div id="unity-webgl-logo"></div>
         <button id="entervr" value="Enter VR" disabled>VR</button>
         <button id="enterar" value="Enter AR" disabled>AR</button>
-        <!-- <div id="unity-webxr-link">Using <a href="https://github.com/De-Panther/unity-webxr-export" target="_blank" title="WebXR Export">WebXR Export</a></div>
-        <div id="unity-build-title">{{{ PRODUCT_NAME }}}</div> -->
+        <div id="unity-webxr-link">Using <a href="https://github.com/De-Panther/unity-webxr-export" target="_blank" title="WebXR Export">WebXR Export</a></div>
+        <div id="unity-build-title">{{{ PRODUCT_NAME }}}</div>
       </div>
     </div>
-
-    
-    
-   <!-- WebRTC Controls at the bottom -->
-
-   
-   <div id="webrtc-container">
-    <div id="webrtc-controls">
-      <h2>WebRTC Test</h2>
-      <div>Current client: <span id="currentClientName"></span></div>
-      <video id="localVideo" autoplay muted style="pointer-events: none; visibility: hidden; position: relative; z-index: 1000;"></video>
-   <br/>
-     <button style="position: relative; z-index: 1000; display: none;" id="startButton">Start Call</button>
-     <button style="position: relative; z-index: 1000; display: none;"  id="stopButton">Stop Call</button>
-     <button style="position: relative; z-index: 1000; display: none; "  id="answer">Answer Call</button>
-     <button style="position: relative; z-index: 1000; display: none; "  id="clients">Show Clients</button>
-     <button style="display: none; position: relative ;  display: none; z-index: 1000;"  id="callButton">Call Selected Client</button>
-     <br/>
-     <button style=" position: relative; z-index: 1000; display: none;" id="endButton">End Call</button>
-     <button style=" position: relative; z-index: 1000; display: none;" id="startScreenSharingButton" >Start Screen Sharing</button>
-     <button style=" position: relative; z-index: 1000; display: none;" id="stopScreenSharingButton" disabled>Stop Screen Sharing</button>
-     <button style=" position: relative; z-index: 1000;display: none;" id="toggleMicrophoneButton" class="btn unmuted">Mute Microphone</button>
- 
-     <button style=" position: relative; z-index: 1000; display: none;" id="toggleVideoButton" class="btn">Stop Sharing Video</button>
-
-     <!-- Dropdowns for selecting devices -->
-     <select style=" position: relative; z-index: 1000; display: none;" id="videoInputSelect"></select>
-     <select style=" position: relativec; z-index: 1000; display: none;" id="audioInputSelect"></select>
-     
-
-   </div>
-</div>
-
-<script src="webrtc.js"></script>
-
     <script>
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
@@ -88,7 +53,7 @@
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var gameInstance = null;
+      var unityInstance = null;
       {{{ WEBXR_POLYFILL_CONFIG }}}
 
 #if BACKGROUND_FILENAME
@@ -102,29 +67,18 @@
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
         }).then((instance) => {
-          window.gameInstance = instance;
+          unityInstance = instance;
           loadingBar.style.display = "none";
           if (fullscreenButton)
           {
             fullscreenButton.onclick = () => {
-              window.gameInstance.SetFullscreen(1);
+              unityInstance.SetFullscreen(1);
             };
           }
         }).catch((message) => {
           alert(message);
         });
       };
-
-
-
-//       window.onbeforeunload = () => {
-//     unityInstance.SendMessage("CloseEvent", "CloseCallback");
-//     return "Are you sure to leave this page?";
-// }
-
-
-
-
       document.body.appendChild(script);
 
       let enterARButton = document.getElementById('enterar');
@@ -138,27 +92,11 @@
       }, false);
 
       enterARButton.addEventListener('click', function (event) {
-        gameInstance.Module.WebXR.toggleAR();
+        unityInstance.Module.WebXR.toggleAR();
       }, false);
       enterVRButton.addEventListener('click', function (event) {
-        gameInstance.Module.WebXR.toggleVR();
+        unityInstance.Module.WebXR.toggleVR();
       }, false);
     </script>
-
-<script>
-  // Global variables for WebGL texture
-  var ct_canvas, gl, textureObj, videoElement, ctx, textureID;
-
-  // Additional JavaScript code and functions...
-</script>
-
-<script src="gl-matrix-min.js"></script>
-<script src="webxr.js"></script>
-
-<script src="socket.io.js"></script>
-
-
-<script src="relay.js"></script>
-
-
-
+  </body>
+</html>

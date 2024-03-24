@@ -16,15 +16,15 @@ using WebXR;
 
         private Transform cameraSet;
 
-        private Transform spectatorCamera;
+       // private Transform spectatorCamera;
 
-        private Transform playspace;
+        public Transform playspace;
 
-        private Transform rightEye;
+        //private Transform rightEye;
 
-        private Transform leftEye;
+        //private Transform leftEye;
 
-        private Transform centerEye;
+        public Transform centerEye;
 
         private Transform currentSpawnCenter;
 
@@ -76,33 +76,33 @@ using WebXR;
 
             if (!cameraSet)
             {
-                cameraSet = GameObject.FindWithTag(TagList.cameraSet).transform;
+                cameraSet = Camera.main.transform.parent.parent; //GameObject.FindWithTag(TagList.cameraSet).transform;
             }
 
             if (!playspace)
             {
-                playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
-            }
+                playspace = Camera.main.transform.parent.parent;// GameObject.FindWithTag(TagList.xrCamera).transform;
+        }
 
-            if (!leftEye)
-            {
-                leftEye = GameObject.FindWithTag(TagList.leftEye).transform;
-            }
+            //if (!leftEye)
+            //{
+            //    leftEye = GameObject.FindWithTag(TagList.leftEye).transform;
+            //}
 
-            if (!rightEye)
-            {
-                rightEye = GameObject.FindWithTag(TagList.rightEye).transform;
-            }
+            //if (!rightEye)
+            //{
+            //    rightEye = GameObject.FindWithTag(TagList.rightEye).transform;
+            //}
 
             if (!centerEye)
             {
-                centerEye = leftEye;
+            centerEye = Camera.main.transform.parent;//leftEye;
             }
 
-            if (!spectatorCamera)
-            {
-                spectatorCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;
-            }
+        //    if (!spectatorCamera)
+        //    {
+        //        spectatorCamera = Camera.main.transform.parent;//GameObject.FindWithTag(TagList.desktopCamera).transform;
+        //}
 
      
         }
@@ -253,7 +253,7 @@ using WebXR;
         {
             var homePos = (Vector3.up * webXRCameraOffset.cameraYOffset); //SceneManagerExtensions.Instance.anchorPositionInNewScene.position +//defaultPlayerInitialHeight);
 
-            spectatorCamera.position = homePos;//UIManager.Instance.anchorPositionInNewScene.position;//Vector3.up * defaultPlayerInitialHeight;
+         //   spectatorCamera.position = homePos;//UIManager.Instance.anchorPositionInNewScene.position;//Vector3.up * defaultPlayerInitialHeight;
 
             UpdatePlayerPosition(new Position { pos = homePos });
         }
@@ -262,7 +262,7 @@ using WebXR;
         {
             var homePosition = currentSpawnCenter.position;
 
-            spectatorCamera.position = homePosition;
+          //  spectatorCamera.position = homePosition;
 
             UpdatePlayerPosition2(new Position { pos = homePosition });
         }
@@ -303,10 +303,10 @@ using WebXR;
 
         public void UpdateCenterEye()
         {
-            centerEye.position = (leftEye.position + rightEye.position) / 2;
+        //centerEye.position = (leftEye.position + rightEye.position) / 2;
 
-            centerEye.rotation = leftEye.rotation;
-        }
+        //centerEye.rotation = leftEye.rotation;
+    }
 
         public void UpdatePlayerXZPosition(float teleportX, float teleportZ)
         {
@@ -321,7 +321,7 @@ using WebXR;
             finalPlayspacePosition.z += deltaZ;
 
             playspace.position = finalPlayspacePosition;
-            spectatorCamera.position = finalPlayspacePosition;
+         //   spectatorCamera.position = finalPlayspacePosition;
         }
 
         public void UpdatePlayerXZPosition(Transform otherTransform)
@@ -466,7 +466,7 @@ using WebXR;
             //    justBumped = true;
             //}
             playspace.position = finalPlayspacePosition;
-            spectatorCamera.position = finalPlayspacePosition;
+          //  spectatorCamera.position = finalPlayspacePosition;
            // playspace.parent.position = finalPlayspacePosition;
         }
 
@@ -554,13 +554,13 @@ using WebXR;
             var ratioScale = newScale / 1;
             var offsetFix = ratioScale * 1.8f;
 
-            if (!spectatorCamera)
-                spectatorCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;
+            //if (!spectatorCamera)
+            //    spectatorCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;
 
             if (!playspace)
                 playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
 
-            spectatorCamera.transform.localScale = Vector3.one * newScale;
+          //  spectatorCamera.transform.localScale = Vector3.one * newScale;
             playspace.transform.localScale = Vector3.one * newScale;
 
             webXRCameraOffset.cameraYOffset = offsetFix;//newScale;

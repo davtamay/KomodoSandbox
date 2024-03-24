@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 //namespace Komodo.Runtime
 //{
-    public class HoverCursor : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class HoverCursor : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
     {
         public GameObject cursorGraphic;
 
@@ -44,13 +44,15 @@ using UnityEngine.EventSystems;
         }
 
         public void OnPointerEnter(PointerEventData eventData)
-        {        
+        {
+        Debug.Log("shown cursor ENTER");
             ShowCursor();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            HideCursor();
+        Debug.Log("EXIT cursor ENTER");
+        HideCursor();
         }
         
         
@@ -58,8 +60,9 @@ using UnityEngine.EventSystems;
             originalColor = cursorImage.color;
 
             cursorImage.color = hoverColor;
+       // cursorGraphic.SetActive(true);
 
-            cursorGraphic.SetActive(true);
+        cursorGraphic.transform.parent.gameObject.SetActive(true);
         }
         
         private void HideCursor() 
@@ -67,13 +70,25 @@ using UnityEngine.EventSystems;
 
             cursorImage.color = originalColor;
 
-            cursorGraphic.SetActive(false);
-        }
+           // cursorGraphic.SetActive(false);
+
+        cursorGraphic.transform.parent.gameObject.SetActive(false);
+    }
 
         //onpointerexit does not get called when turning off UI, so also do behavior when it's disabled as well
         public void OnDisable()
         {
             HideCursor();
         }
+
+    public void OnPointerMove(PointerEventData eventData)
+    {
+
+        cursorGraphic.transform.position = eventData.pointerCurrentRaycast.worldPosition;
+
+        //if (EventSystem.current.IsPointerOverGameObject())
+            cursorGraphic.transform.parent.gameObject.SetActive(true);
+        //   throw new NotImplementedException();
     }
+}
 //}

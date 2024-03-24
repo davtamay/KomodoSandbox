@@ -26,7 +26,8 @@ namespace Komodo.IMPRESS
                 throw new UnassignedReferenceException("menuPlacement");
             }
 
-            ColorPickerManager.AssignMenuPlacement(menuPlacement);
+           
+            //ColorPickerManager.AssignMenuPlacement(menuPlacement);
 
             ColorPickerManager.InitListeners();
         }

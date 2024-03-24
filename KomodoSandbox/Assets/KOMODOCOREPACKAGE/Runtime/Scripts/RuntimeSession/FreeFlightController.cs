@@ -243,8 +243,8 @@ using Komodo.Utilities;
             }
 
 
-            playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
-            desktopCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;//transform;
+        //  playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
+        desktopCamera = Camera.main.transform;// GameObject.FindWithTag(TagList.desktopCamera).transform;//transform;
 
             if(!playspace)
                 Debug.Log("no XRCamera tagged object found in FreeFlightController.cs");

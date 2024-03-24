@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using Komodo.Runtime;
 using JetBrains.Annotations;
+using UnityEngine.XR.Interaction.Toolkit.Transformers;
+using UnityEngine.XR.Interaction.Toolkit;
 
 //namespace Komodo.IMPRESS
 //{
@@ -195,11 +197,14 @@ public struct GroupProperties
         {
             currentGroup = Instantiate(groupBoundingBox).AddComponent<Group>();
 
+
+        SetupXRToolkitGrabbable(currentGroup);
+
             //make net component
             //  NetworkedObjectsManager.Instance.CreateNetworkedGameObject(currentGroup.gameObject);
             //   currentGroup.gameObject.tag = "group";
 
-            //make child of parent to contain our grouped objects
+        //make child of parent to contain our grouped objects
             currentGroup.groupsParent = new GameObject("Linker Parent").transform;
 
             var mat = currentGroup.GetComponent<MeshRenderer>().material;
@@ -237,8 +242,36 @@ public struct GroupProperties
         return currentGroup;
         }
 
+    XRGrabInteractable currentGroupInteractable;
 
-        private void _UpdateGroupBounds()
+    public LineRenderingScaleToWidthAdjustment lineRenderingScaleToWidthAdjustment;
+    public void SetupXRToolkitGrabbable(Group nRGO)
+    {
+
+        nRGO.gameObject.AddComponent<Rigidbody>().isKinematic = true;
+        var GENGrab = nRGO.gameObject.AddComponent<XRGeneralGrabTransformer>();
+        GENGrab.constrainedAxisDisplacementMode = XRGeneralGrabTransformer.ConstrainedAxisDisplacementMode.ObjectRelativeWithLockedWorldUp;
+        GENGrab.allowTwoHandedRotation = XRGeneralGrabTransformer.TwoHandedRotationMode.FirstHandDirectedTowardsSecondHand;
+        GENGrab.allowOneHandedScaling = true;
+        GENGrab.allowTwoHandedScaling = true;
+        GENGrab.clampScaling = false;
+        GENGrab.maximumScaleRatio = 10;
+        GENGrab.scaleMultiplier = 1;
+
+        currentGroupInteractable = nRGO.gameObject.AddComponent<XRGrabInteractable>();
+        currentGroupInteractable.selectMode = InteractableSelectMode.Multiple;
+        currentGroupInteractable.useDynamicAttach = true;
+        //var Interactable = nRGO.gameObject.AddComponent<XRGrabInteractable>();
+        //Interactable.selectMode = InteractableSelectMode.Multiple;
+        //Interactable.useDynamicAttach = true;
+
+        currentGroupInteractable.selectEntered.AddListener((ctx) => { lineRenderingScaleToWidthAdjustment.SelectObject(ctx); });
+
+        currentGroupInteractable.selectExited.AddListener((ctx) => { lineRenderingScaleToWidthAdjustment.DeselectObject(ctx); });
+
+    }
+
+    private void _UpdateGroupBounds()
         {
             //eliminate all objects that are not visible (erase/undo sideeffect)
             for (int i = 0; i < currentGroup.groups.Count; i += 1)
@@ -285,14 +318,26 @@ public struct GroupProperties
             //recreate our collider to be consistent with the new render bounds
             if (currentGroup.TryGetComponent(out BoxCollider boxCollider))
             {
-                Destroy(boxCollider);
+            currentGroupInteractable.colliders.Remove(boxCollider);
+            currentGroupInteractable.enabled = false;
+
+            Destroy(boxCollider);
             }
+       
 
-            //  if (!currentGroup.TryGetComponent(out BoxCollider bC))
-            currentRootCollider = currentGroup.gameObject.AddComponent<BoxCollider>();
+        //  if (!currentGroup.TryGetComponent(out BoxCollider bC))
+        currentRootCollider = currentGroup.gameObject.AddComponent<BoxCollider>();
 
-            //add children again
-            foreach (var item in currentGroup.groups)
+        currentGroupInteractable.colliders.Add(currentRootCollider);
+
+
+        currentGroupInteractable.enabled = true;
+
+        //currentGroupInteractable.
+
+
+        //add children again
+        foreach (var item in currentGroup.groups)
             {
                 item.transform.SetParent(currentGroup.groupsParent, true);
             }
@@ -314,6 +359,8 @@ public struct GroupProperties
             {
                 return;
             }
+        
+            
 
             foreach (KeyValuePair<int, Group> candidateGroup in groups)
             {
@@ -408,8 +455,8 @@ public struct GroupProperties
 
         public void RemoveFromGroup(Collider collider)
         {
-            if (!collider.CompareTag("Interactable"))
-                return;
+            //if (!collider.CompareTag("Interactable"))
+            //    return;
 
 
 

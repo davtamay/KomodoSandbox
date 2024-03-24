@@ -13,17 +13,22 @@ namespace Komodo.Utilities
         public Transform lookAtTarget;
         public Transform thisTransform;
 
+        public bool isUp = true;
+
         public string playspaceTag = "XRCamera";
         void Start()
         {
-            thisTransform = transform;
+            //thisTransform = transform;
 
-            if (lookAtTarget == null)
-                lookAtTarget = GameObject.FindWithTag(playspaceTag).transform;
+            //if (lookAtTarget == null)
+            //    lookAtTarget = GameObject.FindWithTag(playspaceTag).transform;
         }
         public void Update()
         {
-            thisTransform.LookAt(lookAtTarget, Vector3.up);
+            if (isUp)
+                thisTransform.LookAt(lookAtTarget, Vector3.up);
+            else
+                thisTransform.LookAt(thisTransform.position - (lookAtTarget.position - thisTransform.position), Vector3.up);
         }
     }
 }

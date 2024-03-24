@@ -8,6 +8,8 @@ using UnityEngine;
     [RequireComponent(typeof(LineRenderer))]
     public class TriggerDraw : MonoBehaviour
     {
+        public ControlerAndHandTracker controlerAndHandTracker;
+
         private Transform thisTransform;
 
         private LineRenderer lineRenderer;
@@ -52,6 +54,15 @@ using UnityEngine;
       //  strokeID = handID * 1000000 + 100000 + NetworkUpdateHandler.Instance.client_id * 10000 + strokeIndex;
 
             thisTransform = transform;
+
+            if(handID == 1)
+            {
+            thisTransform = controlerAndHandTracker.ReturnCurrentActiveInputTransform_LEFT();
+            }
+            else if(handID == 2)
+            {
+            thisTransform = controlerAndHandTracker.ReturnCurrentActiveInputTransform_Right();
+            }
         }
 
         public void Update()

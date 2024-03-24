@@ -6,6 +6,8 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using System;
 using Komodo.Utilities;
+using UnityEngine.XR;
+using Unity.XR.CoreUtils;
 
 namespace Komodo.IMPRESS
 {
@@ -17,16 +19,8 @@ namespace Komodo.IMPRESS
 
             set { _Instance = value; }
         }
-        // A convenient way to declare a variable that has an initial value and current value.
-        // To use this, do 
-        //
-        //     T varName = new UpdatingValue<T>(initialValueHere); 
-        //
-        // to set the initial value. Then do
-        //
-        //     varName.Current = currentValueHere;
-        //
-        // to update it. Then, you can refer to varName.Initial and varName.Current.
+
+        public ControlerAndHandTracker controlerHandTracker;
         [Serializable]
         public struct UpdatingValue<T>
         {
@@ -47,6 +41,9 @@ namespace Komodo.IMPRESS
 
         public UnityEvent onBothHandsReleased;
 
+        public Transform xrTransform;
+        public XROrigin xrOrigin;
+             
 
         public void SetWorldPullingLeft(bool isActivated)
         {
@@ -82,7 +79,7 @@ namespace Komodo.IMPRESS
         public Transform playspace;
 
         // Assign the player rig's hands so we can read their transform values
-        private Transform[] hands = new Transform[2];
+       private Transform[] hands = new Transform[2];
 
         // Connect this action as a callback in Unity.
         public Action onDoubleTriggerPress;
@@ -164,7 +161,6 @@ namespace Komodo.IMPRESS
 
             initialPlayspace = new GameObject();
         //}
-
         //public void Start()
         //{
             if (playspace == null)
@@ -183,6 +179,7 @@ namespace Komodo.IMPRESS
             {
                 hands[0] = playerRefs.handL;
                 hands[1] = playerRefs.handR;
+
             }
             else
             {
@@ -257,9 +254,10 @@ namespace Komodo.IMPRESS
 
               if(!teleportPlayer)
             teleportPlayer = player.GetComponent<TeleportPlayer>();
-        
-             // teleportPlayer.SetManualYOffset(1.77f);
-       }
+
+            onChangeScale.Invoke(1);
+            // teleportPlayer.SetManualYOffset(1.77f);
+        }
 
         // It will feel like the player is pulling the world, but really they are pushing themselves
         // in the opposite direction, with an inverse rotation, and and inverse scale.
@@ -300,7 +298,11 @@ namespace Komodo.IMPRESS
                 GameStateManager.Instance.DeRegisterUpdatableObject(this);
             }
 
-           // Debug.Log("stopped world pulling"); //TODO Remove
+            //var dif = xrTransform.GetChild(0).position.y - xrTransform.position.y ;
+            //xrOrigin.CameraYOffset =  dif;
+
+                                                                          //    xrOrigin.CameraYOffset = 1.28f * xrTransform.localScale.y;//.GetChild(0).position.y;
+                                                                          // Debug.Log("stopped world pulling"); //TODO Remove
 
             // teleportPlayer.SetManualYOffset(currentPivotPointInPlayspace.position.y);
         }
@@ -308,15 +310,15 @@ namespace Komodo.IMPRESS
         // Stores transforms of gameObjects and variables used to compute scale, rotation, and translation
         protected void SetInitialValues ()
         {
-            UpdateLocalPivotPoint(initialPivotPointInPlayspace, hands[0].transform.position, hands[1].transform.position);
+            UpdateLocalPivotPoint(initialPivotPointInPlayspace, controlerHandTracker.lControler_PosData.pos, controlerHandTracker.rControler_PosData.pos);
 
-            copyOfInitialPivotPointPosition = initialPivotPointInPlayspace.position;
+            copyOfInitialPivotPointPosition = xrTransform.TransformPoint(Vector3.forward);//initialPivotPointInPlayspace.position;
 
-            UpdateLocalPivotPoint(currentPivotPointInPlayspace, hands[0].transform.position, hands[1].transform.position);
+            UpdateLocalPivotPoint(currentPivotPointInPlayspace, controlerHandTracker.lControler_PosData.pos, controlerHandTracker.rControler_PosData.pos);
 
             // Scale
 
-            handDistanceInPlayspace = new UpdatingValue<float>(Vector3.Distance(hands[0].position, hands[1].position) / playspace.localScale.x);
+            handDistanceInPlayspace = new UpdatingValue<float>(Vector3.Distance(controlerHandTracker.lControler_PosData.pos, controlerHandTracker.rControler_PosData.pos) / playspace.localScale.x);
 
             float clampedInitialScale = Mathf.Clamp(playspace.localScale.x, scaleMin, scaleMax);
 
@@ -324,11 +326,11 @@ namespace Komodo.IMPRESS
 
             // Copy the transform to a new gameObject.
 
-            initialPlayspace.transform.position = playspace.position;
+            initialPlayspace.transform.position = xrTransform.position;
 
-            initialPlayspace.transform.rotation = playspace.rotation;
+            initialPlayspace.transform.rotation = xrTransform.rotation;
 
-            initialPlayspace.transform.localScale = playspace.localScale;
+            initialPlayspace.transform.localScale = xrTransform.localScale;
 
             UpdateDebugAxes();
         }
@@ -374,11 +376,15 @@ namespace Komodo.IMPRESS
 
             UpdateRulerValue(clampedNewScale);
 
-            UpdateRulerPose(hands[0].transform.position, hands[1].transform.position, clampedNewScale);
+            //   UpdateRulerPose(hands[0].transform.position, hands[1].transform.position, clampedNewScale);
 
-            UpdateHandToHandLineEndpoints(hands[0].transform.position, hands[1].transform.position);
+            // UpdateHandToHandLineEndpoints(hands[0].transform.position, hands[1].transform.position);
 
-            
+            UpdateRulerPose(controlerHandTracker.lControler_PosData.pos, controlerHandTracker.rControler_PosData.pos, clampedNewScale);
+
+            UpdateHandToHandLineEndpoints(controlerHandTracker.lControler_PosData.pos, controlerHandTracker.rControler_PosData.pos);
+
+
         }
 
         // This function is used externally by the GameStateManager.
@@ -386,11 +392,11 @@ namespace Komodo.IMPRESS
         // to make the world pulling experience happen.
         public void OnUpdate (float unusedFloat)
         {
-            UpdateLocalPivotPoint(currentPivotPointInPlayspace, hands[0].transform.position, hands[1].transform.position);
+            UpdateLocalPivotPoint(currentPivotPointInPlayspace, controlerHandTracker.lControler_PosData.pos, controlerHandTracker.rControler_PosData.pos);
 
             // Compute Scale
 
-            handDistanceInPlayspace.Current = Vector3.Distance(hands[0].transform.position, hands[1].transform.position) / playspace.localScale.x;
+            handDistanceInPlayspace.Current = Vector3.Distance(controlerHandTracker.lControler_PosData.pos, controlerHandTracker.rControler_PosData.pos) / playspace.localScale.x;
 
             float unclampedScaleRatio = 1.0f / (handDistanceInPlayspace.Current / handDistanceInPlayspace.Initial);
 
@@ -421,64 +427,74 @@ namespace Komodo.IMPRESS
 
             UpdateRulerValue(clampedNewScale);
 
-            UpdateRulerPose(hands[0].transform.position, hands[1].transform.position, clampedNewScale);
+            //UpdateRulerPose(hands[0].transform.position, hands[1].transform.position, clampedNewScale);
 
-            UpdateHandToHandLineEndpoints(hands[0].transform.position, hands[1].transform.position);
-
-
+            //UpdateHandToHandLineEndpoints(hands[0].transform.position, hands[1].transform.position);
 
 
+            UpdateRulerPose(controlerHandTracker.ReturnCurrentActiveInputPosition_LEFT(), controlerHandTracker.ReturnCurrentActiveInputPosition_Right(), clampedNewScale);
 
+            UpdateHandToHandLineEndpoints(controlerHandTracker.ReturnCurrentActiveInputPosition_LEFT(), controlerHandTracker.ReturnCurrentActiveInputPosition_Right());
+
+            //controlerHandTracker.lControler_PosData.pos, controlerHandTracker.rControler_PosData.pos
+
+
+
+         //   onScaleUpdated.Invoke(clampedNewScale);
             onChangeScale.Invoke(clampedNewScale);
         }
 
-        // Applies translation, rotation, and scale to the actual playspace.
-        public void RotateAndScalePlayspaceAroundPointThenTranslate (float amount, float scaleRatio, float newScale)
+        public UnityEvent<float> onScaleUpdated = new UnityEvent<float>();
+        public void RotateAndScalePlayspaceAroundPointThenTranslate(float amount, float scaleRatio, float newScale)
         {
-            // Make our own client rotate in the opposite direction that our hands did
-            amount *= -1.0f;
+            amount *= -1.0f; // Invert rotation amount
 
-            // Temporarily store initialPlayspace's values
+            // Store initial playspace values
             Vector3 actualInitialPlayspacePosition = initialPlayspace.transform.position;
-
             Quaternion actualInitialPlayspaceRotation = initialPlayspace.transform.rotation;
 
-            // Update rotation and position
-
-            // We must perform this on initialPlayspace
-            // because RotateAround does not return a new 
-            // transform.
-
-            // We don't want to rotate the playspace itself, because
-            // we want to rotate from some constant initial direction.
-            // Rather than rotating from the last frame's playspace's 
-            // orientation.
+            // Perform rotation
             initialPlayspace.transform.RotateAround(copyOfInitialPivotPointPosition, Vector3.up, amount);
+            xrTransform.rotation = initialPlayspace.transform.rotation;
 
-            playspace.rotation = initialPlayspace.transform.rotation;
-
-            // Scale around a point: move to new position
-            Vector3 scaledAroundPosition = ((initialPlayspace.transform.position - copyOfInitialPivotPointPosition) * scaleRatio) + copyOfInitialPivotPointPosition;
-
-            // Scale around a point: update scale
-            playspace.localScale = new Vector3(newScale, newScale, newScale);
-
-            // Translate
-            Vector3 deltaPosition = Vector3.zero - (currentPivotPointInPlayspace.position - initialPivotPointInPlayspace.position);
-            
-            Vector3 newPos = scaledAroundPosition + deltaPosition;
-
-            //need to set the y according to a sizing height + a offset offground
-            playspace.position = new Vector3(newPos.x,  playspace.position.y, newPos.z);
-            teleportPlayer.AdjustYAccordingToWorldPulling(playspace.localScale.x );
-
-  //teleportPlayer.SetManualYOffset(playspace.position.y);
-
-            // Restore initialPlayspace from stored values
-            initialPlayspace.transform.position = actualInitialPlayspacePosition;
-
+            // Restore initial playspace values
             initialPlayspace.transform.rotation = actualInitialPlayspaceRotation;
+
+            // Define a small threshold for scale changes to be considered intentional
+            const float scaleThreshold = 0.1f;  // Adjust this value based on your needs
+
+            //      newScale *= 0.1f;
+            // Apply gradual scaling only if there's a clear intent to scale
+            //if (Mathf.Abs(1.0f - scaleRatio) > scaleThreshold)
+            //{
+            // Apply linear scaling
+            //    xrTransform.localScale = Vector3.Lerp(xrTransform.localScale, new Vector3(newScale, newScale, newScale), Time.deltaTime * 5); // Adjust '5' to control rate of scaling
+            // }
+
+            if (0.53f < xrOrigin.CameraYOffset && xrOrigin.CameraYOffset < 9.9f)
+            {
+                xrTransform.localScale = new Vector3(newScale, newScale, newScale);
+                Debug.Log("NEW SCALE : " + newScale);
+              //  onScaleUpdated.Invoke(newScale - 1);//Vector3.Lerp(xrTransform.localScale, new Vector3(newScale, newScale, newScale), Time.deltaTime * 5);
+            }
+
+            // Adjust CameraYOffset linearly based on the current scale
+            float initialYOffset = xrOrigin.CameraYOffset;
+            if (Mathf.Abs(1.0f - scaleRatio) > scaleThreshold)
+            {
+                float adjustedYOffset = initialYOffset + (newScale - xrTransform.localScale.x); // Simple linear adjustment
+                xrOrigin.CameraYOffset = Mathf.Clamp(adjustedYOffset, 0.51f, 9.9f); // Adjust these values as necessary
+            }
         }
+
+
+        private float CalculateSmoothYOffset(float initialYOffset, float scaleRatio, float newScale)
+{
+    // Adjust based on whether scaling up or down
+    float adjustmentFactor = newScale > xrTransform.localScale.x ? Mathf.Log10(scaleRatio) + 1 : Mathf.Sqrt(scaleRatio);
+    return initialYOffset * adjustmentFactor;
+}
+
 
         // Computes the transform of an invisible object that has the average position of the hands, a rotation corresponding to 
         // the line drawn between the two hands, and a scale corresponding to the distance between the hands.
@@ -594,7 +610,10 @@ rulerValue *= offsetMultiplier;
     //adjustedRulerValue -=  adjustment;
 
     // Set the texture offset based on the adjusted ruler value
-    animalRulerMesh.material.SetTextureOffset("_MainTex", new Vector2(adjustedRulerValue - offsetAdjustment , 0));
+   // animalRulerMesh.material.SetTextureOffset("_MainTex", new Vector2(adjustedRulerValue - offsetAdjustment , 0));
+
+            animalRulerMesh.material.SetTextureOffset("_BaseMap", new Vector2(adjustedRulerValue - offsetAdjustment, 0));
+
         }
 
         // TODO: Makes the current line renderer scale change proportionally with the playspace scale

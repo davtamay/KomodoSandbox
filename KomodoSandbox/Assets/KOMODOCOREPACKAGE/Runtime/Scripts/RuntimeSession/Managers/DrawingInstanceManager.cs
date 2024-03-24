@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System;
 using Komodo.Utilities;
 using UnityEditor;
+using UnityEngine.XR.Interaction.Toolkit.Transformers;
+using UnityEngine.XR.Interaction.Toolkit;
 
 //namespace Komodo.Runtime
 //{
-    public class DrawingInstanceManager : SingletonComponent<DrawingInstanceManager>
+public class DrawingInstanceManager : SingletonComponent<DrawingInstanceManager>
     {
         public static DrawingInstanceManager Instance
         {
@@ -121,21 +123,7 @@ using UnityEditor;
                 lineRenderer.GetPosition(lineRenderer.positionCount - 1),
                 new Vector4(lineRenderer.startColor.r, lineRenderer.startColor.g, lineRenderer.startColor.b, lineRenderer.startColor.a)
             );
-
-          
-
-          //  var data =
-          //  JsonUtility.ToJson(
-          //      new Draw(
-          //          1,
-          //    strokeID +100,
-          //    (int)Entity_Type.LineEnd,
-          //    1,
-          //    lineRenderer.GetPosition(lineRenderer.positionCount - 1),
-          //    new Vector4(lineRenderer.startColor.r, lineRenderer.startColor.g, lineRenderer.startColor.b, lineRenderer.startColor.a)
-          //    )
-          //);
-          //  ReceiveDrawUpdate(data);
+     
         }
 
         pivot.transform.SetParent(userStrokeParent, true);
@@ -150,9 +138,39 @@ using UnityEditor;
                 //    SendDrawUpdate(strokeID, Entity_Type.LineNotRender);
                 });
             }
+
+
+        SetupXRToolkitGrabbable(nAGO);
+
+
+
         }
 
-        public void InitializeFinishedLineFromOtherClient(int strokeID, LineRenderer renderer)
+    public LineRenderingScaleToWidthAdjustment testGrabInteraction;
+    public void SetupXRToolkitGrabbable(NetworkedGameObject nRGO)
+    {
+
+        nRGO.gameObject.AddComponent<Rigidbody>().isKinematic = true;
+        var GENGrab = nRGO.gameObject.AddComponent<XRGeneralGrabTransformer>();
+        GENGrab.constrainedAxisDisplacementMode = XRGeneralGrabTransformer.ConstrainedAxisDisplacementMode.ObjectRelativeWithLockedWorldUp;
+        GENGrab.allowTwoHandedRotation = XRGeneralGrabTransformer.TwoHandedRotationMode.FirstHandDirectedTowardsSecondHand;
+        GENGrab.allowOneHandedScaling = true;
+        GENGrab.allowTwoHandedScaling = true;
+        GENGrab.clampScaling = false;
+        GENGrab.maximumScaleRatio = 10;
+        GENGrab.scaleMultiplier = 1;
+
+        var Interactable = nRGO.gameObject.AddComponent<XRGrabInteractable>();
+        Interactable.selectMode = InteractableSelectMode.Multiple;
+        Interactable.useDynamicAttach = true;
+
+        Interactable.selectEntered.AddListener((ctx) => { testGrabInteraction.SelectObject(ctx); });
+
+        Interactable.selectExited.AddListener((ctx) => { testGrabInteraction.DeselectObject(ctx); });
+
+    }
+
+    public void InitializeFinishedLineFromOtherClient(int strokeID, LineRenderer renderer)
         {
             
             GameObject pivot = new GameObject("LineRender:" + strokeID, typeof(BoxCollider));

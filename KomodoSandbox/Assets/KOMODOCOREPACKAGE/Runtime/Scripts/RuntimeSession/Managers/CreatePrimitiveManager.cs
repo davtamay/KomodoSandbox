@@ -5,6 +5,8 @@ using Unity.Entities;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Transformers;
 //using Komodo.IMPRESS;
 
 
@@ -12,7 +14,7 @@ using UnityEngine.UI;
 //{
 
 
-    public class CreatePrimitiveManager : SingletonComponent<CreatePrimitiveManager>
+public class CreatePrimitiveManager : SingletonComponent<CreatePrimitiveManager>
     {
         public static CreatePrimitiveManager Instance
         {
@@ -149,34 +151,34 @@ using UnityEngine.UI;
         }
         public void InitializeTriggerAndGhost ()
         {
-            ToolAnchor anchor = toolPlacement.GetCurrentToolAnchor();
+            //ToolAnchor anchor = toolPlacement.GetCurrentToolAnchor();
 
-            if (!anchor || !anchor.transform)
-            {
-                Debug.LogWarning("Could not find a proper tool parent, so setting it to the screen by default.");
+            //if (!anchor || !anchor.transform)
+            //{
+            //    Debug.LogWarning("Could not find a proper tool parent, so setting it to the screen by default.");
 
-                toolPlacement.SetCurrentToolAnchor(ToolAnchor.Kind.SCREEN);
+            //    toolPlacement.SetCurrentToolAnchor(ToolAnchor.Kind.SCREEN);
 
-                anchor = toolPlacement.GetCurrentToolAnchor();
-            }
+            //    anchor = toolPlacement.GetCurrentToolAnchor();
+            //}
 
-            ghostPrimitivesParent.SetParent(anchor.transform, false);
+            //ghostPrimitivesParent.SetParent(anchor.transform, false);
 
-            ghostPrimitivesParent.transform.localPosition = new Vector3(0, 0, 0);
+            //ghostPrimitivesParent.transform.localPosition = new Vector3(0, 0, 0);
 
-            if (anchor.kind == ToolAnchor.Kind.RIGHT_HANDED)
-            {
-                _primitiveTrigger = player.triggerCreatePrimitiveRight;
+            //if (anchor.kind == ToolAnchor.Kind.RIGHT_HANDED)
+            //{
+            //    _primitiveTrigger = player.triggerCreatePrimitiveRight;
 
-                return;
-            }
+            //    return;
+            //}
 
-            if (anchor.kind == ToolAnchor.Kind.LEFT_HANDED)
-            {
-                _primitiveTrigger = player.triggerCreatePrimitiveLeft;
+            //if (anchor.kind == ToolAnchor.Kind.LEFT_HANDED)
+            //{
+            //    _primitiveTrigger = player.triggerCreatePrimitiveLeft;
 
-                return;
-            }
+            //    return;
+            //}
 
             // TODO - use a screen-based tool trigger here, instead of this left-handed trigger.
 
@@ -444,7 +446,8 @@ using UnityEngine.UI;
 
             primitive.AddComponent<BoxCollider>();
 
-          
+      
+
 
             // //tag it to be used with ECS system
             // entityManager.AddComponentData(netObject.Entity, new PrimitiveTag());
@@ -465,8 +468,8 @@ using UnityEngine.UI;
 
 
             var netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive, customEntityID: _primitiveID, modelType: MODEL_TYPE.Primitive);
-    
-          
+
+        SetupXRToolkitGrabbable(netObject);
 
             var rot2 = primitive.transform.rotation;
 
@@ -493,7 +496,32 @@ using UnityEngine.UI;
             return primitive;
         }
 
-        public void SendPrimitiveUpdate(int sID, int primitiveType, float scale = 1, Vector3 primitivePos = default, Vector4 primitiveRot = default)
+    public void SetupXRToolkitGrabbable(NetworkedGameObject nRGO)
+    {
+
+        nRGO.gameObject.AddComponent<Rigidbody>().isKinematic = true;
+        var GENGrab = nRGO.gameObject.AddComponent<XRGeneralGrabTransformer>();
+        GENGrab.constrainedAxisDisplacementMode = XRGeneralGrabTransformer.ConstrainedAxisDisplacementMode.ObjectRelativeWithLockedWorldUp;
+        GENGrab.allowTwoHandedRotation = XRGeneralGrabTransformer.TwoHandedRotationMode.FirstHandDirectedTowardsSecondHand;
+        GENGrab.allowOneHandedScaling = true;
+        GENGrab.allowTwoHandedScaling = true;
+        GENGrab.clampScaling = false;
+        GENGrab.maximumScaleRatio = 10;
+        GENGrab.scaleMultiplier = 1;
+
+        var Interactable = nRGO.gameObject.AddComponent<XRGrabInteractable>();
+        Interactable.selectMode = InteractableSelectMode.Multiple;
+        Interactable.useDynamicAttach = true;
+
+        Interactable.colliders.RemoveAt(0);
+
+        //Interactable.selectEntered.AddListener((ctx) => { testGrabInteraction.SelectObject(ctx); });
+
+        //Interactable.selectExited.AddListener((ctx) => { testGrabInteraction.DeselectObject(ctx); });
+
+    }
+
+    public void SendPrimitiveUpdate(int sID, int primitiveType, float scale = 1, Vector3 primitivePos = default, Vector4 primitiveRot = default)
         {
             var primitiveUpdate = new Primitive(
                 (int) NetworkUpdateHandler.Instance.client_id,

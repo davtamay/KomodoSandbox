@@ -5,14 +5,19 @@ using UnityEngine;
 
 //namespace Komodo.Runtime
 //{
-    //TODO add null checks to all public variables
-    public class PlayerReferences : MonoBehaviour
-    {
-        [Header("Hand References")]
-        public Transform handL;
-        public Transform handR;
+//TODO add null checks to all public variables
+public class PlayerReferences : MonoBehaviour
+{
 
-        public HandTeleporter handLTeleporter;
+    public ControlerAndHandTracker controlerAndHandTracker;
+
+    [Header("Hand References")]
+        public Transform handL =>  controlerAndHandTracker.ReturnCurrentActiveInputTransform_LEFT();
+
+        
+        public Transform handR => controlerAndHandTracker.ReturnCurrentActiveInputTransform_Right();
+
+    public HandTeleporter handLTeleporter;
 
         public HandTeleporter handRTeleporter;
 
@@ -68,6 +73,11 @@ using UnityEngine;
 
         public void Start()
         {
+
+
+
+
+
             if (EventSystemManager.IsAlive)
             {
                 EventSystemManager.Instance.inputSource_LeftHand = triggerEventInputSourceL;

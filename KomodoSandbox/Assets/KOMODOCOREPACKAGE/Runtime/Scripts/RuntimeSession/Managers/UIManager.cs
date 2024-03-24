@@ -48,7 +48,6 @@ public struct ToggleState
         
         public GameObject menuPrefab;
 
-        [ShowOnly]
         public GameObject menu;
 
         [ShowOnly]
@@ -170,15 +169,15 @@ public struct ToggleState
 
 
             //  GlobalMessageManager.Instance.Subscribe("visibility")
-            menu = GameObject.FindWithTag(TagList.menuUI);
+         //   menu = GameObject.FindWithTag(TagList.menuUI);
 
             // create a menu if there isn't one already
-            if (menu == null) 
-            {
-                Debug.LogWarning("Couldn't find an object tagged MenuUI in the scene, so creating one now");
+            //if (menu == null) 
+            //{
+            //    Debug.LogWarning("Couldn't find an object tagged MenuUI in the scene, so creating one now");
 
-                menu = Instantiate(menuPrefab);
-            }
+            //    menu = Instantiate(menuPrefab);
+            //}
 
             hoverCursor = menu.GetComponentInChildren<HoverCursor>(true);
             //TODO -- fix this, because right now Start is not guaranteed to execute after the menu prefab has instantiated its components.
@@ -231,7 +230,7 @@ public struct ToggleState
                 throw new System.Exception("You must set a left-handed menu anchor");
             }
             
-            menu.transform.SetParent(leftHandedMenuAnchor.transform);
+      //      menu.transform.SetParent(leftHandedMenuAnchor.transform);
             
             if (!sessionAndBuildName)
             {
@@ -608,23 +607,23 @@ public struct ToggleState
 
         public void SetLeftHandedMenu() {
        
-        mainMenu.transform.SetSiblingIndex(2);
-        localVideo.transform.SetSiblingIndex(1);
-        remoteVideos.transform.SetSiblingIndex(0);
+        //mainMenu.transform.SetSiblingIndex(2);
+        //localVideo.transform.SetSiblingIndex(1);
+        //remoteVideos.transform.SetSiblingIndex(0);
 
 
-        SetHandednessAndPlaceMenu(false);
+        //SetHandednessAndPlaceMenu(false);
         }
 
         public void SetRightHandedMenu() {
       
-        remoteVideos.transform.SetSiblingIndex(2);
-        localVideo.transform.SetSiblingIndex(1);
-        mainMenu.transform.SetSiblingIndex(0);
+        //remoteVideos.transform.SetSiblingIndex(2);
+        //localVideo.transform.SetSiblingIndex(1);
+        //mainMenu.transform.SetSiblingIndex(0);
 
 
-        //mainMenu.transform.SetSiblingIndex(1);
-            SetHandednessAndPlaceMenu(true);
+        
+        //    SetHandednessAndPlaceMenu(true);
         }
 
         public void SetHandednessAndPlaceMenu(bool isRightHanded) {
