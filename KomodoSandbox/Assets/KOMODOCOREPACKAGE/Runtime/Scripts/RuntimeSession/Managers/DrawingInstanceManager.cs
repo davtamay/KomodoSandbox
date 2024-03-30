@@ -5,7 +5,7 @@ using System;
 using Komodo.Utilities;
 using UnityEditor;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
-using UnityEngine.XR.Interaction.Toolkit;
+
 
 //namespace Komodo.Runtime
 //{
@@ -160,8 +160,8 @@ public class DrawingInstanceManager : SingletonComponent<DrawingInstanceManager>
         GENGrab.maximumScaleRatio = 10;
         GENGrab.scaleMultiplier = 1;
 
-        var Interactable = nRGO.gameObject.AddComponent<XRGrabInteractable>();
-        Interactable.selectMode = InteractableSelectMode.Multiple;
+        var Interactable = nRGO.gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+        Interactable.selectMode = UnityEngine.XR.Interaction.Toolkit.Interactables.InteractableSelectMode.Multiple;
         Interactable.useDynamicAttach = true;
 
         Interactable.selectEntered.AddListener((ctx) => { testGrabInteraction.SelectObject(ctx); });

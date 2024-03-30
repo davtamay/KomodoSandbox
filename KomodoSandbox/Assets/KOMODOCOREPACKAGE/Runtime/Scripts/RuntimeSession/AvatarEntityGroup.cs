@@ -20,7 +20,10 @@ using UnityEngine.UI;
         public AvatarComponent avatarComponent_hand_L;
         public AvatarComponent avatarComponent_hand_R;
 
-        public TMP_Text clientNameTag;
+    public AvatarComponent avatarComponentHand_L;
+    public AvatarComponent avatarComponentHand_R;
+
+    public TMP_Text clientNameTag;
         public TMP_Text clientDialogue;
     }
 //}

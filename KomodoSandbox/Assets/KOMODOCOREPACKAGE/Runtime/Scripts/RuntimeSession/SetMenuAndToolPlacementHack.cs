@@ -33,19 +33,19 @@ namespace Komodo.Runtime
 
             _manager = UIManager.Instance;
 
-            playerRefs.LeftHandSwitchMenuAction.onFirstClick.AddListener(() =>
-            {
-                KomodoEventManager.TriggerEvent("menu.setLeftHanded");
+            //playerRefs.LeftHandSwitchMenuAction.onFirstClick.AddListener(() =>
+            //{
+            //    KomodoEventManager.TriggerEvent("menu.setLeftHanded");
 
-                KomodoEventManager.TriggerEvent("tools.setRightHanded");
-            });
+            //    KomodoEventManager.TriggerEvent("tools.setRightHanded");
+            //});
 
-            playerRefs.RightHandSwitchMenuAction.onFirstClick.AddListener(() =>
-            {
-                KomodoEventManager.TriggerEvent("menu.setRightHanded");
+            //playerRefs.RightHandSwitchMenuAction.onFirstClick.AddListener(() =>
+            //{
+            //    KomodoEventManager.TriggerEvent("menu.setRightHanded");
 
-                KomodoEventManager.TriggerEvent("tools.setLeftHanded");
-            });
+            //    KomodoEventManager.TriggerEvent("tools.setLeftHanded");
+            //});
 
             KomodoEventManager.TriggerEvent("menu.setScreen");
 

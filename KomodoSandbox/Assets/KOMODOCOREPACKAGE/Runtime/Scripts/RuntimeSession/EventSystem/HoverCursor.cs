@@ -3,92 +3,72 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-//namespace Komodo.Runtime
-//{
-    public class HoverCursor : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
+public class HoverCursor : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
+{
+    public GameObject cursorGraphic;
+    private Image cursorImage;
+    public Color hoverColor;
+    private Color originalColor;
+    [Header("GameObjects to deactivate and activate when selecting in UI")]
+    public GameObject[] objectsToDeactivateOnHover;
+
+    void Awake()
     {
-        public GameObject cursorGraphic;
-
-        private Image cursorImage;
-
-        public Color hoverColor;
-
-        private Color originalColor;
-
-        private bool _doShow;
-
-        [Header("GameObjects to deactivate and activate when selecting in UI")]
-        public GameObject[] objectsToDeactivateOnHover;
-
-        public void Awake()
+        // Ensure the cursorGraphic and its Image component are assigned and valid
+        if (!cursorGraphic)
         {
-            cursorImage = GetComponent<Image>();
+            throw new Exception("Cursor GameObject is not set in the inspector.");
         }
-
-        void Start ()
+        cursorImage = GetComponent<Image>();
+        if (!cursorImage)
         {
-            if (!cursorGraphic) 
-            {
-                throw new Exception("You must set a cursor");
-            }
-
-            if (!cursorImage)
-            {
-                throw new Exception("You must have an Image component on your cursor");
-            }
-
-            //do not turn it on as default for desktop
-            cursorImage.color = originalColor;
-
-            ShowCursor();
+            throw new Exception("Missing Image component on this GameObject.");
         }
-
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-        Debug.Log("shown cursor ENTER");
-            ShowCursor();
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-        Debug.Log("EXIT cursor ENTER");
-        HideCursor();
-        }
-        
-        
-        private void ShowCursor() {        
-            originalColor = cursorImage.color;
-
-            cursorImage.color = hoverColor;
-       // cursorGraphic.SetActive(true);
-
-        cursorGraphic.transform.parent.gameObject.SetActive(true);
-        }
-        
-        private void HideCursor() 
-        {
-
-            cursorImage.color = originalColor;
-
-           // cursorGraphic.SetActive(false);
-
-        cursorGraphic.transform.parent.gameObject.SetActive(false);
+        originalColor = cursorImage.color; // Set originalColor based on the initial Image color
     }
 
-        //onpointerexit does not get called when turning off UI, so also do behavior when it's disabled as well
-        public void OnDisable()
+    void Start()
+    {
+        ShowCursor(false); // Optionally, set false if cursor should not be shown initially.
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        Debug.Log("Pointer entered on UI element.");
+        ShowCursor(true);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        Debug.Log("Pointer exited from UI element.");
+        ShowCursor(false);
+    }
+
+    private void ShowCursor(bool show)
+    {
+        cursorImage.color = show ? hoverColor : originalColor;
+        cursorGraphic.transform.parent.gameObject.SetActive(show);
+        // Optionally, activate/deactivate additional GameObjects
+        foreach (var obj in objectsToDeactivateOnHover)
         {
-            HideCursor();
+            obj.SetActive(!show);
         }
+    }
+
+    public void OnDisable()
+    {
+        // Ensure the cursor reverts to its original state if the UI element is disabled
+        ShowCursor(false);
+    }
 
     public void OnPointerMove(PointerEventData eventData)
     {
-
-        cursorGraphic.transform.position = eventData.pointerCurrentRaycast.worldPosition;
-
-        //if (EventSystem.current.IsPointerOverGameObject())
-            cursorGraphic.transform.parent.gameObject.SetActive(true);
-        //   throw new NotImplementedException();
+        // Update cursor position and ensure it's active when moving over UI elements
+        if (eventData.pointerCurrentRaycast.gameObject != null) // Check if the raycast hits a UI element
+        {
+            cursorGraphic.transform.position = eventData.pointerCurrentRaycast.worldPosition;
+            ShowCursor(true); // Show the cursor when over UI elements, adjust if behavior differs
+        }else
+            ShowCursor(false);
     }
 }
-//}

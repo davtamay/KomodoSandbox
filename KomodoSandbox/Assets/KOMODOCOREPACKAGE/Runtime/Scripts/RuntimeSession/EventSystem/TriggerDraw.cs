@@ -70,7 +70,22 @@ using UnityEngine;
             if (lineRenderer == null || thisTransform == null || isEraserOn || isSelectingColorPicker)
                 return;
 
-            timePass += Time.deltaTime;
+
+        thisTransform = transform;
+
+        if (handID == 1)
+        {
+            thisTransform = controlerAndHandTracker.ReturnCurrentActiveInputTransform_LEFT();
+        }
+        else if (handID == 2)
+        {
+            thisTransform = controlerAndHandTracker.ReturnCurrentActiveInputTransform_Right();
+        }
+
+
+
+
+        timePass += Time.deltaTime;
 
             if (timeToCheckNewStrokeIndex < timePass)
             {

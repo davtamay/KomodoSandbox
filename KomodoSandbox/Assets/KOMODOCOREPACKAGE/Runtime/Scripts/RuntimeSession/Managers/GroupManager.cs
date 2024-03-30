@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using Komodo.Runtime;
 using JetBrains.Annotations;
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
-using UnityEngine.XR.Interaction.Toolkit;
+
 
 //namespace Komodo.IMPRESS
 //{
@@ -242,7 +242,7 @@ public struct GroupProperties
         return currentGroup;
         }
 
-    XRGrabInteractable currentGroupInteractable;
+    UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable currentGroupInteractable;
 
     public LineRenderingScaleToWidthAdjustment lineRenderingScaleToWidthAdjustment;
     public void SetupXRToolkitGrabbable(Group nRGO)
@@ -258,8 +258,8 @@ public struct GroupProperties
         GENGrab.maximumScaleRatio = 10;
         GENGrab.scaleMultiplier = 1;
 
-        currentGroupInteractable = nRGO.gameObject.AddComponent<XRGrabInteractable>();
-        currentGroupInteractable.selectMode = InteractableSelectMode.Multiple;
+        currentGroupInteractable = nRGO.gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+        currentGroupInteractable.selectMode = UnityEngine.XR.Interaction.Toolkit.Interactables.InteractableSelectMode.Multiple;
         currentGroupInteractable.useDynamicAttach = true;
         //var Interactable = nRGO.gameObject.AddComponent<XRGrabInteractable>();
         //Interactable.selectMode = InteractableSelectMode.Multiple;

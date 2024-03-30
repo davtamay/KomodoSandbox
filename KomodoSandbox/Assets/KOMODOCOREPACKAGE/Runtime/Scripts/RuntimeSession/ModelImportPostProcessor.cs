@@ -40,7 +40,7 @@ using Komodo.AssetImport;
 using Unity.Collections;
 using System;
 using Komodo.Utilities;
-using UnityEngine.XR.Interaction.Toolkit;
+
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 //namespace Komodo.Runtime
@@ -151,8 +151,8 @@ public class ModelImportPostProcessor : SingletonComponent<ModelImportPostProces
         GENGrab.maximumScaleRatio = 10;
         GENGrab.scaleMultiplier = 1;
 
-        var Interactable = nRGO.gameObject.AddComponent<XRGrabInteractable>();
-        Interactable.selectMode = InteractableSelectMode.Multiple;
+        var Interactable = nRGO.gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+        Interactable.selectMode = UnityEngine.XR.Interaction.Toolkit.Interactables.InteractableSelectMode.Multiple;
         Interactable.useDynamicAttach = true;
 
     }

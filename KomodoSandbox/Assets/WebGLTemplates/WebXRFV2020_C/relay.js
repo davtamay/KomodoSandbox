@@ -18,8 +18,8 @@
 
 var RELAY_BASE_URL;
 
-if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-    RELAY_BASE_URL = "https://localhost:3000";
+if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"  || window.location.hostname.includes(".use.devtunnels.ms")) {
+    RELAY_BASE_URL = "https://192.168.1.125:3000";
 } else {
     RELAY_BASE_URL = "https://appsocket.net:3000"; // Default to production URL
 }

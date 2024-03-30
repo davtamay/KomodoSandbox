@@ -5,7 +5,7 @@ using Unity.Entities;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using UnityEngine.XR.Interaction.Toolkit;
+
 using UnityEngine.XR.Interaction.Toolkit.Transformers;
 //using Komodo.IMPRESS;
 
@@ -88,6 +88,8 @@ public class CreatePrimitiveManager : SingletonComponent<CreatePrimitiveManager>
 
         private PrimitiveType _currentType;
 
+    public Material materialToUse;
+
         // DELAYED FEATURE
         // public void OnValidate ()
         // {
@@ -131,7 +133,7 @@ public class CreatePrimitiveManager : SingletonComponent<CreatePrimitiveManager>
             // force-create an instance
             var initManager = Instance;
 
-            entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+           // entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
             primitiveCreationParent = new GameObject("CreatedPrimitives").transform;
 
@@ -439,6 +441,8 @@ public class CreatePrimitiveManager : SingletonComponent<CreatePrimitiveManager>
 
             primitive = GameObject.CreatePrimitive(_currentType);
 
+             primitive.GetComponent<MeshRenderer>().sharedMaterial = materialToUse;
+
             //add a box collider instead, cant grab objects with different colliders in WebGL build for some reason
             primitive.TryGetComponent<Collider>(out Collider col);
 
@@ -470,6 +474,9 @@ public class CreatePrimitiveManager : SingletonComponent<CreatePrimitiveManager>
             var netObject = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive, customEntityID: _primitiveID, modelType: MODEL_TYPE.Primitive);
 
         SetupXRToolkitGrabbable(netObject);
+
+        Debug.Log("PRIMITIVE: " + netObject.transform.position + "  S:" + netObject.transform.localScale + "A : " + netObject.gameObject.activeInHierarchy  + "mat" + netObject.GetComponentInChildren<Renderer>().material.name);
+
 
             var rot2 = primitive.transform.rotation;
 
@@ -509,8 +516,8 @@ public class CreatePrimitiveManager : SingletonComponent<CreatePrimitiveManager>
         GENGrab.maximumScaleRatio = 10;
         GENGrab.scaleMultiplier = 1;
 
-        var Interactable = nRGO.gameObject.AddComponent<XRGrabInteractable>();
-        Interactable.selectMode = InteractableSelectMode.Multiple;
+        var Interactable = nRGO.gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+        Interactable.selectMode = UnityEngine.XR.Interaction.Toolkit.Interactables.InteractableSelectMode.Multiple;
         Interactable.useDynamicAttach = true;
 
         Interactable.colliders.RemoveAt(0);

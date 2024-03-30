@@ -62,7 +62,10 @@ using Komodo.Utilities;
             set { _Instance = value; }
         }
 
-        public AvatarEntityGroup mainClientAvatarEntityGroup;
+        public ControlerAndHandTracker controlerAndHandTracker;
+
+
+    public AvatarEntityGroup mainClientAvatarEntityGroup;
 
         private Transform leftHandEntityTransform;
 
@@ -224,9 +227,10 @@ using Komodo.Utilities;
             Quaternion.Angle(previousLHandRotation, leftHandEntityTransform.rotation) > rotationThreshold)
             {
 
-                SendSyncPosition(Entity_Type.users_Lhand, leftHandEntityTransform.position, leftHandEntityTransform.rotation);
+            //  SendSyncPosition(Entity_Type.users_Lhand, leftHandEntityTransform.position, leftHandEntityTransform.rotation);
+            SendSyncPosition(Entity_Type.users_Lhand, controlerAndHandTracker.ReturnCurrentActiveInputPosition_LEFT(), controlerAndHandTracker.ReturnCurrentActiveInputRotation_LEFT());
 
-                previousLeftHandOriginalLocalPosition = leftHandEntityTransform.localPosition;
+            previousLeftHandOriginalLocalPosition = leftHandEntityTransform.localPosition;
                 previousLHandRotation = leftHandEntityTransform.rotation;
             }
 
@@ -235,10 +239,11 @@ using Komodo.Utilities;
         if (Vector3.Distance(previousRightHandOriginalLocalPosition, rightHandEntityTransform.localPosition) > positionThreshold ||
          Quaternion.Angle(previousRHandRotation, rightHandEntityTransform.rotation) > rotationThreshold)
         {
-                SendSyncPosition(Entity_Type.users_Rhand, rightHandEntityTransform.position, rightHandEntityTransform.rotation);
+            //    SendSyncPosition(Entity_Type.users_Rhand, rightHandEntityTransform.position, rightHandEntityTransform.rotation);
+            SendSyncPosition(Entity_Type.users_Rhand, controlerAndHandTracker.ReturnCurrentActiveInputPosition_Right(), controlerAndHandTracker.ReturnCurrentActiveInputRotation_Right());
 
 
-                previousRightHandOriginalLocalPosition = rightHandEntityTransform.localPosition;
+            previousRightHandOriginalLocalPosition = rightHandEntityTransform.localPosition;
                  previousRHandRotation = rightHandEntityTransform.rotation;
         }
 

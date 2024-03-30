@@ -16,8 +16,13 @@ public class ControlerAndHandTracker : MonoBehaviour
     public PoseData lControler_PosData;
     public PoseData rControler_PosData;
 
-    public ActionBasedController l_Controller_ActionBasedController;
-    public ActionBasedController r_Controller_ActionBasedController;
+    //public ActionBasedController l_Controller_ActionBasedController;
+    //public ActionBasedController r_Controller_ActionBasedController;
+    // Reference to input actions for left and right controllers
+    public InputActionReference lController_PositionAction;
+ 
+    public InputActionReference rController_PositionAction;
+
 
     public GameObject lControler;
     public GameObject rControler;
@@ -74,6 +79,34 @@ public class ControlerAndHandTracker : MonoBehaviour
 
     }
 
+    public Quaternion ReturnCurrentActiveInputRotation_LEFT()
+    {
+        if (isUsingHands)
+        {
+            return lHand.transform.rotation;
+        }
+        else if (isUsingControls)
+        {
+            return lControler.transform.rotation;
+        }
+        else
+            return Quaternion.identity;
+
+    }
+    public Quaternion ReturnCurrentActiveInputRotation_Right()
+    {
+        if (isUsingHands)
+        {
+            return rHand.transform.rotation;
+        }
+        else if (isUsingControls)
+        {
+            return rControler.transform.rotation;
+        }
+        else
+            return Quaternion.identity;
+
+    }
     public Transform ReturnCurrentActiveInputTransform_LEFT()
     {
         if (isUsingHands)
@@ -85,7 +118,7 @@ public class ControlerAndHandTracker : MonoBehaviour
             return lControler.transform;
         }
         else
-            return null;
+            return lControler.transform;
 
     }
     public Transform ReturnCurrentActiveInputTransform_Right()
@@ -99,16 +132,18 @@ public class ControlerAndHandTracker : MonoBehaviour
             return rControler.transform;
         }
         else
-            return null ;
+            return rControler.transform; 
 
     }
     public void Start()
     {
-        l_Controller_ActionBasedController.positionAction.action.performed += (c) => { lControler_PosData.pos = c.ReadValue<Vector3>();  };
-        l_Controller_ActionBasedController.rotationAction.action.performed += (c) => { lControler_PosData.rot = c.ReadValue<Quaternion>();  };
+        lController_PositionAction.action.performed += (c) => { lControler_PosData.pos = c.ReadValue<Vector3>(); };
+        rController_PositionAction.action.performed += (c) => { rControler_PosData.pos = c.ReadValue<Vector3>(); };
+        //l_Controller_ActionBasedController.positionAction.action.performed += (c) => { lControler_PosData.pos = c.ReadValue<Vector3>();  };
+        //l_Controller_ActionBasedController.rotationAction.action.performed += (c) => { lControler_PosData.rot = c.ReadValue<Quaternion>();  };
 
-        r_Controller_ActionBasedController.positionAction.action.performed += (c) => { rControler_PosData.pos = c.ReadValue<Vector3>(); };
-        r_Controller_ActionBasedController.rotationAction.action.performed += (c) => { rControler_PosData.rot = c.ReadValue<Quaternion>(); };
+        //r_Controller_ActionBasedController.positionAction.action.performed += (c) => { rControler_PosData.pos = c.ReadValue<Vector3>(); };
+        //r_Controller_ActionBasedController.rotationAction.action.performed += (c) => { rControler_PosData.rot = c.ReadValue<Quaternion>(); };
 
     }
   
