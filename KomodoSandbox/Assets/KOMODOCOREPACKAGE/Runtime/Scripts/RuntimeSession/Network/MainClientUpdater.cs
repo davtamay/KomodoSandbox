@@ -192,6 +192,7 @@ using Komodo.Utilities;
         public Quaternion GetRotOffset() =>  rotationOffset;
 
         public Transform playSpace;
+        public Transform playerOrigin;
 
         public void SetTransformOffset(Vector3 pOffset, Quaternion rOffset)
         {
@@ -228,7 +229,8 @@ using Komodo.Utilities;
             {
 
             //  SendSyncPosition(Entity_Type.users_Lhand, leftHandEntityTransform.position, leftHandEntityTransform.rotation);
-            SendSyncPosition(Entity_Type.users_Lhand, controlerAndHandTracker.ReturnCurrentActiveInputPosition_LEFT(), controlerAndHandTracker.ReturnCurrentActiveInputRotation_LEFT());
+               SendSyncPosition(Entity_Type.users_Lhand, controlerAndHandTracker.ReturnCurrentActiveInputPosition_LEFT(), controlerAndHandTracker.ReturnCurrentActiveInputRotation_LEFT());
+       //     SendSyncPosition(Entity_Type.users_Lhand, headEntityTransform.TransformPoint(controlerAndHandTracker.lControler_PosData.pos), headEntityTransform.rotation * controlerAndHandTracker.lControler_PosData.rot);
 
             previousLeftHandOriginalLocalPosition = leftHandEntityTransform.localPosition;
                 previousLHandRotation = leftHandEntityTransform.rotation;
@@ -239,9 +241,14 @@ using Komodo.Utilities;
         if (Vector3.Distance(previousRightHandOriginalLocalPosition, rightHandEntityTransform.localPosition) > positionThreshold ||
          Quaternion.Angle(previousRHandRotation, rightHandEntityTransform.rotation) > rotationThreshold)
         {
+            // Convert local position to world position
+            //Vector3 worldPosition = xrRigTransform.TransformPoint(localPosition);
+            //// Convert local rotation to world rotation
+            //Quaternion worldRotation = xrRigTransform.rotation * localRotation;
+
             //    SendSyncPosition(Entity_Type.users_Rhand, rightHandEntityTransform.position, rightHandEntityTransform.rotation);
             SendSyncPosition(Entity_Type.users_Rhand, controlerAndHandTracker.ReturnCurrentActiveInputPosition_Right(), controlerAndHandTracker.ReturnCurrentActiveInputRotation_Right());
-
+         //   SendSyncPosition(Entity_Type.users_Rhand, headEntityTransform.TransformPoint(controlerAndHandTracker.rControler_PosData.pos), headEntityTransform.rotation * controlerAndHandTracker.rControler_PosData.rot);
 
             previousRightHandOriginalLocalPosition = rightHandEntityTransform.localPosition;
                  previousRHandRotation = rightHandEntityTransform.rotation;
@@ -316,7 +323,7 @@ using Komodo.Utilities;
             switch (entityType)
             {
                 case Entity_Type.users_head:
-                    scaleFactor = playSpace.lossyScale.x;//headEntityTransform.parent.lossyScale.x;
+                    scaleFactor = playerOrigin.lossyScale.x;//headEntityTransform.parent.lossyScale.x;
                     break;
 
                 case Entity_Type.users_Lhand:

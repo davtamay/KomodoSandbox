@@ -20,8 +20,10 @@ public class ControlerAndHandTracker : MonoBehaviour
     //public ActionBasedController r_Controller_ActionBasedController;
     // Reference to input actions for left and right controllers
     public InputActionReference lController_PositionAction;
+    public InputActionReference lController_RotationAction;
  
     public InputActionReference rController_PositionAction;
+    public InputActionReference rController_RotationAction;
 
 
     public GameObject lControler;
@@ -138,7 +140,10 @@ public class ControlerAndHandTracker : MonoBehaviour
     public void Start()
     {
         lController_PositionAction.action.performed += (c) => { lControler_PosData.pos = c.ReadValue<Vector3>(); };
+        lController_RotationAction.action.performed += (c) => { lControler_PosData.rot = c.ReadValue<Quaternion>(); };
+
         rController_PositionAction.action.performed += (c) => { rControler_PosData.pos = c.ReadValue<Vector3>(); };
+        rController_RotationAction.action.performed += (c) => { rControler_PosData.rot = c.ReadValue<Quaternion>(); };
         //l_Controller_ActionBasedController.positionAction.action.performed += (c) => { lControler_PosData.pos = c.ReadValue<Vector3>();  };
         //l_Controller_ActionBasedController.rotationAction.action.performed += (c) => { lControler_PosData.rot = c.ReadValue<Quaternion>();  };
 
