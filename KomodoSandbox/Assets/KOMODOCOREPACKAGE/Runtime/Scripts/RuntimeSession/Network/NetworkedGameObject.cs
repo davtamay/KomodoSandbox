@@ -38,8 +38,9 @@ using Komodo.Utilities;
 
         public bool isTransformLocked;
 
-          
 
+
+    public bool doInstantiation = false;
         public void SetTransformLockedStated (bool isLocked)
         {
              isTransformLocked = isLocked;
@@ -51,9 +52,12 @@ using Komodo.Utilities;
             //if we consider it a physics element we either get its rigidbody component, if it does not have one we add a new one
             InitializePhysicsComponentsIfNeeded();
 
-           // yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
+        // yield return new WaitUntil(() => GameStateManager.Instance.isAssetImportFinished);
 
-            //InstantiateIfNeeded();
+        //InstantiateIfNeeded();
+
+        //if (doInstantiation)
+        //    Instantiate(-1, 55);
         }
 
         private void InstantiateIfNeeded()

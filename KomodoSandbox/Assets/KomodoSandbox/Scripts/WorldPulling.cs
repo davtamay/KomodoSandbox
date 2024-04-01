@@ -224,15 +224,7 @@ namespace Komodo.IMPRESS
             teleportPlayer = player.GetComponent<TeleportPlayer>();
             
 
-         //   teleportPlayer.AdjustYAccordingToWorldPulling(playspace.localScale.x );
-
-           //  playspace.position = new Vector3(playspace.position.x, 1.77f, playspace.position.z);
-            // teleportPlayer.SetManualYOffset(1.77f);
-
-            
-
-           // onChangeScale.Invoke(5);
-
+     
 
 
             animalRuler.gameObject.SetActive(false);
@@ -440,7 +432,7 @@ namespace Komodo.IMPRESS
 
 
 
-         //   onScaleUpdated.Invoke(clampedNewScale);
+      
             onChangeScale.Invoke(clampedNewScale);
         }
 

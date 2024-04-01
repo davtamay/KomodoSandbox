@@ -23,6 +23,7 @@ public class LineRenderingScaleToWidthAdjustment : MonoBehaviour
     private bool leftScaleSet = false;
     private bool rightScaleSet = false;
 
+
     public void SelectObject(SelectEnterEventArgs seet)
     {
         Debug.Log("using: " + seet.interactorObject.transform.parent.name + "======  selected : " + seet.interactableObject.transform.name);

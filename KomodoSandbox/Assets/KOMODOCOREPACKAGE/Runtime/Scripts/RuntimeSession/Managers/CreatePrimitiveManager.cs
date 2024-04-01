@@ -522,6 +522,20 @@ public class CreatePrimitiveManager : SingletonComponent<CreatePrimitiveManager>
 
         Interactable.colliders.RemoveAt(0);
 
+
+        Interactable.selectEntered.AddListener((ctx) => {
+
+            NetworkGrabInteractable.Instance.SelectObject(ctx, nRGO);
+            //MainClientUpdater.Instance.AddUpdatable(nRGO);
+
+        });
+
+        Interactable.selectExited.AddListener((ctx) => {
+
+            NetworkGrabInteractable.Instance.DeselectObject(ctx, nRGO);
+            //MainClientUpdater.Instance.RemoveUpdatable(nRGO);
+
+        });
         //Interactable.selectEntered.AddListener((ctx) => { testGrabInteraction.SelectObject(ctx); });
 
         //Interactable.selectExited.AddListener((ctx) => { testGrabInteraction.DeselectObject(ctx); });

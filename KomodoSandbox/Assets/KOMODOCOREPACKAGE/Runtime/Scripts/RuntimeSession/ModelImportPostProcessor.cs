@@ -155,6 +155,21 @@ public class ModelImportPostProcessor : SingletonComponent<ModelImportPostProces
         Interactable.selectMode = UnityEngine.XR.Interaction.Toolkit.Interactables.InteractableSelectMode.Multiple;
         Interactable.useDynamicAttach = true;
 
+
+        Interactable.selectEntered.AddListener((ctx) => {
+
+            NetworkGrabInteractable.Instance.SelectObject(ctx, nRGO);
+            //  MainClientUpdater.Instance.AddUpdatable(nRGO);
+
+        });
+
+        Interactable.selectExited.AddListener((ctx) => {
+
+            NetworkGrabInteractable.Instance.DeselectObject(ctx, nRGO);
+            // MainClientUpdater.Instance.RemoveUpdatable(nRGO);
+
+        });
+
     }
 
         public static void AdjustPose(Transform newParent, ModelImportData modelData, Bounds bounds)

@@ -126,11 +126,11 @@ using Komodo.Utilities;
         /// <param name="Net_Register_GameObject container of data"></param>
         public void SendPhysicsGameObjectUpdatesToNetwork(NetworkedGameObject eContainer)
         {
-            int entityID = default;
-            NetworkEntityIdentificationComponentData entityIDContainer = default;
+          int entityID = eContainer.thisEntityID;//default;
+            //NetworkEntityIdentificationComponentData entityIDContainer = default;
 
-            entityIDContainer = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.entity);
-            entityID = entityIDContainer.entityID;
+            //entityIDContainer = entityManager.GetComponentData<NetworkEntityIdentificationComponentData>(eContainer.entity);
+            //entityID = entityIDContainer.entityID;
 
             //make sure that we setup the reference to our rigidBody of our physics object that we are using to send data from
             if (!rigidbodyFromEntityId.ContainsKey(entityID))
@@ -147,7 +147,7 @@ using Komodo.Utilities;
 
             Position coords = default;
 
-            if (!rb.isKinematic && rb.IsSleeping() || entityManager.HasComponent<TransformLockTag>(eContainer.entity))
+            if (!rb.isKinematic && rb.IsSleeping() && rb.velocity.sqrMagnitude >= 0.0001f)//|| entityManager.HasComponent<TransformLockTag>(eContainer.entity))
             {
                 physicsnRGOToRemove.Add(eContainer);
 
@@ -157,9 +157,9 @@ using Komodo.Utilities;
 
             coords = new Position
             {
-                clientId = entityIDContainer.clientID,
-                guid = entityIDContainer.entityID,
-                entityType = (int)entityIDContainer.current_Entity_Type,
+                clientId = NetworkUpdateHandler.Instance.client_id,//entityIDContainer.clientID,
+                guid = eContainer.thisEntityID,//entityIDContainer.entityID,
+                entityType = 4,//(int)entityIDContainer.current_Entity_Type,
                 rot = eContainer.transform.rotation,
                 pos = eContainer.transform.position,
                 scale = eContainer.transform.lossyScale.x,

@@ -473,14 +473,15 @@ using Komodo.Utilities;
             {
                 if (EventSystem.current.IsPointerOverGameObject())
                 {
-                    if (standaloneInputModule_Desktop.GetCurrentFocusedObject_Desktop())
-                    {
-                        if (standaloneInputModule_Desktop.GetCurrentFocusedObject_Desktop().layer == LayerMask.NameToLayer("UI"))
-                        {
-                            return true;
-                        }
-                    }
-                }
+                return true;
+                //if (standaloneInputModule_Desktop.GetCurrentFocusedObject_Desktop())
+                //{
+                //    if (standaloneInputModule_Desktop.GetCurrentFocusedObject_Desktop().layer == LayerMask.NameToLayer("UI"))
+                //    {
+                //        return true;
+                //    }
+                //}
+            }
             }
 
             return false;
@@ -488,7 +489,7 @@ using Komodo.Utilities;
 
         public void SyncXRWithSpectator() {
             //synchronize xr camera with desktop camera transforms
-            teleportPlayer.SetXRPlayerPositionAndLocalRotation(desktopCamera.position, desktopCamera.localRotation);
+       //     teleportPlayer.SetXRPlayerPositionAndLocalRotation(desktopCamera.position, desktopCamera.localRotation);
         }
 
         #endregion

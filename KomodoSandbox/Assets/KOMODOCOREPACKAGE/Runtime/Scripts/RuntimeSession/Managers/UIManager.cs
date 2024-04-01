@@ -46,7 +46,7 @@ public struct ToggleState
         [Tooltip("Hierarchy: The Instructor menu button in the settings tab")]
         public GameObject instructorMenuButton;
         
-        public GameObject menuPrefab;
+      //  public GameObject menuPrefab;
 
         public GameObject menu;
 
@@ -140,12 +140,7 @@ public struct ToggleState
             // instantiates this singleton in case it doesn't exist yet.
             var uiManager = Instance;
 
-            //clientManager = ClientSpawnManager.Instance;
-
-            if (menuPrefab == null)
-            {
-                throw new System.Exception("You must set a menuPrefab");
-            }
+       
         }
 
         public void Start () {
@@ -168,16 +163,6 @@ public struct ToggleState
             });
 
 
-            //  GlobalMessageManager.Instance.Subscribe("visibility")
-         //   menu = GameObject.FindWithTag(TagList.menuUI);
-
-            // create a menu if there isn't one already
-            //if (menu == null) 
-            //{
-            //    Debug.LogWarning("Couldn't find an object tagged MenuUI in the scene, so creating one now");
-
-            //    menu = Instantiate(menuPrefab);
-            //}
 
             hoverCursor = menu.GetComponentInChildren<HoverCursor>(true);
             //TODO -- fix this, because right now Start is not guaranteed to execute after the menu prefab has instantiated its components.

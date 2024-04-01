@@ -164,9 +164,21 @@ public class DrawingInstanceManager : SingletonComponent<DrawingInstanceManager>
         Interactable.selectMode = UnityEngine.XR.Interaction.Toolkit.Interactables.InteractableSelectMode.Multiple;
         Interactable.useDynamicAttach = true;
 
-        Interactable.selectEntered.AddListener((ctx) => { testGrabInteraction.SelectObject(ctx); });
+        Interactable.selectEntered.AddListener((ctx) => { 
+            
+            testGrabInteraction.SelectObject(ctx);
+            NetworkGrabInteractable.Instance.SelectObject(ctx, nRGO);
+            //MainClientUpdater.Instance.AddUpdatable(nRGO);
 
-        Interactable.selectExited.AddListener((ctx) => { testGrabInteraction.DeselectObject(ctx); });
+        });
+
+        Interactable.selectExited.AddListener((ctx) => { 
+            
+            testGrabInteraction.DeselectObject(ctx);
+            NetworkGrabInteractable.Instance.DeselectObject(ctx, nRGO);
+            //MainClientUpdater.Instance.RemoveUpdatable(nRGO);
+
+        });
 
     }
 

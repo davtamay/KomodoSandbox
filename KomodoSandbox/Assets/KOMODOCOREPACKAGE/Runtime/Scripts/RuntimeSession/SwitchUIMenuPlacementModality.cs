@@ -14,6 +14,7 @@ public class SwitchUIMenuPlacementModality : MonoBehaviour
     private void OnEnable()
     {
         WebXRManager.OnXRChange += OnXRChange;
+      
         OnXRChange(WebXRManager.Instance.XRState,
                     WebXRManager.Instance.ViewsCount,
                     WebXRManager.Instance.ViewsLeftRect,
@@ -23,21 +24,30 @@ public class SwitchUIMenuPlacementModality : MonoBehaviour
     {
         WebXRManager.OnXRChange -= OnXRChange;
     }
+
+
     public void Start()
     {
         if (isStartOnHand)
         {
-            mainUI.transform.SetParent(handPlacement.parent, false);
-
-            RectTransform mainUIRectTransform = mainUI.GetComponent<RectTransform>();
-            RectTransform handPlacementTransform = handPlacement.GetComponent<RectTransform>();
-
-            mainUI.renderMode = RenderMode.WorldSpace;
-            mainUI.worldCamera = Camera.main;
-            mainUIRectTransform.anchoredPosition3D = handPlacementTransform.anchoredPosition3D;
-            mainUIRectTransform.sizeDelta = handPlacementTransform.sizeDelta;
-            mainUI.transform.localScale = handPlacement.transform.localScale;
+           SetToHand();
         }
+    }
+    public void SetToHand()
+    {
+
+        mainUI.transform.SetParent(handPlacement.parent, false);
+
+        RectTransform mainUIRectTransform = mainUI.GetComponent<RectTransform>();
+        RectTransform handPlacementTransform = handPlacement.GetComponent<RectTransform>();
+
+        mainUI.renderMode = RenderMode.WorldSpace;
+        mainUI.worldCamera = Camera.main;
+        mainUIRectTransform.anchoredPosition3D = handPlacementTransform.anchoredPosition3D;
+        mainUIRectTransform.sizeDelta = handPlacementTransform.sizeDelta;
+        mainUI.transform.localScale = handPlacement.transform.localScale;
+
+
     }
 
     private void OnXRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
@@ -49,14 +59,14 @@ public class SwitchUIMenuPlacementModality : MonoBehaviour
                 mainUI.renderMode = RenderMode.ScreenSpaceOverlay;
                 break;
             case WebXRState.VR:
-                mainUI.renderMode = RenderMode.WorldSpace;
-
+             //   mainUI.renderMode = RenderMode.WorldSpace;
+                SetToHand();
           //     mainUI.GetComponent<RectTransform>() =;
 
                 break;
             case WebXRState.AR:
-                mainUI.renderMode = RenderMode.WorldSpace;
-
+                //   mainUI.renderMode = RenderMode.WorldSpace;
+                SetToHand();
                 break;
 
 
