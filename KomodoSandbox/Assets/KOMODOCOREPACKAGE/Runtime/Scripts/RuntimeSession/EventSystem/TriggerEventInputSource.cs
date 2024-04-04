@@ -47,22 +47,22 @@ using UnityEngine.EventSystems;
             transform.parent.gameObject.SetActive(false);
         }
 
-        public void OnEnable()
-        {
-            if (EventSystemManager.IsAlive)
-            {
-                EventSystemManager.Instance.xrStandaloneInput.RegisterInputSource(this, true);
-            }
-        }
+        //public void OnEnable()
+        //{
+        //    if (EventSystemManager.IsAlive)
+        //    {
+        //        EventSystemManager.Instance.xrStandaloneInput.RegisterInputSource(this, true);
+        //    }
+        //}
 
-        // THIS IS WHERE FUNCTIONS ARE INVOKED (ON RELEASE OF TRIGGER BUTTON WHICH DEACTIVATES PARENT OBJECT
-        public void OnDisable()
-        {
-            if (EventSystemManager.IsAlive)
-            {
-                EventSystemManager.Instance.RemoveInputSourceAndSendClickAndDownEvent(this);
-            }
-        }
+        //// THIS IS WHERE FUNCTIONS ARE INVOKED (ON RELEASE OF TRIGGER BUTTON WHICH DEACTIVATES PARENT OBJECT
+        //public void OnDisable()
+        //{
+        //    if (EventSystemManager.IsAlive)
+        //    {
+        //        EventSystemManager.Instance.RemoveInputSourceAndSendClickAndDownEvent(this);
+        //    }
+        //}
 
         public void UpdateLineRenderer(Vector3 startPosition, Vector3 endPosition)
         {

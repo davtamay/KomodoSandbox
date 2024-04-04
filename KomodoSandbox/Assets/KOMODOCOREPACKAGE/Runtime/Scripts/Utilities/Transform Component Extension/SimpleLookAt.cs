@@ -16,8 +16,12 @@ namespace Komodo.Utilities
         public bool isUp = true;
 
         public string playspaceTag = "XRCamera";
+
+        public bool isLookAtMainCamera = false;
         void Start()
         {
+            if(isLookAtMainCamera)
+                lookAtTarget = Camera.main.transform;
             //thisTransform = transform;
 
             //if (lookAtTarget == null)

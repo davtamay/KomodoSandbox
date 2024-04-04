@@ -13,7 +13,9 @@ public enum MODEL_TYPE
     UNKNOWN = 0,
     URL = 1,
     Primitive = 2,
-    Drawing = 3
+    Drawing = 3,
+    Physics = 4,
+
 
 }
 public class NetworkedObjectsManager : SingletonComponent<NetworkedObjectsManager>
@@ -366,38 +368,7 @@ public class NetworkedObjectsManager : SingletonComponent<NetworkedObjectsManage
         netObject.thisEntityID = customEntityID;
 
 
-        //handle syncing state for decomposed object positions, 
-        //freezes up extnal user when calling, SendSyncPoseMessage, should just do one call only to update server stored positions
-
-
-        //if (isNetCall)
-        //{
-        //    if (modelType == MODEL_TYPE.URL)
-        //    {
-        //        Position position = new Position
-        //        {
-        //            clientId = NetworkUpdateHandler.Instance.client_id,
-
-        //            guid = netObject.thisEntityID,
-
-        //            entityType = (int)Entity_Type.objects,//entityData.current_Entity_Type,
-
-        //            rot = netObject.transform.rotation,
-
-        //            pos = netObject.transform.position,
-
-        //            //since using parenting for objects, we need to translate local to global scalling when having it in your hand, when releasing we need to return such objects scalling from global to local scale
-        //         //   scaleFactor = netObject.transform.localScale.x, //.lossyScale.x,
-        //            scaleFactor = netObject.transform.lossyScale.x,
-        //        };
-                
-        //        //just notify and store new decomposed assets in the server
-        //        new KomodoMessage("decomposedAsset",JsonUtility.ToJson(position), -2 ).Send();
-                
-        //        //  NetworkUpdateHandler.Instance.SendSyncPoseMessage(position);
-
-        //    }
-        //}
+     
 
         // Debug.Log("DRAGON BUTTON INDEX : " + modelListIndex);
         //to look a decomposed set of objects we need to keep track of what Index we are iterating over regarding or importing models to create sets

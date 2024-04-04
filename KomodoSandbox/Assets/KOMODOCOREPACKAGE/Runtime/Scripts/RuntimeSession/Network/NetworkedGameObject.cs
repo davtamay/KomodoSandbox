@@ -5,14 +5,15 @@ using Unity.Entities;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Komodo.Utilities;
+using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 //namespace Komodo.Runtime
 //{
-    /// <summary>
-    /// Used to establish gameobject as a reference to be used in networking
-    /// </summary>
-    //add interfaces to invoke eventsystem interactions (look start, look end) for our net objects
-    public class NetworkedGameObject : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+/// <summary>
+/// Used to establish gameobject as a reference to be used in networking
+/// </summary>
+//add interfaces to invoke eventsystem interactions (look start, look end) for our net objects
+public class NetworkedGameObject : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         //Register object to reference lists on clientspawnmanager to be refered to for synchronization
         [Tooltip("Entity_Data is created on Instantiate")]
@@ -40,7 +41,6 @@ using Komodo.Utilities;
 
 
 
-    public bool doInstantiation = false;
         public void SetTransformLockedStated (bool isLocked)
         {
              isTransformLocked = isLocked;
@@ -56,9 +56,10 @@ using Komodo.Utilities;
 
         //InstantiateIfNeeded();
 
-        //if (doInstantiation)
-        //    Instantiate(-1, 55);
-        }
+       // if (doInstantiation)
+
+          //  Instantiate(-1, 55);
+    }
 
         private void InstantiateIfNeeded()
         {
@@ -114,7 +115,8 @@ using Komodo.Utilities;
             
             Register(EntityID);
 
-        }
+
+    }
 
         public void Register(int uniqueEntityID)
         {

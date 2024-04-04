@@ -129,11 +129,11 @@ using UnityEngine.UI;
             }
 
             //conect our canvas with the event system manager if it is present
-            if (EventSystemManager.IsAlive)
-            {
-                EventSystemManager.Instance.canvasesToReceiveEvents.Add(mainUICanvas);
-                EventSystemManager.Instance.cursor = this.cursor;
-            }
+            //if (EventSystemManager.IsAlive)
+            //{
+            //    EventSystemManager.Instance.canvasesToReceiveEvents.Add(mainUICanvas);
+            //    EventSystemManager.Instance.cursor = this.cursor;
+            //}
         }
     }
 //}

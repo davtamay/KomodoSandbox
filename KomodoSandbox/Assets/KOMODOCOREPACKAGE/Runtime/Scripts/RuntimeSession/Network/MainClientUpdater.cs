@@ -260,7 +260,7 @@ using Komodo.Utilities;
                 SendSyncNetObject(entityContainers);
             }
 
-         //    NetworkedPhysicsManager.Instance.OnUpdate();
+             NetworkedPhysicsManager.Instance.OnUpdate();
         }
 
 

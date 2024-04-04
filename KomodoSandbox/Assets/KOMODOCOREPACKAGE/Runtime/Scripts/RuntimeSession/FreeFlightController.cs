@@ -47,12 +47,12 @@ using Komodo.Utilities;
         [SerializeField] private Camera spectatorCamera;
         //[SerializeField] private TeleportPlayer cameraOffset;
 
-        [Tooltip("Hierarchy: Spectator Camera -> TeleportationLine")]
-        [SerializeField] private GameObject teleportationIndicator;
+        //[Tooltip("Hierarchy: Spectator Camera -> TeleportationLine")]
+        //[SerializeField] private GameObject teleportationIndicator;
 
         Vector3 targetPosition; // this is the position that the floorIndicator should be;
 
-        private Transform desktopCamera;
+        public Transform desktopCamera;
 
         private Transform playspace;
 
@@ -64,10 +64,10 @@ using Komodo.Utilities;
 
 
         //to check on ui over objects to disable mouse drag while clicking buttons
-        private StandaloneDesktopInputModule standaloneInputModule_Desktop;
+        //private StandaloneDesktopInputModule standaloneInputModule_Desktop;
 
-        //used for syncing our XR player position with desktop
-        public TeleportPlayer teleportPlayer;
+        ////used for syncing our XR player position with desktop
+        //public TeleportPlayer teleportPlayer;
 
         void Awake()
         {
@@ -78,21 +78,21 @@ using Komodo.Utilities;
 #endif
             WebXRManager.OnXRCapabilitiesUpdate += onXRCapabilitiesUpdate;
 
-            desktopCamera = transform;
-            standaloneInputModule_Desktop = EventSystemManager.Instance.desktopStandaloneInput;
+          //  desktopCamera = transform;
+        //  standaloneInputModule_Desktop = EventSystemManager.Instance.desktopStandaloneInput;
         }
 
-        private void WebXRManager_OnXRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
-        {
-            if (state == WebXRState.VR)
-            {
-             //   SetToXR();
-            }
-            else if (state == WebXRState.NORMAL)
-            {
-             //   SetToDesktop();
-            }
-        }
+        //private void WebXRManager_OnXRChange(WebXRState state, int viewsCount, Rect leftRect, Rect rightRect)
+        //{
+        //    if (state == WebXRState.VR)
+        //    {
+        //     //   SetToXR();
+        //    }
+        //    else if (state == WebXRState.NORMAL)
+        //    {
+        //     //   SetToDesktop();
+        //    }
+        //}
 
         public void Start()
         {
@@ -101,35 +101,29 @@ using Komodo.Utilities;
             //isUpdating = false;
 
             //get our references for the player we are moving and its xrcamera and desktopcamera
-            TryGetPlayerReferences();
+            //TryGetPlayerReferences();
 
-            originalRotation = desktopCamera.localRotation;
+            //originalRotation = desktopCamera.localRotation;
 
-            playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
+            //playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
            // desktopCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;//transform;
 
-            originalRotation = desktopCamera.localRotation;
+        //    originalRotation = desktopCamera.localRotation;
 
             playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
+      //  desktopCamera = Camera.main.transform; 
           //  desktopCamera = GameObject.FindWithTag(TagList.desktopCamera).transform;//transform;
 
             originalRotation = desktopCamera.localRotation;
 
-            if (EventSystemManager.IsAlive)
-            {
-                //get our desktop eventsystem
-                if (!standaloneInputModule_Desktop)
-                    standaloneInputModule_Desktop = EventSystemManager.Instance.desktopStandaloneInput;
-            }
+            //if (EventSystemManager.IsAlive)
+            //{
+            //    //get our desktop eventsystem
+            //    if (!standaloneInputModule_Desktop)
+            //        standaloneInputModule_Desktop = EventSystemManager.Instance.desktopStandaloneInput;
+            //}
 
-           // yield return null;
-            //if (UIManager.IsAlive)
-            //    yield return new WaitUntil(() => UIManager.Instance.IsReady());
-           
-            
-            
-            
-          //  teleportPlayer.OnSceneLoadedAndFirstTransport += OnSceneLoadedAndFirstTransportIsDone;
+      
           
             
             
@@ -180,9 +174,9 @@ using Komodo.Utilities;
                 HyperspeedPanPlayerFromInput();   
             }
 
-            ShowTeleportationIndicator();
+            //ShowTeleportationIndicator();
 
-            MousePositionToTeleportationIndicator();
+            //MousePositionToTeleportationIndicator();
 
             SyncXRWithSpectator();
         }
@@ -199,7 +193,7 @@ using Komodo.Utilities;
 
             var result = Quaternion.Euler(new Vector3(0, curRotationY, 0));
 
-            teleportPlayer.SetXRAndSpectatorRotation(result);
+          //  teleportPlayer.SetXRAndSpectatorRotation(result);
 
             }
             else if(state == WebXRState.NORMAL)
@@ -224,35 +218,35 @@ using Komodo.Utilities;
         /// <summary>
         /// Get a reference for a playerset to move
         /// </summary>
-        public void TryGetPlayerReferences()
-        {
-            var player = GameObject.FindWithTag(TagList.player);
+        //public void TryGetPlayerReferences()
+        //{
+        //    var player = GameObject.FindWithTag(TagList.player);
 
-            if (!player)
-                Debug.Log("player not found for FreeFlightController.cs");
-            else
-            {
-               if(player.TryGetComponent(out TeleportPlayer tP))
-                {
-                    teleportPlayer = tP;
-                }
-                else
-                {
-                    Debug.Log("no TeleportPlayer script found for player in FreeFlightController.cs");
-                }
-            }
+        //    if (!player)
+        //        Debug.Log("player not found for FreeFlightController.cs");
+        //    else
+        //    {
+        //       if(player.TryGetComponent(out TeleportPlayer tP))
+        //        {
+        //            teleportPlayer = tP;
+        //        }
+        //        else
+        //        {
+        //            Debug.Log("no TeleportPlayer script found for player in FreeFlightController.cs");
+        //        }
+        //    }
 
 
-        //  playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
-        desktopCamera = Camera.main.transform;// GameObject.FindWithTag(TagList.desktopCamera).transform;//transform;
+        ////  playspace = GameObject.FindWithTag(TagList.xrCamera).transform;
+        //desktopCamera = Camera.main.transform;// GameObject.FindWithTag(TagList.desktopCamera).transform;//transform;
 
-            if(!playspace)
-                Debug.Log("no XRCamera tagged object found in FreeFlightController.cs");
+        //    //if(!playspace)
+        //    //    Debug.Log("no XRCamera tagged object found in FreeFlightController.cs");
 
-            if (!desktopCamera)
-                Debug.Log("no desktopCamera tagged object found in FreeFlightController.cs");
+        //    //if (!desktopCamera)
+        //    //    Debug.Log("no desktopCamera tagged object found in FreeFlightController.cs");
 
-        }
+        //}
 
         private void onXRCapabilitiesUpdate(WebXRDisplayCapabilities vrCapabilities)
         {
@@ -325,7 +319,7 @@ using Komodo.Utilities;
 
             var result = Quaternion.Euler(new Vector3(curRotationX, curRotationY, 0));
 
-            teleportPlayer.SetXRAndSpectatorRotation(result);
+         //   teleportPlayer.SetXRAndSpectatorRotation(result);
         }
 
         float curRotationX = 0f;
@@ -465,9 +459,28 @@ using Komodo.Utilities;
 
         public void HyperspeedPanPlayerFromInput() {
             desktopCamera.position += desktopCamera.TransformDirection(scrollSpeed * new Vector3(0, 0, Input.GetAxis("Mouse ScrollWheel") * (naturalScrollDirection ? -1 : 1)));
-        }
+            // transform.parent.position += Camera.main.transform.TransformDirection(scrollSpeed * new Vector3(0, 0, Input.GetAxis("Mouse ScrollWheel") * (naturalScrollDirection ? -1 : 1)));
 
-        public bool IsMouseInteractingWithMenu() {
+
+        //  // Get the scroll wheel input.
+        //float scrollInput = Input.GetAxis("Mouse ScrollWheel") * (naturalScrollDirection ? -1 : 1);
+
+        //// Calculate the movement direction and magnitude based on the scroll input.
+        //// This ensures we're moving along the camera's local z-axis, which is its forward direction.
+        //Vector3 moveDirection = scrollInput * scrollSpeed * Time.deltaTime * Vector3.forward;
+
+        //// Transform the direction from local space to world space relative to the camera.
+        //Vector3 worldDirection = Camera.main.transform.TransformDirection(moveDirection);
+
+        //// Apply the movement to the camera's position.
+        //Camera.main.transform.position += worldDirection;
+    }
+    //public void HyperspeedPanPlayerFromInput()
+    //{
+    //    desktopCamera.position += desktopCamera.TransformDirection(scrollSpeed * new Vector3(0, 0, Input.GetAxis("Mouse ScrollWheel") * (naturalScrollDirection ? -1 : 1)));
+    //}
+
+    public bool IsMouseInteractingWithMenu() {
 
             if (EventSystem.current != null)
             {
@@ -519,17 +532,17 @@ using Komodo.Utilities;
         /// <Summary> 
         /// Show teleportation indicator while holding right click.
         /// </Summary>
-        public void ShowTeleportationIndicator()
-        {  
-            if (Input.GetMouseButtonDown(1)) {
+        //public void ShowTeleportationIndicator()
+        //{  
+        //    if (Input.GetMouseButtonDown(1)) {
 
-                teleportationIndicator.SetActive(true);
+        //        teleportationIndicator.SetActive(true);
 
-            } else if (Input.GetMouseButtonUp(1)) {
+        //    } else if (Input.GetMouseButtonUp(1)) {
 
-                teleportationIndicator.SetActive(false);
-            }
-        }
+        //        teleportationIndicator.SetActive(false);
+        //    }
+        //}
 
         /// <Summary>
         /// This function turns mouse position in an xy coordinate into a ray.
@@ -559,58 +572,7 @@ using Komodo.Utilities;
                 }
             }
 
-            // Check if a right click is currently down or a touch is detected
-            //if (Input.GetMouseButton(1) || Input.touchCount > 0)
-            //{
-            //    // Determine if we're using a touch or the mouse
-            //    bool isTouch = Input.touchCount > 0;
-
-            //    // Get the position of the mouse or the first touch
-            //    Vector3 position = isTouch ? Input.GetTouch(0).position : Input.mousePosition;
-
-            //    // Get a ray from the position
-            //    Ray ray = spectatorCamera.ScreenPointToRay(position);
-
-            //    // Perform a raycast to see if the ray hits a collider
-            //    if (Physics.Raycast(ray, out RaycastHit hit))
-            //    {
-            //        // Set the target position to the hit point plus an offset from the touch (if using a touch)
-            //        Vector3 targetPosition = hit.point;
-            //        if (isTouch)
-            //        {
-            //            Vector3 offset = position - Camera.main.WorldToScreenPoint(hit.point);
-            //            targetPosition += offset;
-            //        }
-
-            //        // Update the floor indicator position and rotation
-            //        floorIndicator.transform.position = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
-            //        floorIndicator.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-            //    }
-            //}
-          
-            
-            
-            //// Check if a touch or right click is currently down
-            //if ( Input.GetMouseButton(1) 
-            //    ||
-            //      (Input.touchCount > 1 && Input.GetTouch(1).phase == TouchPhase.Began))
-            //{
-            //    // Get a ray from the touch or right click position
-            //    Ray ray = spectatorCamera.ScreenPointToRay(Input.mousePosition);
-
-
-            //    // Perform a raycast to see if the ray hits a collider
-            //    if (Physics.Raycast(ray, out RaycastHit hit))
-            //    {
-            //        // Set the target position to the hit point plus an offset
-            //        Vector3 targetPosition = hit.point;
-
-            //        // Update the floor indicator position and rotation
-            //        floorIndicator.transform.position = new Vector3( targetPosition.x, targetPosition.y, targetPosition.z);
-            //       // floorIndicator.transform.position = new Vector3(floorIndicator.transform.position.x, targetPosition.y, floorIndicator.transform.position.z);
-            //            floorIndicator.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-            //    }
-            //}
+        
 
         }
     }

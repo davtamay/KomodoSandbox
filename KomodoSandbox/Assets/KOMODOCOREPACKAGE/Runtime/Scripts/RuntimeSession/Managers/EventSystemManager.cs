@@ -36,25 +36,25 @@ using UnityEditor.XR.LegacyInputHelpers;
         public void Awake()
         {
                 //used to set our managers alive state to true to detect if it exist within scene
-                var initManager = Instance;
+//                var initManager = Instance;
 
-#if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
-            WebXRManager.OnXRChange += onXRChange;
-#else 
-            WebXRManagerEditorSimulator.OnXRChange += onXRChange;
-#endif
+//#if UNITY_WEBGL && !UNITY_EDITOR || TESTING_BEFORE_BUILDING
+//            WebXRManager.OnXRChange += onXRChange;
+//#else 
+//            WebXRManagerEditorSimulator.OnXRChange += onXRChange;
+//#endif
 
-            if (inputSource_LeftHand == null)
-                Debug.LogError("We are missing XR Lefthand camera to use with our eventsystem (EventSystemRayCastCameras.cs", gameObject);
+//            if (inputSource_LeftHand == null)
+//                Debug.LogError("We are missing XR Lefthand camera to use with our eventsystem (EventSystemRayCastCameras.cs", gameObject);
 
-            if (inputSource_RighttHand == null)
-                Debug.LogError("We are missing XR RightHand camera to use with our eventsystem (EventSystemRayCastCameras.cs", gameObject);
+//            if (inputSource_RighttHand == null)
+//                Debug.LogError("We are missing XR RightHand camera to use with our eventsystem (EventSystemRayCastCameras.cs", gameObject);
 
-            if (desktopStandaloneInput == null)
-                Debug.LogError("We are missing desktopEventsystem (EventSystemRayCastCameras.cs", gameObject);
+//            if (desktopStandaloneInput == null)
+//                Debug.LogError("We are missing desktopEventsystem (EventSystemRayCastCameras.cs", gameObject);
 
-            if (xrStandaloneInput == null)
-                Debug.LogError("We are missing xREventsystem (EventSystemRayCastCameras.cs", gameObject);
+//            if (xrStandaloneInput == null)
+//                Debug.LogError("We are missing xREventsystem (EventSystemRayCastCameras.cs", gameObject);
         }
 
         //public void Start()
