@@ -209,7 +209,7 @@ namespace Komodo.IMPRESS
                 throw new UnassignedReferenceException("animalRulerMesh");
             }
 
-            animalRulerMesh.material.SetTextureOffset("_MainTex", Vector2.zero);
+            animalRulerMesh.material.SetTextureOffset("_BaseMap", Vector2.zero);
 
             if (!animalRuler)
             {

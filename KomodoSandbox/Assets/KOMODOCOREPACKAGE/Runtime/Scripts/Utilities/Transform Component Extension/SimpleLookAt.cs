@@ -22,6 +22,14 @@ namespace Komodo.Utilities
         {
             if(isLookAtMainCamera)
                 lookAtTarget = Camera.main.transform;
+
+            if(lookAtTarget == null)
+            {
+                gameObject.SetActive(false);
+            }
+           
+            if (thisTransform == null)
+                thisTransform = transform;
             //thisTransform = transform;
 
             //if (lookAtTarget == null)
