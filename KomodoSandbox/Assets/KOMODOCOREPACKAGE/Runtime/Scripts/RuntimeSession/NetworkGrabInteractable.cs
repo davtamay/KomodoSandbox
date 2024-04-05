@@ -23,7 +23,7 @@ public class NetworkGrabInteractable : SingletonComponent<NetworkGrabInteractabl
         return true;
     }
 
-    public void SelectObject(SelectEnterEventArgs seet, NetworkedGameObject netObj)
+    public void SelectObject(SelectEnterEventArgs seet, NetworkedGameObject netObj = null, Group group = null)
     {
         Debug.Log($"using: {seet.interactorObject.transform.parent.name}======  selected : {seet.interactableObject.transform.name}");
 
@@ -46,8 +46,10 @@ public class NetworkGrabInteractable : SingletonComponent<NetworkGrabInteractabl
                 }
                 else
                 {
-
-                    MainClientUpdater.Instance.AddUpdatable(netObj);
+                   if(group)
+                        ImpressMainClientUpdater.Instance.AddUpdatable(group);
+                    else
+                       MainClientUpdater.Instance.AddUpdatable(netObj);
                 }
             }
         }
@@ -64,14 +66,18 @@ public class NetworkGrabInteractable : SingletonComponent<NetworkGrabInteractabl
                 }
                 else
                 {
-                    MainClientUpdater.Instance.AddUpdatable(netObj);
+                    if (group)
+                        ImpressMainClientUpdater.Instance.AddUpdatable(group);
+                    else
+                        MainClientUpdater.Instance.AddUpdatable(netObj);
+                    //MainClientUpdater.Instance.AddUpdatable(netObj);
                 }
                 //MainClientUpdater.Instance.AddUpdatable(netObj);
             }
         }
     }
 
-    public void DeselectObject(SelectExitEventArgs seet, NetworkedGameObject netObj)
+    public void DeselectObject(SelectExitEventArgs seet, NetworkedGameObject netObj = null, Group group = null)
     {
         Debug.Log($"Deselected: {seet.interactableObject.transform.name}");
 
@@ -85,6 +91,11 @@ public class NetworkGrabInteractable : SingletonComponent<NetworkGrabInteractabl
             {
                 // Only remove from updatable if it's not being held by the other hand or if it's a different object
                 UpdateUpdatableStatus(netObj, rb);
+                
+                if (group)
+                    ImpressMainClientUpdater.Instance.RemoveUpdatable(group);
+                else
+                    MainClientUpdater.Instance.RemoveUpdatable(netObj);
             }
             leftGrabbedObject = null;
         }
@@ -94,6 +105,12 @@ public class NetworkGrabInteractable : SingletonComponent<NetworkGrabInteractabl
             {
                 // Only remove from updatable if it's not being held by the other hand or if it's a different object
                 UpdateUpdatableStatus(netObj, rb);
+
+                if (group)
+                    ImpressMainClientUpdater.Instance.RemoveUpdatable(group);
+                else
+                    MainClientUpdater.Instance.RemoveUpdatable(netObj);
+
             }
             rightGrabbedObject = null;
         }
@@ -101,7 +118,7 @@ public class NetworkGrabInteractable : SingletonComponent<NetworkGrabInteractabl
 
     private void UpdateUpdatableStatus(NetworkedGameObject netObj, Rigidbody rb)
     {
-            MainClientUpdater.Instance.RemoveUpdatable(netObj);
+           // MainClientUpdater.Instance.RemoveUpdatable(netObj);
 
         if (ShouldTrackPhysics(rb))
         {

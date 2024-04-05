@@ -245,11 +245,12 @@ public struct GroupProperties
     UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable currentGroupInteractable;
 
     public LineRenderingScaleToWidthAdjustment lineRenderingScaleToWidthAdjustment;
-    public void SetupXRToolkitGrabbable(Group nRGO)
+    public NetworkGrabInteractable networkGrabInteractableAdjustment;
+    public void SetupXRToolkitGrabbable(Group group)
     {
 
-        nRGO.gameObject.AddComponent<Rigidbody>().isKinematic = true;
-        var GENGrab = nRGO.gameObject.AddComponent<XRGeneralGrabTransformer>();
+        group.gameObject.AddComponent<Rigidbody>().isKinematic = true;
+        var GENGrab = group.gameObject.AddComponent<XRGeneralGrabTransformer>();
         GENGrab.constrainedAxisDisplacementMode = XRGeneralGrabTransformer.ConstrainedAxisDisplacementMode.ObjectRelativeWithLockedWorldUp;
         GENGrab.allowTwoHandedRotation = XRGeneralGrabTransformer.TwoHandedRotationMode.FirstHandDirectedTowardsSecondHand;
         GENGrab.allowOneHandedScaling = true;
@@ -258,16 +259,27 @@ public struct GroupProperties
         GENGrab.maximumScaleRatio = 10;
         GENGrab.scaleMultiplier = 1;
 
-        currentGroupInteractable = nRGO.gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+        currentGroupInteractable = group.gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
         currentGroupInteractable.selectMode = UnityEngine.XR.Interaction.Toolkit.Interactables.InteractableSelectMode.Multiple;
         currentGroupInteractable.useDynamicAttach = true;
         //var Interactable = nRGO.gameObject.AddComponent<XRGrabInteractable>();
         //Interactable.selectMode = InteractableSelectMode.Multiple;
         //Interactable.useDynamicAttach = true;
 
-        currentGroupInteractable.selectEntered.AddListener((ctx) => { lineRenderingScaleToWidthAdjustment.SelectObject(ctx); });
+        currentGroupInteractable.selectEntered.AddListener((ctx) => { 
+            
+            lineRenderingScaleToWidthAdjustment.SelectObject(ctx);
+            networkGrabInteractableAdjustment.SelectObject(ctx, null, group);
 
-        currentGroupInteractable.selectExited.AddListener((ctx) => { lineRenderingScaleToWidthAdjustment.DeselectObject(ctx); });
+
+        });
+
+        currentGroupInteractable.selectExited.AddListener((ctx) => { 
+         
+            lineRenderingScaleToWidthAdjustment.DeselectObject(ctx);
+            networkGrabInteractableAdjustment.DeselectObject(ctx, null, group);
+
+        });
 
     }
 

@@ -503,6 +503,7 @@ public class CreatePrimitiveManager : SingletonComponent<CreatePrimitiveManager>
             return primitive;
         }
 
+
     public void SetupXRToolkitGrabbable(NetworkedGameObject nRGO)
     {
 
@@ -617,13 +618,18 @@ public class CreatePrimitiveManager : SingletonComponent<CreatePrimitiveManager>
                         break;
                 }
 
+        //cant use create primitive function from above?
             var primitive = GameObject.CreatePrimitive(primitiveToInstantiate);
 
-            NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive, customEntityID: newData.guid, modelType: MODEL_TYPE.Primitive);
+            primitive.GetComponent<MeshRenderer>().sharedMaterial = materialToUse;
 
-           // entityManager.AddComponentData(nAGO.entity, new PrimitiveTag { });
 
-            primitive.tag = "Interactable";
+        NetworkedGameObject nAGO = NetworkedObjectsManager.Instance.CreateNetworkedGameObject(primitive, customEntityID: newData.guid, modelType: MODEL_TYPE.Primitive);
+
+        SetupXRToolkitGrabbable(nAGO);
+        // entityManager.AddComponentData(nAGO.entity, new PrimitiveTag { });
+
+        primitive.tag = "Interactable";
 
             var pos = newData.pos;
 
